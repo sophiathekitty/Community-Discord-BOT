@@ -12,6 +12,7 @@ namespace CommunityBot.Modules
         [Command("Hello")]
         public async Task SayHello()
         {
+            // Just respond to the Hello message.
             await Context.Channel.SendMessageAsync("Hi!");
         }
     }
