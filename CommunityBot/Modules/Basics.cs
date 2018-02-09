@@ -12,6 +12,9 @@ namespace CommunityBot.Modules
         [Command("Hello")]
         public async Task SayHello()
         {
+            /*
+                ===== Greet the user =====
+            */
             await Context.Channel.SendMessageAsync("Hi!");
         }
     }
