@@ -137,6 +137,7 @@
     <Compile Include="Configuration\DataStorage.cs" />
     <Compile Include="Entities\BotConfig.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="Modules\Basics.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
