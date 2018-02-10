@@ -21,6 +21,30 @@ namespace CommunityBot.Modules
             await user.KickAsync();
         }
 
+        [Command("nickname")]
+        [Remarks("Set A User's Nickname")]
+        [RequireUserPermission(Discord.GuildPermission.ManageNicknames)]
+        public async Task Nickname(SocketGuildUser username, [Remainder]string name)
+        {
+            await Context.Guild.GetUser(username.Id).ModifyAsync(x => x.Nickname = name);
+        }
+
+        [Command("createtext")]
+        [Remarks("Make A Text Channel")]
+        [RequireUserPermission(GuildPermission.ManageChannels)]
+        public async Task Text(string channelname)
+        {
+            await Context.Guild.CreateTextChannelAsync(channelname);
+        }
+
+        [Command("createvoice")]
+        [Remarks("Make A Voice Channel")]
+        [RequireUserPermission(GuildPermission.ManageChannels)]
+        public async Task Voice([Remainder]string channelname)
+        {
+            await Context.Guild.CreateVoiceChannelAsync(channelname);
+        }
+
         [Command("announce")]
         [Remarks("Make A Announcement")]
         [RequireUserPermission(GuildPermission.Administrator)]
