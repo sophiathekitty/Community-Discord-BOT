@@ -10,7 +10,12 @@ namespace CommunityBot.Modules
 {
     public class Misc : ModuleBase<SocketCommandContext>
     {
-        CommandHandler handler = new CommandHandler();
+        private CommandService _service;
+        
+        public Misc(CommandService service)
+        {
+            _service = service;
+        }
 
         [Command("help")]
         public async Task Help()
@@ -28,7 +33,7 @@ namespace CommunityBot.Modules
 
             };
 
-            foreach (var module in handler._service.Modules)
+            foreach (var module in _service.Modules)
             {
                 string description = null;
                 foreach (var cmd in module.Commands)
@@ -56,7 +61,7 @@ namespace CommunityBot.Modules
         public async Task HelpAsync(string command)
         {
             var dmChannel = await Context.User.GetOrCreateDMChannelAsync();
-            var result = handler._service.Search(Context, command);
+            var result = _service.Search(Context, command);
 
             if (!result.IsSuccess)
             {

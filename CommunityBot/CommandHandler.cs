@@ -10,7 +10,7 @@ namespace CommunityBot
     internal class CommandHandler
     {
         private DiscordSocketClient _client;
-        public CommandService _service;
+        private CommandService _service;
 
         public async Task InitializeAsync(DiscordSocketClient client)
         {
