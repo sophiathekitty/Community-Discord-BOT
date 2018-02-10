@@ -26,7 +26,6 @@ namespace CommunityBot.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task Announce([Remainder]string announcement)
         {
-            Random random = new Random();
 
             EmbedBuilder embed = new EmbedBuilder();
             embed.WithTitle("Announcement By " + Context.Message.Author.ToString());
@@ -43,10 +42,6 @@ namespace CommunityBot.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task Echo([Remainder] string message)
         {
-
-            Random random = new Random();
-
-
 
             EmbedBuilder embed = new EmbedBuilder();
             embed.WithTitle("Message by: " + Context.Message.Author.Username);
