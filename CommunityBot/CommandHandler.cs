@@ -1,4 +1,5 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 using System;
 using System.Reflection;
@@ -17,6 +18,13 @@ namespace CommunityBot
             _service = new CommandService();
             await _service.AddModulesAsync(Assembly.GetEntryAssembly());
             _client.MessageReceived += HandleCommandAsync;
+            _client.UserJoined += _client_UserJoined;
+        }
+
+        private async Task _client_UserJoined(SocketGuildUser user)
+        {
+            var dmChannel = await user.GetOrCreateDMChannelAsync();
+            await dmChannel.SendMessageAsync($"{user.Mention}, Welcome to **{user.Guild.Name}**. try using ``@Community-Bot#8321 help`` for all the commands!");
         }
 
         private async Task HandleCommandAsync(SocketMessage s)
