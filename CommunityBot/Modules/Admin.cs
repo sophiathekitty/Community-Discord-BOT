@@ -21,6 +21,14 @@ namespace CommunityBot.Modules
             await user.KickAsync();
         }
 
+        [Command("nickname")]
+        [Remarks("Set A User's Nickname")]
+        [RequireUserPermission(Discord.GuildPermission.ManageNicknames)]
+        public async Task Nickname(SocketGuildUser username, [Remainder]string name)
+        {
+            await Context.Guild.GetUser(username.Id).ModifyAsync(x => x.Nickname = name);
+        }
+
         [Command("announce")]
         [Remarks("Make A Announcement")]
         [RequireUserPermission(GuildPermission.Administrator)]
