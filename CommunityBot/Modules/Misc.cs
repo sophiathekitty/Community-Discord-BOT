@@ -10,7 +10,12 @@ namespace CommunityBot.Modules
 {
     public class Misc : ModuleBase<SocketCommandContext>
     {
-        CommandService _service = new CommandService();
+        private CommandService _service;
+        
+        public Misc(CommandService service)
+        {
+            _service = service;
+        }
 
         [Command("help")]
         public async Task Help()
