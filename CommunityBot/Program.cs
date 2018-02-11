@@ -28,6 +28,7 @@ namespace CommunityBot
             _client.Log += Logger.Log;
             // Subscribe to other events here.
 
+            _client.Ready += Timers.StartTimer;
             await InitializeCommandHandler();
             await AttemptLogin();
             await _client.StartAsync();
