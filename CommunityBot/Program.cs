@@ -50,6 +50,7 @@ namespace CommunityBot
             {
                 Console.WriteLine("The BOT Token is most likely incorrect.");
                 Console.ReadKey();
+                Environment.Exit(0);
             }
         }
     }
