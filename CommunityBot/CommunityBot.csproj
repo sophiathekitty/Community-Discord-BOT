@@ -138,6 +138,7 @@
     <Compile Include="Entities\BotConfig.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Modules\Basics.cs" />
+    <Compile Include="Modules\Voice.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Timers.cs" />
