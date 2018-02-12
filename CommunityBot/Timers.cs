@@ -12,14 +12,15 @@ namespace CommunityBot
 {
     internal static class Timers
     {
-        static DiscordSocketClient _client;
+        private static DiscordSocketClient _client;
         private static Timer loopingtimer;
 
         internal static Task StartTimer()
         {
+            var twoHoursInMiliSeconds = 720000;
             loopingtimer = new Timer()
             {
-                Interval = 7200000,
+                Interval = twoHoursInMiliSeconds,
                 AutoReset = true,
                 Enabled = true
             };
