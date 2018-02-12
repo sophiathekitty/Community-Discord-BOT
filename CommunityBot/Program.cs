@@ -26,6 +26,7 @@ namespace CommunityBot
 
             _client = new DiscordSocketClient(discordSocketConfig);
             _client.Log += Logger.Log;
+            _client.Ready += Timers.StartTimer;
             // Subscribe to other events here.
 
             await InitializeCommandHandler();
