@@ -18,12 +18,20 @@ namespace CommunityBot
             await _service.AddModulesAsync(Assembly.GetEntryAssembly());
             _client.MessageReceived += HandleCommandAsync;
             _client.UserJoined += _client_UserJoined;
+            _client.UserLeft += _client_UserLeft;
         }
 
         private async Task _client_UserJoined(SocketGuildUser user)
         {
             var dmChannel = await user.GetOrCreateDMChannelAsync();
             await dmChannel.SendMessageAsync($"{user.Mention}, Welcome to **{user.Guild.Name}**. try using ``@Community-Bot#8321 help`` for all the commands!");
+        }
+
+        private async Task _client_UserLeft(SocketGuildUser user)
+        {
+
+            var joinandleavechannel = _client.GetChannel(377879473644765185) as SocketTextChannel;
+            await joinandleavechannel.SendMessageAsync($"{user.Username} ({user.Id}) left **{user.Guild.Name}**!");
         }
 
         private async Task HandleCommandAsync(SocketMessage s)
