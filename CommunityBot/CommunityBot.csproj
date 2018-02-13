@@ -132,19 +132,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandHandler.cs" />
+    <Compile Include="Handlers\CommandHandler.cs" />
     <Compile Include="Configuration\BotSettings.cs" />
     <Compile Include="Configuration\DataStorage.cs" />
     <Compile Include="Entities\BotConfig.cs" />
     <Compile Include="Entities\GlobalUserAccount.cs" />
     <Compile Include="Features\GlobalAccounts\GlobalUserAccounts.cs" />
+    <Compile Include="Handlers\EmbedHandler.cs" />
+    <Compile Include="Helpers\Enums.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Modules\Admin.cs" />
     <Compile Include="Modules\Basics.cs" />
     <Compile Include="Modules\Misc.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Timers.cs" />
+    <Compile Include="Helpers\Timers.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
