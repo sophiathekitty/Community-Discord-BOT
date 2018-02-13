@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using CommunityBot.Configuration;
+using CommunityBot.Handlers;
+using CommunityBot.Helpers;
 
 namespace CommunityBot
 {
