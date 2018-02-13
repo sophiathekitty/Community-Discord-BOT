@@ -139,7 +139,6 @@
     <Compile Include="Entities\GlobalUserAccount.cs" />
     <Compile Include="Features\GlobalAccounts\GlobalUserAccounts.cs" />
     <Compile Include="Handlers\EmbedHandler.cs" />
-    <Compile Include="Helpers\Enums.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Modules\Admin.cs" />
     <Compile Include="Modules\Basics.cs" />

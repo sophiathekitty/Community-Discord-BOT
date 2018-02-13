@@ -44,5 +44,13 @@ namespace CommunityBot.Handlers
 
             return embed;
         }
+
+        public enum EmbedMessageType
+        {
+            Success = 0,
+            Info = 10,
+            Error = 20,
+            Exception = 30
+        }
     }
 }
