@@ -23,22 +23,10 @@ namespace CommunityBot
 
         private async Task _client_UserJoined(SocketGuildUser user)
         {
-            if (user.Guild.Name == "Discord-BOT-Tutorial")
-            {
-                var dmChannel = await user.GetOrCreateDMChannelAsync();
-                await dmChannel.SendMessageAsync($"{user.Mention}, Welcome to **{user.Guild.Name}**. try using ``@Community-Bot#8321 help`` for all the commands!");
-            }
+            var dmChannel = await user.GetOrCreateDMChannelAsync();
+            await dmChannel.SendMessageAsync($"{user.Mention}, Welcome to **{user.Guild.Name}**. try using ``@Community-Bot#8321 help`` for all the commands!");
         }
-
-        private async Task _client_UserLeft(SocketGuildUser user)
-        {
-            if (user.Guild.Name == "Discord-BOT-Tutorial")
-            {
-                var DiscordBotTutorial_General = _client.GetChannel(377879473644765185) as SocketTextChannel;
-                await DiscordBotTutorial_General.SendMessageAsync($"{user.Username} ({user.Id}) left **{user.Guild.Name}**!");
-            }
-        }
-
+        
         private async Task HandleCommandAsync(SocketMessage s)
         {
             var msg = s as SocketUserMessage;
@@ -62,6 +50,15 @@ namespace CommunityBot
                     string errMessage = String.Format(errTemplate, context.User.Mention, result.ErrorReason);
                     await context.Channel.SendMessageAsync(errMessage);
                 }
+            }
+        }
+
+        private async Task _client_UserLeft(SocketGuildUser user)
+        {
+            if (user.Guild.Name == "Discord-BOT-Tutorial")
+            {
+                var DiscordBotTutorial_General = _client.GetChannel(377879473644765185) as SocketTextChannel;
+                await DiscordBotTutorial_General.SendMessageAsync($"{user.Username} ({user.Id}) left **{user.Guild.Name}**!");
             }
         }
     }
