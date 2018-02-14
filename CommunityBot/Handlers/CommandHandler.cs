@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Threading.Tasks;
+using CommunityBot.Configuration;
 using Discord.Commands;
 using Discord.WebSocket;
 
@@ -36,7 +37,7 @@ namespace CommunityBot.Handlers
             if (context.User.IsBot) return;
             
             int argPos = 0;
-            if (msg.HasMentionPrefix(_client.CurrentUser, ref argPos))
+            if (msg.HasMentionPrefix(_client.CurrentUser, ref argPos) || msg.HasStringPrefix(BotSettings.config.Prefix, ref argPos))
             {
                 var cmdSearchResult = _service.Search(context, argPos);
                 if (cmdSearchResult.Commands.Count == 0) return;

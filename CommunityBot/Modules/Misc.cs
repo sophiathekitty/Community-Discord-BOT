@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CommunityBot.Handlers;
 
 namespace CommunityBot.Modules
 {
@@ -30,7 +31,6 @@ namespace CommunityBot.Modules
                 Title = "Help",
                 Description = "These are the commands you can use",
                 Color = new Color(114, 137, 218)
-
             };
 
             foreach (var module in _service.Modules)
