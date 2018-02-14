@@ -206,7 +206,8 @@ namespace CommunityBot.Modules
             }
             catch (Exception)
             {
-                //
+                var embed = EmbedHandler.CreateEmbed("Avatar", "Coult not set the avatar!", EmbedHandler.EmbedMessageType.Exception, false);
+                await Context.Channel.SendMessageAsync("", false, embed);
             }
         }
     }
