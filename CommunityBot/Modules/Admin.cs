@@ -215,7 +215,7 @@ namespace CommunityBot.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task Prefix(string prefix)
         {
-            var editSettingsResult = BotSettings.EditSettings(prefix);
+            var editSettingsResult = BotSettings.SetCommandPrefix(prefix);
 
             if (editSettingsResult.Success)
             {

@@ -6,22 +6,22 @@ using System.Threading.Tasks;
 
 namespace CommunityBot.Helpers
 {
-    public class Result
+    public class ActionResult
     {
         public bool Success { get; private set; }
         public List<Alert> Alerts { get; }
 
-        public Result()
+        public ActionResult()
         {
             Success = true;
             Alerts = new List<Alert>();
         }
 
         /// <summary>
-        /// Fügt alle Alerts eines Results in das aktuelle Result ein und übernimmt den Status des Success
+        /// Merge the alerts of a Actionresult into a ActionResult and adds the Alerts and sets the Success
         /// </summary>
         /// <param name="r"></param>
-        public void Merge(Result r)
+        public void Merge(ActionResult r)
         {
             if (r != null)
             {
@@ -37,7 +37,7 @@ namespace CommunityBot.Helpers
         }
 
         /// <summary>
-        /// Fügt einen Alert in die AlertListe ein
+        /// Adds a Alert into the Alers list
         /// </summary>
         /// <param name="alert"></param>
         public void AddAlert(Alert alert)
@@ -59,7 +59,7 @@ namespace CommunityBot.Helpers
         }
     }
 
-    public class Result<T> : Result
+    public class ActionResult<T> : ActionResult
     {
         public T Value { get; set; }
     }

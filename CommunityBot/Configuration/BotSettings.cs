@@ -33,9 +33,9 @@ namespace CommunityBot.Configuration
             }
         }
 
-        public static Result EditSettings(string prefix)
+        public static ActionResult SetCommandPrefix(string prefix)
         {
-            var result = new Result();
+            var result = new ActionResult();
             
             config.Prefix = prefix;
 
@@ -46,9 +46,9 @@ namespace CommunityBot.Configuration
             return result;
         }
 
-        private static Result SaveSettings()
+        private static ActionResult SaveSettings()
         {
-            var result = new Result();
+            var result = new ActionResult();
             
             try
             {
