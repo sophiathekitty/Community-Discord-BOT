@@ -8,6 +8,8 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.IO;
+using CommunityBot.Handlers;
 
 namespace CommunityBot.Modules
 {
@@ -127,11 +129,7 @@ namespace CommunityBot.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task Announce([Remainder]string announcement)
         {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.WithTitle("Announcement By " + Context.Message.Author.ToString());
-            embed.WithDescription(announcement);
-            embed.WithColor(0, 125, 255);
-            embed.WithCurrentTimestamp();
+            var embed = EmbedHandler.CreateEmbed("Announcement By " + Context.Message.Author, announcement, EmbedHandler.EmbedMessageType.Info, true);
 
             await Context.Channel.SendMessageAsync("", false, embed);
             await Context.Message.DeleteAsync();
@@ -142,12 +140,7 @@ namespace CommunityBot.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task Echo([Remainder] string message)
         {
-
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.WithTitle("Message by: " + Context.Message.Author.Username);
-            embed.WithDescription(message);
-            embed.WithColor(0, 125, 255);
-            embed.WithCurrentTimestamp();
+            var embed = EmbedHandler.CreateEmbed("Message by: " + Context.Message.Author.Username, message, EmbedHandler.EmbedMessageType.Info, true);
 
             await Context.Channel.SendMessageAsync("", false, embed);
             await Context.Message.DeleteAsync();
@@ -192,6 +185,29 @@ namespace CommunityBot.Modules
             }
 
             return muteRole;
+        }
+
+        [Command("setAvatar")]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        public async Task SetAvatar(string link)
+        {
+            var s = Context.Message.DeleteAsync();
+
+            try
+            {
+                var webClient = new WebClient();
+                byte[] imageBytes = webClient.DownloadData(link);
+
+                var stream = new MemoryStream(imageBytes);
+
+                var image = new Image(stream);
+                await Context.Client.CurrentUser.ModifyAsync(k => k.Avatar = image);
+            }
+            catch (Exception)
+            {
+                var embed = EmbedHandler.CreateEmbed("Avatar", "Coult not set the avatar!", EmbedHandler.EmbedMessageType.Exception, false);
+                await Context.Channel.SendMessageAsync("", false, embed);
+            }
         }
     }
 }

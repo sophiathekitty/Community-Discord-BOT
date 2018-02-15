@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Threading.Tasks;
+using CommunityBot.Configuration;
 using Discord.Commands;
 using Discord.WebSocket;
 
