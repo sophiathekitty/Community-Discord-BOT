@@ -30,7 +30,7 @@ namespace CommunityBot.Features.GlobalAccounts
 
         internal static GlobalUserAccount GetUserAccount(ulong id)
         {
-            var foundAccount = accounts.Where(a => a.ID == id).FirstOrDefault();
+            var foundAccount = accounts.FirstOrDefault(a => a.ID == id);
 
             if(foundAccount == null)
             {
