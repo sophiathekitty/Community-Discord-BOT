@@ -16,9 +16,9 @@ namespace CommunityBot.Handlers
         /// <param name="title">Title of the embed</param>
         /// <param name="body">Embed content</param>
         /// <param name="type">Type of the Embed (Error, Info, Exception, Success) -> Sets the color</param>
-        /// <param name="timeStamp">Adds the current Timestamp to the embed</param>
+        /// <param name="withTimeStamp">Adds the current Timestamp to the embed</param>
         /// <returns></returns>
-        public static Embed CreateEmbed(string title, string body, EmbedMessageType type, bool timeStamp)
+        public static Embed CreateEmbed(string title, string body, EmbedMessageType type, bool withTimeStamp = false)
         {
             var embed = new EmbedBuilder();
             embed.WithTitle(title);
@@ -43,7 +43,7 @@ namespace CommunityBot.Handlers
                     break;
             }
 
-            if (timeStamp)
+            if (withTimeStamp)
             {
                 embed.WithCurrentTimestamp();
             }

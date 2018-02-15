@@ -195,7 +195,6 @@ namespace CommunityBot.Modules
 
             try
             {
-
                 var webClient = new WebClient();
                 byte[] imageBytes = webClient.DownloadData(link);
 
