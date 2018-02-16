@@ -142,7 +142,10 @@
     <Compile Include="Logger.cs" />
     <Compile Include="Modules\Admin.cs" />
     <Compile Include="Modules\Basics.cs" />
+
+    <Compile Include="Modules\Voice.cs" />
     <Compile Include="Modules\Misc.cs" />
+
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helpers\Timers.cs" />
