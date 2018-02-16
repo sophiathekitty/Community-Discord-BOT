@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CommunityBot.Helpers;
+using Newtonsoft.Json;
 
 namespace CommunityBot.Configuration
 {
@@ -29,6 +31,35 @@ namespace CommunityBot.Configuration
                 };
                 DataStorage.StoreObject(config, configFile, useIndentations: true);
             }
+        }
+
+        public static ActionResult SetCommandPrefix(string prefix)
+        {
+            var result = new ActionResult();
+            
+            config.Prefix = prefix;
+
+            var saveSettingsResult = SaveSettings();
+
+            result.Merge(saveSettingsResult);
+
+            return result;
+        }
+
+        private static ActionResult SaveSettings()
+        {
+            var result = new ActionResult();
+            
+            try
+            {
+                DataStorage.StoreObject(config, configFile, useIndentations: true);
+            }
+            catch (Exception e)
+            {
+                result.AddAlert(new Alert("Settings error", "Could not save the Settings", LevelEnum.Exception));
+            }
+
+            return result;
         }
     }
 }
