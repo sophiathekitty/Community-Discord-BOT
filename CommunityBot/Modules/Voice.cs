@@ -8,6 +8,7 @@ using Discord.Webhook;
 using Discord.WebSocket;
 using System.Text;
 using System.Threading.Tasks;
+using CommunityBot.Preconditions;
 
 namespace CommunityBot.Modules
 {
@@ -15,6 +16,7 @@ namespace CommunityBot.Modules
     {
         [Command("Voice", RunMode = RunMode.Async)]
         [RequireBotPermission(GuildPermission.ManageChannels)]
+        [Cooldown(10, true)]
         public async Task CreateTemporaryVoiceChannel(int lifetimeInMinutes = 0)
         {
             lifetimeInMinutes = lifetimeInMinutes * 60000;

@@ -11,7 +11,7 @@ namespace CommunityBot.Modules
     public class Basics : ModuleBase<SocketCommandContext>
     {
         [Command("Hello")]
-        [Cooldown(50)]
+        [Cooldown(5)]
         public async Task SayHello()
         {
             // ===== Greet the user =====
