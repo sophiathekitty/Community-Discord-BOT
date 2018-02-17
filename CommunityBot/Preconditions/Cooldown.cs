@@ -9,25 +9,24 @@ namespace CommunityBot.Preconditions
     public class Cooldown : PreconditionAttribute
     {
         TimeSpan CooldownLength { get; set; }
-        bool LimitForAdmins { get; set; }
+        bool AdminsAreLimited { get; set; }
         readonly ConcurrentDictionary<CooldownInfo, DateTime> _cooldowns = new ConcurrentDictionary<CooldownInfo, DateTime>();
 
         /// <summary>
         /// Sets the cooldown for a user to use this command
         /// </summary>
         /// <param name="seconds">Sets the cooldown in seconds.</param>
-        /// <param name="limitForAdmins">Set whether admins should have cooldowns between commands use.</param>
-        public Cooldown(int seconds, bool limitForAdmins = false)
+        /// <param name="adminsAreLimited">Set whether admins should have cooldowns between commands use.</param>
+        public Cooldown(int seconds, bool adminsAreLimited = false)
         {
             CooldownLength = TimeSpan.FromSeconds(seconds);
-            LimitForAdmins = limitForAdmins;
+            AdminsAreLimited = adminsAreLimited;
         }
 
         public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command, IServiceProvider services)
         {
-            // Check if the user if administrator and if it needs to apply cooldown for him.
-            var user = context.User is IGuildUser ? (IGuildUser)context.User : null;
-            if (!LimitForAdmins && user.GuildPermissions.Administrator && user != null)
+            // Check if the user is administrator and if it needs to apply cooldown for him.
+            if (!AdminsAreLimited && context.User is IGuildUser user && user.GuildPermissions.Administrator)
                 return Task.FromResult(PreconditionResult.FromSuccess());
 
             var key = new CooldownInfo(context.User.Id, command.GetHashCode());
