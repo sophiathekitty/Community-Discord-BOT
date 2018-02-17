@@ -1,4 +1,5 @@
-﻿using Discord.Commands;
+﻿using CommunityBot.Preconditions;
+using Discord.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace CommunityBot.Modules
     public class Basics : ModuleBase<SocketCommandContext>
     {
         [Command("Hello")]
+        [Cooldown(5)]
         public async Task SayHello()
         {
             // ===== Greet the user =====

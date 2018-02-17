@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using CommunityBot.Configuration;
 using CommunityBot.Handlers;
+using CommunityBot.Preconditions;
 
 namespace CommunityBot.Modules
 {
@@ -41,7 +42,7 @@ namespace CommunityBot.Modules
         [Command("kick")]
         [Remarks("Kick A User")]
         [RequireUserPermission(GuildPermission.KickMembers)]
-        public async Task Kick(SocketGuildUser user)
+        public async Task Kick([NoSelf] SocketGuildUser user)
         {
             await user.KickAsync();
         }
@@ -61,7 +62,7 @@ namespace CommunityBot.Modules
         [Command("unmute")]
         [Remarks("Unmutes A User")]
         [RequireUserPermission(GuildPermission.MuteMembers)]
-        public async Task Unmute(SocketGuildUser user)
+        public async Task Unmute([NoSelf] SocketGuildUser user)
         {
             await Context.Guild.GetUser(user.Id).ModifyAsync(x => x.Mute = false).ConfigureAwait(false);
 
@@ -72,7 +73,7 @@ namespace CommunityBot.Modules
         [Command("ban")]
         [Remarks("Ban A User")]
         [RequireUserPermission(GuildPermission.BanMembers)]
-        public async Task Ban(SocketGuildUser user)
+        public async Task Ban([NoSelf] SocketGuildUser user)
         {
             await Context.Guild.AddBanAsync(user);
         }
