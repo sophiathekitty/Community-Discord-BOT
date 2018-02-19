@@ -93,7 +93,7 @@ namespace CommunityBot.Modules
             await Context.Channel.SendMessageAsync("", false, builder.Build());
         }
 
-        [Command("add")]
+        [Command("Addition")]
         [Summary("Adds 2 numbers together.")]
         public async Task AddAsync(int num1, int num2)
         {
