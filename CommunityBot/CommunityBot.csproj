@@ -132,6 +132,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Global.cs" />
     <Compile Include="Handlers\CommandHandler.cs" />
     <Compile Include="Configuration\BotSettings.cs" />
     <Compile Include="Configuration\DataStorage.cs" />

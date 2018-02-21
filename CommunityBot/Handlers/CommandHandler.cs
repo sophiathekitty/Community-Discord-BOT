@@ -20,6 +20,7 @@ namespace CommunityBot.Handlers
             _client.MessageReceived += HandleCommandAsync;
             _client.UserJoined += _client_UserJoined;
             _client.UserLeft += _client_UserLeft;
+            Global.Client = client;
         }
 
         private async Task _client_UserJoined(SocketGuildUser user)
