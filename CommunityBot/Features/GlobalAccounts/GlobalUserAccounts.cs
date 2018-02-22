@@ -30,12 +30,16 @@ namespace CommunityBot.Features.GlobalAccounts
 
         internal static GlobalUserAccount GetUserAccount(ulong id)
         {
-            var foundAccount = accounts.FirstOrDefault(a => a.ID == id);
+            var foundAccount = accounts.FirstOrDefault(a => a.Id == id);
 
             if(foundAccount == null)
             {
-                foundAccount = new GlobalUserAccount();
+                foundAccount = new GlobalUserAccount
+                {
+                    Id = id
+                };
                 accounts.Add(foundAccount);
+                SaveAccounts();
             }
 
             return foundAccount;
@@ -44,6 +48,11 @@ namespace CommunityBot.Features.GlobalAccounts
         internal static GlobalUserAccount GetUserAccount(IUser user)
         {
             return GetUserAccount(user.Id);
+        }
+
+        internal static void SaveAccounts()
+        {
+            DataStorage.StoreObject(accounts, saveFile, useIndentations: false);
         }
     }
 }
