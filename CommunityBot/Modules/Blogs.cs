@@ -19,6 +19,8 @@ namespace CommunityBot.Modules
         [Command("Create")]
         public async Task Create(string name)
         {
+            await Context.Message.DeleteAsync();
+
             var blogs = DataStorage.RestoreObject<List<BlogItem>>(blogFile) ?? new List<BlogItem>();
 
             if (blogs.FirstOrDefault(k=>k.Name == name) == null)
@@ -48,6 +50,8 @@ namespace CommunityBot.Modules
         [Command("Post")]
         public async Task Post(string name, [Remainder]string post)
         {
+            await Context.Message.DeleteAsync();
+
             var blogs = DataStorage.RestoreObject<List<BlogItem>>(blogFile);
 
             var blog = blogs.FirstOrDefault(k => k.Name == name && k.Author == Context.User.Id);
@@ -58,7 +62,7 @@ namespace CommunityBot.Modules
                 foreach (var subId in blog.Subscribers)
                 {
                     var sub = Context.Guild.GetUser(subId);
-
+                    
                     subs += $"{sub.Mention},";
                 }
 
@@ -69,19 +73,34 @@ namespace CommunityBot.Modules
 
                 var embed = EmbedHandler.CreateBlogEmbed(blog.Name, post, subs, EmbedHandler.EmbedMessageType.Info, true);
                 var msg = Context.Channel.SendMessageAsync("", false, embed);
+                
+                if (Global.MessagesIdToTrack == null)
+                {
+                    Global.MessagesIdToTrack = new Dictionary<ulong, string>();
+                }
+
+                Global.MessagesIdToTrack.Add(msg.Result.Id, blog.Name);
 
                 await msg.Result.AddReactionAsync(new Emoji("➕"));
-
-                var list = Global.MessagesIdToTrack ?? new Dictionary<ulong, string>();
-
-                list.Add(msg.Result.Id, blog.Name);
             }
         }
 
         [Command("Subscribe")]
         public async Task Subscribe(string name)
         {
+            await Context.Message.DeleteAsync();
+
             var embed = BlogHandler.SubscribeToBlog(Context.User.Id, name);
+
+            await Context.Channel.SendMessageAsync("", false, embed);
+        }
+
+        [Command("Unsubscribe")]
+        public async Task UnSubscribe(string name)
+        {
+            await Context.Message.DeleteAsync();
+
+            var embed = BlogHandler.UnSubscribeToBlog(Context.User.Id, name);
 
             await Context.Channel.SendMessageAsync("", false, embed);
         }

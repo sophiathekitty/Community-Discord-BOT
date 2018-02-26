@@ -54,7 +54,7 @@ namespace CommunityBot.Handlers
         public static Embed CreateBlogEmbed(string title, string body, string subscribers, EmbedMessageType type, bool withTimeStamp = false)
         {
             var embed = new EmbedBuilder();
-            embed.WithTitle(title);
+            embed.WithTitle($"Blog: {title}");
             embed.WithDescription(body);
             embed.AddField("Subscribers", subscribers);
 

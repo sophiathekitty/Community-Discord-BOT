@@ -40,13 +40,16 @@ namespace CommunityBot
 
         private Task OnReactionAdded(Cacheable<IUserMessage, ulong> cache, ISocketMessageChannel channel, SocketReaction reaction)
         {
-            var msgList = Global.MessagesIdToTrack;
-            if (msgList.ContainsKey(reaction.MessageId))
+            if (!reaction.User.Value.IsBot)
             {
-                if (reaction.Emote.Name == "➕")
+                var msgList = Global.MessagesIdToTrack ?? new Dictionary<ulong, string>();
+                if (msgList.ContainsKey(reaction.MessageId))
                 {
-                    var item = msgList.FirstOrDefault(k => k.Key == reaction.MessageId);
-                    var embed = BlogHandler.SubscribeToBlog(reaction.User.Value.Id, item.Value);
+                    if (reaction.Emote.Name == "➕")
+                    {
+                        var item = msgList.FirstOrDefault(k => k.Key == reaction.MessageId);
+                        var embed = BlogHandler.SubscribeToBlog(reaction.User.Value.Id, item.Value);
+                    }
                 }
             }
 
