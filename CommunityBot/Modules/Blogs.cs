@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CommunityBot.Configuration;
 using CommunityBot.Features.Blogs;
 using CommunityBot.Handlers;
+using Discord;
 using Discord.Commands;
 using Newtonsoft.Json;
 
@@ -69,45 +70,20 @@ namespace CommunityBot.Modules
                 var embed = EmbedHandler.CreateBlogEmbed(blog.Name, post, subs, EmbedHandler.EmbedMessageType.Info, true);
                 var msg = Context.Channel.SendMessageAsync("", false, embed);
 
-                msg.
+                await msg.Result.AddReactionAsync(new Emoji("➕"));
+
+                var list = Global.MessagesIdToTrack ?? new Dictionary<ulong, string>();
+
+                list.Add(msg.Result.Id, blog.Name);
             }
         }
 
         [Command("Subscribe")]
         public async Task Subscribe(string name)
         {
-            var blogs = DataStorage.RestoreObject<List<BlogItem>>(blogFile);
+            var embed = BlogHandler.SubscribeToBlog(Context.User.Id, name);
 
-            var blog = blogs.FirstOrDefault(k => k.Name == name);
-
-            if (blog != null)
-            {
-                if (!blog.Subscribers.Contains(Context.User.Id))
-                {
-                    blog.Subscribers.Add(Context.User.Id);
-
-                    DataStorage.StoreObject(blogs, blogFile, Formatting.Indented);
-
-                    var embed = EmbedHandler.CreateEmbed("Blog", "You now follow this blog", EmbedHandler.EmbedMessageType.Success);
-                    await Context.Channel.SendMessageAsync("", false, embed);
-                }
-                else
-                {
-                    var embed = EmbedHandler.CreateEmbed("Blog :x:", $"You already follow this blog", EmbedHandler.EmbedMessageType.Info);
-                    await Context.Channel.SendMessageAsync("", false, embed);
-                }
-            }
-            else
-            {
-                var embed = EmbedHandler.CreateEmbed("Blog :x:", $"There is no Blog with the name {name}", EmbedHandler.EmbedMessageType.Error);
-                await Context.Channel.SendMessageAsync("", false, embed);
-            }
-        }
-
-        [Command("List")]
-        public async Task List()
-        {
-
+            await Context.Channel.SendMessageAsync("", false, embed);
         }
     }
 }

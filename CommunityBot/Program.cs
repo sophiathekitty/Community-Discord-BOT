@@ -29,12 +29,28 @@ namespace CommunityBot
             _client = new DiscordSocketClient(discordSocketConfig);
             _client.Log += Logger.Log;
             _client.Ready += Timers.StartTimer;
+            _client.ReactionAdded += OnReactionAdded;
             // Subscribe to other events here.
 
             await InitializeCommandHandler();
             await AttemptLogin();
             await _client.StartAsync();
             await Task.Delay(-1);
+        }
+
+        private Task OnReactionAdded(Cacheable<IUserMessage, ulong> cache, ISocketMessageChannel channel, SocketReaction reaction)
+        {
+            var msgList = Global.MessagesIdToTrack;
+            if (msgList.ContainsKey(reaction.MessageId))
+            {
+                if (reaction.Emote.Name == "➕")
+                {
+                    var item = msgList.FirstOrDefault(k => k.Key == reaction.MessageId);
+                    var embed = BlogHandler.SubscribeToBlog(reaction.User.Value.Id, item.Value);
+                }
+            }
+
+            return Task.CompletedTask;
         }
 
         private async Task InitializeCommandHandler()

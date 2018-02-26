@@ -10,6 +10,7 @@ namespace CommunityBot
     internal static class Global
     {
         internal static DiscordSocketClient Client { get; set; }
+        internal static Dictionary<ulong, string> MessagesIdToTrack { get; set; }
         internal static Random Rng { get; set; } = new Random();
 
         // Global Helper methods
