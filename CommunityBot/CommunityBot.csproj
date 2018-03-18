@@ -133,8 +133,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="Features\Blogs\BlogItem.cs" />
     <Compile Include="Features\Economy\Daily.cs" />
     <Compile Include="Global.cs" />
+    <Compile Include="Handlers\BlogHandler.cs" />
     <Compile Include="Handlers\CommandHandler.cs" />
     <Compile Include="Configuration\BotSettings.cs" />
     <Compile Include="Configuration\DataStorage.cs" />
@@ -146,6 +148,7 @@
     <Compile Include="Logger.cs" />
     <Compile Include="Modules\Admin.cs" />
     <Compile Include="Modules\Basics.cs" />
+    <Compile Include="Modules\Blogs.cs" />
     <Compile Include="Modules\Economy.cs" />
     <Compile Include="Modules\Voice.cs" />
     <Compile Include="Modules\Misc.cs" />
