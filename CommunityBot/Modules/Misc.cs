@@ -58,10 +58,10 @@ namespace CommunityBot.Modules
             await dmChannel.SendMessageAsync("", false, builder.Build());
         }
 
-        [Command("command")]
+        [Command("help")]
         [Remarks("Shows what a specific command does and what parameters it takes.")]
         [Cooldown(5)]
-        public async Task HelpAsync(string command)
+        public async Task HelpCommand(string command)
         {
             var dmChannel = await Context.User.GetOrCreateDMChannelAsync();
             var result = _service.Search(Context, command);
