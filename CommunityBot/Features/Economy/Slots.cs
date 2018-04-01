@@ -6,68 +6,76 @@ using System.Threading.Tasks;
 
 namespace CommunityBot.Features.Economy
 {
+    /// <summary>
+    /// Slots looks something similar like this:
+    /// 🍇🍓🍇
+    /// 🍔🍒🍍 
+    /// 💯🍓🍍
+    /// A Slot machine consists of 3 Cylinders that individually can rotate vertically
+    /// Each Cylinder has n SlotPieces (Emojis + some extra information)
+    /// </summary>
     public class Slot
     {
-        static Random rnd = Global.Rng;
-        // This is really something that shouldn't be hardcoded :D but oh well... works for now :P
-        public static readonly Dictionary<string, SlotPiece> SlotPieces = new Dictionary<string, SlotPiece>
+        // This is really something that shouldn't be hardcoded :D but oh well... works for now :P has to be tweaked for balance of win/loss ration tho
+        public static readonly List<SlotPiece> PossibleSlotPieces = new List<SlotPiece>
         {
-            ["win"]     = new SlotPiece(":100:",        1, 1, 50),
-            ["bag"]     = new SlotPiece(":moneybag:",   1, 2, 10),
-            ["candy"]   = new SlotPiece(":candy:",      1, 2, 5),
-            ["straw"]   = new SlotPiece(":strawberry:", 2, 2, 3),
-            ["pine"]    = new SlotPiece(":pineapple: ", 3, 2, 2),
-            ["grape"]   = new SlotPiece(":grapes:",     3, 2, 1),
-            ["cherry"]  = new SlotPiece(":cherries:",   3, 2, 0.5),
-            ["start"]   = new SlotPiece(":star:",       1, 2, -1),
-            ["zap"]     = new SlotPiece(":zap:",        1, 2, -2),
+          // new SlotPiece("emojiString", minSpawnCount, spawnRate, payoutRate); 
+             new SlotPiece(":100:",         1, 1, 50  ),
+             new SlotPiece(":candy:",       1, 2, 10  ),
+             new SlotPiece(":strawberry:",  2, 2, 5   ),
+             new SlotPiece(":pineapple: ",  3, 2, 3   ),
+             new SlotPiece(":grapes:",      3, 2, 1   ),
+             new SlotPiece(":cherries:",    3, 2, 0.5 )
         };
-        public List<Cylinder> Cylinders = new List<Cylinder>();
-        static int maxRandom;
+        public readonly List<Cylinder> Cylinders = new List<Cylinder>();
 
-        // CylinderSize is adjustable but will not be smaller than the sum of minSpawnrates of all possible SlotPieces
-        public Slot(int cylinderSize = 0)
+        // Will be the sum of the spawnRates of all possible SlotPieces
+        private static int maxRandom;
+
+        // The amount of pieces per cylinder is adjustable but will always be at least the sum of the minSpawnCount of all possible SlotPieces
+        public Slot(int amountOfPices = 0)
         {
             maxRandom = 0;
-            foreach (var piece in SlotPieces)
+            foreach (var piece in PossibleSlotPieces)
             {
-                maxRandom += piece.Value.spawnrate;
+                maxRandom += piece.spawnrate;
             }
-            Cylinders.Add(new Cylinder(cylinderSize));
-            Cylinders.Add(new Cylinder(cylinderSize));
-            Cylinders.Add(new Cylinder(cylinderSize));
+            Cylinders.Add(new Cylinder(amountOfPices));
+            Cylinders.Add(new Cylinder(amountOfPices));
+            Cylinders.Add(new Cylinder(amountOfPices));
         }
 
         public class Cylinder {
-            public List<SlotPiece> CylinderSlotPieces = new List<SlotPiece>();
+            public List<SlotPiece> SlotPieces = new List<SlotPiece>();
+            // We are not really spinning anything - we just move a pointer and have everything offsetted by it
             public int Pointer = 0;
             public Cylinder(int size)
             {
-                // Add all the pieces according to their minSpawnCount
-                foreach (var piece in SlotPieces)
+                // Add all the pieces minSpawnCount times
+                foreach (var piece in PossibleSlotPieces)
                 {
-                    for (int i = piece.Value.minSpawnCount - 1; i >= 0; i--)
+                    for (int i = piece.minSpawnCount - 1; i >= 0; i--)
                     {
-                        CylinderSlotPieces.Add(piece.Value);
+                        SlotPieces.Add(piece);
                         size--;
                     }
                 }
-                // If more pieces are requested fill them according to spawnrate
-                for (int i = size - 1; i >= 0; i--)
+                // If more pieces are requested, pick a random pice weighted by their spawnrate and add it
+                for (int i = size; i > 0; i--)
                 {
-                    int rand = rnd.Next(maxRandom);
-                    foreach (var piece in Slot.SlotPieces)
+                    int rand = Global.Rng.Next(maxRandom);
+                    foreach (var piece in Slot.PossibleSlotPieces)
                     {
-                        rand -= piece.Value.spawnrate;
+                        rand -= piece.spawnrate;
                         if (rand <= 0)
                         {
-                            CylinderSlotPieces.Add(piece.Value);
+                            SlotPieces.Add(piece);
                             break;
                         }
                     }
                 }
                 // Shuffle the pieces
-                CylinderSlotPieces = CylinderSlotPieces.OrderBy((item) => rnd.Next()).ToList<SlotPiece>();
+                SlotPieces = SlotPieces.OrderBy((item) => Global.Rng.Next()).ToList<SlotPiece>();
             }
         }
 
@@ -86,54 +94,55 @@ namespace CommunityBot.Features.Economy
             }
         };
 
+        // Returns the amount of Miunies you win with the current pointers of the Cylinders if you bet <amount> of Miunies
         public uint GetPayout(uint amount)
         {
-            double sumPayout = 0;
+            double payoutModifier = 0;
 
             /*
              * Emoji coordinates (row, column):
-             * -1, 0 | -1, 1 | -1, 2
-             *  0, 0 |  0, 1 |  0, 2
-             *  1, 0 |  1, 1 |  1, 2
+             *  0, 0 | 0, 1 | 0, 2
+             *  1, 0 | 1, 1 | 1, 2
+             *  2, 0 | 2, 1 | 2, 2
              */
 
             for (int i = 0; i < 3; i++)
             {
                 // Check columns
-                sumPayout += CheckPayoutForCoordinates(-1, i, 0, i, 1, i);
+                payoutModifier += CheckPayoutForCoordinates(0, i, 1, i, 2, i);
                 // Check rows
-                sumPayout += CheckPayoutForCoordinates(-1 + i, 0, -1 + i, 1, -1 +i, 2);
+                payoutModifier += CheckPayoutForCoordinates(i, 0, i, 1, i, 2);
             }
             // Diagonal top left to bottom right
-            sumPayout += CheckPayoutForCoordinates(-1, 0, 0, 1, 1, 2);
+            payoutModifier += CheckPayoutForCoordinates(0, 0, 1, 1, 2, 2);
             // Diagonal bottom left to top right
-            sumPayout += CheckPayoutForCoordinates(1, 0, 0, 1, -1, 2);
+            payoutModifier += CheckPayoutForCoordinates(2, 0, 1, 1, 0, 2);
             
-            return (uint) (amount * sumPayout);
+            return (uint) (amount * payoutModifier);
         }
 
-        // Check if the set of three coordinates are the same emoji - if so get the payout ratio of that emoji
-        public double CheckPayoutForCoordinates(int rowI, int columnI, int rowJ, int columnJ, int rowK, int columnK)
+        // Check if the given set of three coordinates if all are the same emoji - if so return the payout ratio of that emoji
+        private double CheckPayoutForCoordinates(int aRow, int aColumn, int bRow, int bColumn, int cRow, int cColumn)
         {
-            int count = Cylinders[0].CylinderSlotPieces.Count;
-            var first = Cylinders[columnI].CylinderSlotPieces[(((Cylinders[columnI].Pointer + rowI) % count) + count) % count];
-            var second = Cylinders[columnJ].CylinderSlotPieces[(((Cylinders[columnJ].Pointer + rowJ) % count) + count) % count];
-            var third = Cylinders[columnK].CylinderSlotPieces[(((Cylinders[columnK].Pointer + rowK) % count) + count) % count];
+            int count = Cylinders[0].SlotPieces.Count;
+            var first = Cylinders[aColumn].SlotPieces[(Cylinders[aColumn].Pointer + aRow) % count];
+            var second = Cylinders[bColumn].SlotPieces[(Cylinders[bColumn].Pointer + bRow) % count];
+            var third = Cylinders[cColumn].SlotPieces[(Cylinders[cColumn].Pointer + cRow) % count];
             if (first.emoji == second.emoji && second.emoji == third.emoji)
                 return first.payout;
             return 0;
         }
 
         // Returns the emoji string for the current cylinder pointers
-        public string GetEmojis()
+        private string GetEmojis()
         {
             string response = "";
-            int count = Cylinders[0].CylinderSlotPieces.Count;
-            for (int j = -1; j < 2; j++)
+            int count = Cylinders[0].SlotPieces.Count;
+            for (int j = 0; j < 3; j++)
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    response += Cylinders[i].CylinderSlotPieces[(((Cylinders[i].Pointer + j) % count) + count) % count].emoji;
+                    response += Cylinders[i].SlotPieces[(Cylinders[i].Pointer + j) % count].emoji;
                 }
                 response += "\n";
             }
@@ -142,10 +151,10 @@ namespace CommunityBot.Features.Economy
 
         public string Spin()
         {
-            int count = Cylinders[0].CylinderSlotPieces.Count;
-            Cylinders[0].Pointer = rnd.Next();
-            Cylinders[1].Pointer = rnd.Next();
-            Cylinders[2].Pointer = rnd.Next();
+            int count = Cylinders[0].SlotPieces.Count;
+            Cylinders[0].Pointer = Global.Rng.Next(count);
+            Cylinders[1].Pointer = Global.Rng.Next(count);
+            Cylinders[2].Pointer = Global.Rng.Next(count);
             return GetEmojis();
         }
     }

@@ -134,7 +134,7 @@ namespace CommunityBot.Modules
             for (int i = 0; i < 3; i++)
             {
                 string message = $"Cylinder {i+1}: ";
-                foreach (var piece in Global.slot.Cylinders[i].CylinderSlotPieces)
+                foreach (var piece in Global.slot.Cylinders[i].SlotPieces)
                 {
                     message += piece.emoji;
                 }
