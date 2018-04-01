@@ -1,6 +1,8 @@
 ﻿using CommunityBot.Preconditions;
 using Discord;
 using Discord.Commands;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,15 +37,14 @@ namespace CommunityBot.Modules
             foreach (var module in _service.Modules)
             {
                 string description = null;
-                var descriptionBuilder = new StringBuilder();
-                descriptionBuilder.Append(description);
+                var descriptionBuilder = new List<string>();
                 foreach (var cmd in module.Commands)
                 {
                     var result = await cmd.CheckPreconditionsAsync(Context);
-                    if (result.IsSuccess)
-                        descriptionBuilder.Append($"{cmd.Aliases.First()}\n");
+                    if (result.IsSuccess && !descriptionBuilder.Contains(cmd.Aliases.First()))
+                        descriptionBuilder.Add(cmd.Aliases.First());
                 }
-                description = descriptionBuilder.ToString();
+                description = String.Join("\n", descriptionBuilder);
 
                 if (!string.IsNullOrWhiteSpace(description))
                 {
@@ -58,10 +59,10 @@ namespace CommunityBot.Modules
             await dmChannel.SendMessageAsync("", false, builder.Build());
         }
 
-        [Command("command")]
+        [Command("help")]
         [Remarks("Shows what a specific command does and what parameters it takes.")]
         [Cooldown(5)]
-        public async Task HelpAsync(string command)
+        public async Task HelpCommand(string command)
         {
             var dmChannel = await Context.User.GetOrCreateDMChannelAsync();
             var result = _service.Search(Context, command);
