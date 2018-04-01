@@ -44,14 +44,19 @@ namespace CommunityBot.Handlers
                 var cmdSearchResult = _service.Search(context, argPos);
                 if (cmdSearchResult.Commands.Count == 0) return;
 
-                var result = await _service.ExecuteAsync(context, argPos);
+                var executionTask = _service.ExecuteAsync(context, argPos);
 
-                if (!result.IsSuccess && result.Error != CommandError.UnknownCommand)
+                #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                executionTask.ContinueWith(task =>
                 {
-                    string errTemplate = "{0}, Error: {1}.";
-                    string errMessage = String.Format(errTemplate, context.User.Mention, result.ErrorReason);
-                    await context.Channel.SendMessageAsync(errMessage);
-                }
+                    if (!task.Result.IsSuccess && task.Result.Error != CommandError.UnknownCommand)
+                    {
+                        string errTemplate = "{0}, Error: {1}.";
+                        string errMessage = String.Format(errTemplate, context.User.Mention, task.Result.ErrorReason);
+                        context.Channel.SendMessageAsync(errMessage);
+                    }
+                });
+                #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
         }
 
