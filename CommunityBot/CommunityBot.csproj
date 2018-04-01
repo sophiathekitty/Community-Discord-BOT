@@ -135,6 +135,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Features\Blogs\BlogItem.cs" />
     <Compile Include="Features\Economy\Daily.cs" />
+    <Compile Include="Features\Economy\Slots.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="Handlers\BlogHandler.cs" />
     <Compile Include="Handlers\CommandHandler.cs" />
