@@ -30,6 +30,7 @@ namespace CommunityBot
             _client.Log += Logger.Log;
             _client.Ready += Timers.StartTimer;
             _client.ReactionAdded += OnReactionAdded;
+            _client.MessageReceived += MessageRewardHandler.HandleMessageRewards;
             // Subscribe to other events here.
 
             await InitializeCommandHandler();

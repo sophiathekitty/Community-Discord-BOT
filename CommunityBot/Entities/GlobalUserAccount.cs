@@ -13,6 +13,8 @@ namespace CommunityBot.Entities
         public ulong Miunies { get; set; }
 
         public DateTime LastDaily { get; set; } = DateTime.UtcNow.AddDays(-2);
+
+        public DateTime LastMessage { get; set; } = DateTime.UtcNow;
         /* Add more values to store */
     }
 }
