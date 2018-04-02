@@ -73,6 +73,75 @@ namespace CommunityBot.Modules
             return $"{mention} has **{miunies} miunies**! {GetMiuniesCountReaction(miunies, mention)} \n\nDid you know?\n`{Global.GetRandomDidYouKnow()}`";
         }
 
+        [Command("newslot")]
+        [Alias("newslots")]
+        public async Task NewSlot(int amount = 0)
+        {
+            Global.slot = new Slot(amount);
+            await ReplyAsync("A new slotmachine got generated! Good luck with this puppy!");
+        }
+
+        [Command("slots")]
+        [Alias("slot")]
+        public async Task SpinSlot(uint amount)
+        {
+            if (amount < 1)
+            {
+                await ReplyAsync($"You can' spin for that amount of Miunies.\nAND YOU KNOW IT!");
+                return;
+            }
+            var account = GlobalUserAccounts.GetUserAccount(Context.User.Id);
+            if (account.Miunies < amount)
+            {
+                await ReplyAsync($"Sorry but it seems like you don't have enough Minuies... You only have {account.Miunies}.");
+                return;
+            }
+
+            account.Miunies -= amount;
+            GlobalUserAccounts.SaveAccounts();
+
+            IUserMessage msg = await ReplyAsync(Global.slot.Spin());
+            await Task.Delay(1000);
+            await msg.ModifyAsync(m => m.Content = Global.slot.Spin());
+            await Task.Delay(1000);
+            await msg.ModifyAsync(m => m.Content = Global.slot.Spin());
+
+            uint moneyGain = Global.slot.GetPayout(amount);
+            if (moneyGain > 0)
+            {
+                account.Miunies += moneyGain;
+                GlobalUserAccounts.SaveAccounts();
+            }
+
+            string message = "You played and ";
+            if (moneyGain > amount)
+                message += $"got wopping **{moneyGain} Miunies** out of it!";
+            else if (moneyGain == amount)
+                message += "you got your money back... well at least you haven't lost anything right?";
+            else if (moneyGain > 0)
+                message += $"at least you got some of your cash back... have those {moneyGain} Miunies!";
+            else
+                message += "lost everything!";
+
+            await Task.Delay(1000);
+            await ReplyAsync(message);
+        }
+
+        [Command("showslots")]
+        [Alias("showslot")]
+        public async Task ShowSlot()
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                string message = $"Cylinder {i+1}: ";
+                foreach (var piece in Global.slot.Cylinders[i].SlotPieces)
+                {
+                    message += piece.emoji;
+                }
+                await ReplyAsync(message);
+            }
+        }
+
         private string GetMiuniesCountReaction(ulong value, string mention)
         {
             if (value > 100000)
