@@ -1,48 +1,41 @@
 ﻿using CommunityBot.Configuration;
 using CommunityBot.Entities;
 using Discord;
-using Discord.WebSocket;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.Concurrent;
+using System.IO;
 
 namespace CommunityBot.Features.GlobalAccounts
 {
     internal static class GlobalUserAccounts
     {
-        private static readonly string saveFile = "users.json";
-        private static readonly List<GlobalUserAccount> accounts;
+        private static readonly ConcurrentDictionary<ulong, GlobalUserAccount> userAccounts = new ConcurrentDictionary<ulong, GlobalUserAccount>();
 
         static GlobalUserAccounts()
         {
-            if(DataStorage.LocalFileExists(saveFile))
+            var info = System.IO.Directory.CreateDirectory(Path.Combine(Constants.ResourceFolder,Constants.UserAccountsFolder));
+            var files = info.GetFiles("*.json");
+            if (files.Length > 0)
             {
-                accounts = DataStorage.RestoreObject<List<GlobalUserAccount>>(saveFile);
+                foreach (var file in files)
+                {
+                    var user = DataStorage.RestoreObject<GlobalUserAccount>(Path.Combine(file.Directory.Name, file.Name));
+                    userAccounts.TryAdd(user.Id, user);
+                }
             }
             else
             {
-                accounts = new List<GlobalUserAccount>();
-                DataStorage.StoreObject(accounts, saveFile, useIndentations: false);
+                userAccounts = new ConcurrentDictionary<ulong, GlobalUserAccount>();
             }
         }
 
         internal static GlobalUserAccount GetUserAccount(ulong id)
         {
-            var foundAccount = accounts.FirstOrDefault(a => a.Id == id);
-
-            if(foundAccount == null)
+            return userAccounts.GetOrAdd(id, (key) =>
             {
-                foundAccount = new GlobalUserAccount
-                {
-                    Id = id
-                };
-                accounts.Add(foundAccount);
-                SaveAccounts();
-            }
-
-            return foundAccount;
+                var newAccount = new GlobalUserAccount { Id = id };
+                DataStorage.StoreObject(newAccount, Path.Combine(Constants.UserAccountsFolder, $"{id}.json"), useIndentations: true);
+                return newAccount;
+            });
         }
 
         internal static GlobalUserAccount GetUserAccount(IUser user)
@@ -50,9 +43,26 @@ namespace CommunityBot.Features.GlobalAccounts
             return GetUserAccount(user.Id);
         }
 
+        /// <summary>
+        /// This rewrites ALL UserAccounts to the harddrive... Strongly recommend to use SaveAccounts(id1, id2, id3...) where possible instead
+        /// </summary>
         internal static void SaveAccounts()
         {
-            DataStorage.StoreObject(accounts, saveFile, useIndentations: false);
+            foreach (var id in userAccounts.Keys)
+            {
+                SaveAccounts(id);    
+            }
+        }
+
+        /// <summary>
+        /// Saves one or multiple Accounts by provided Ids
+        /// </summary>
+        internal static void SaveAccounts(params ulong[] ids)
+        {
+            foreach (var id in ids)
+            {
+                DataStorage.StoreObject(GetUserAccount(id), Path.Combine(Constants.UserAccountsFolder, $"{id}.json"), useIndentations: true);
+            }
         }
     }
 }

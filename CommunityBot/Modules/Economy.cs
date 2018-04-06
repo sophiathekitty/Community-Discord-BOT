@@ -64,7 +64,7 @@ namespace CommunityBot.Modules
             var transferTarget = GlobalUserAccounts.GetUserAccount(target.Id);
             transferSource.Miunies -= amount;
             transferTarget.Miunies += amount;
-            GlobalUserAccounts.SaveAccounts();
+            GlobalUserAccounts.SaveAccounts(transferSource.Id, transferTarget.Id);
             await ReplyAsync($" :white_check_mark: {Context.User.Username} has given {target.Username} {amount} Minuies!");
         }
 
@@ -98,7 +98,7 @@ namespace CommunityBot.Modules
             }
 
             account.Miunies -= amount;
-            GlobalUserAccounts.SaveAccounts();
+            GlobalUserAccounts.SaveAccounts(Context.User.Id);
 
             string slotEmojis = Global.slot.Spin();
             var payoutAndFlavour = Global.slot.GetPayoutAndFlavourText(amount);

@@ -21,7 +21,7 @@ namespace CommunityBot.Features.Economy
 
             account.Miunies += Constants.DailyMuiniesGain;
             account.LastDaily = DateTime.UtcNow;
-            GlobalUserAccounts.SaveAccounts();
+            GlobalUserAccounts.SaveAccounts(userId);
             return DailyResult.Success;
         }
     }
