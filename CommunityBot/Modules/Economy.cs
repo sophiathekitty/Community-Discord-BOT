@@ -100,46 +100,25 @@ namespace CommunityBot.Modules
             account.Miunies -= amount;
             GlobalUserAccounts.SaveAccounts();
 
-            IUserMessage msg = await ReplyAsync(Global.slot.Spin());
-            await Task.Delay(1000);
-            await msg.ModifyAsync(m => m.Content = Global.slot.Spin());
-            await Task.Delay(1000);
-            await msg.ModifyAsync(m => m.Content = Global.slot.Spin());
+            string slotEmojis = Global.slot.Spin();
+            var payoutAndFlavour = Global.slot.GetPayoutAndFlavourText(amount);
 
-            uint moneyGain = Global.slot.GetPayout(amount);
-            if (moneyGain > 0)
+            if (payoutAndFlavour.Item1 > 0)
             {
-                account.Miunies += moneyGain;
+                account.Miunies += payoutAndFlavour.Item1;
                 GlobalUserAccounts.SaveAccounts();
-            }
+            }            
 
-            string message = "You played and ";
-            if (moneyGain > amount)
-                message += $"got wopping **{moneyGain} Miunies** out of it!";
-            else if (moneyGain == amount)
-                message += "you got your money back... well at least you haven't lost anything right?";
-            else if (moneyGain > 0)
-                message += $"at least you got some of your cash back... have those {moneyGain} Miunies!";
-            else
-                message += "lost everything!";
-
+            IUserMessage msg = await ReplyAsync(slotEmojis);
             await Task.Delay(1000);
-            await ReplyAsync(message);
+            await ReplyAsync(payoutAndFlavour.Item2);
         }
 
         [Command("showslots")]
         [Alias("showslot")]
         public async Task ShowSlot()
         {
-            for (int i = 0; i < 3; i++)
-            {
-                string message = $"Cylinder {i+1}: ";
-                foreach (var piece in Global.slot.Cylinders[i].SlotPieces)
-                {
-                    message += piece.emoji;
-                }
-                await ReplyAsync(message);
-            }
+            await ReplyAsync(String.Join("\n", Global.slot.GetCylinderEmojis(true)));
         }
 
         private string GetMiuniesCountReaction(ulong value, string mention)

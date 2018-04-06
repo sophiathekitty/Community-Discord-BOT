@@ -95,7 +95,8 @@ namespace CommunityBot.Features.Economy
         };
 
         // Returns the amount of Miunies you win with the current pointers of the Cylinders if you bet <amount> of Miunies
-        public uint GetPayout(uint amount)
+        // And a flavour string depending on how much you lose/win
+        public Tuple<uint, string> GetPayoutAndFlavourText(uint amount)
         {
             double payoutModifier = 0;
 
@@ -117,8 +118,19 @@ namespace CommunityBot.Features.Economy
             payoutModifier += CheckPayoutForCoordinates(0, 0, 1, 1, 2, 2);
             // Diagonal bottom left to top right
             payoutModifier += CheckPayoutForCoordinates(2, 0, 1, 1, 0, 2);
-            
-            return (uint) (amount * payoutModifier);
+
+            uint moneyGain = (uint) (amount * payoutModifier);
+            string flavourText = "You played and ";
+            if (moneyGain > amount)
+                flavourText += $"got wopping **{moneyGain} Miunies** out of it!";
+            else if (moneyGain == amount)
+                flavourText += "you got your money back... well at least you haven't lost anything right?";
+            else if (moneyGain > 0)
+                flavourText += $"at least you got some of your cash back... have those {moneyGain} Miunies!";
+            else
+                flavourText += "lost everything!";
+
+            return Tuple.Create(moneyGain, flavourText);
         }
 
         // Check if the given set of three coordinates if all are the same emoji - if so return the payout ratio of that emoji
@@ -132,19 +144,25 @@ namespace CommunityBot.Features.Economy
                 return first.payout;
             return 0;
         }
-
-        // Returns the emoji string for the current cylinder pointers
-        private string GetEmojis()
+                
+        /// <summary>
+        /// Returns a List containing 3 (emoji) strings to show Pieces of the slot machine
+        /// </summary>
+        /// <param name="showAll">If true the list will contain all Pieces if not only the 9 to display for playing</param>
+        /// <returns></returns>
+        public List<string> GetCylinderEmojis(bool showAll = false)
         {
-            string response = "";
-            int count = Cylinders[0].SlotPieces.Count;
-            for (int j = 0; j < 3; j++)
+            List<string> response = new List<string>();
+            int piceCount = Cylinders[0].SlotPieces.Count;
+            int loopMax = showAll ? piceCount : 3;
+            for (int j = 0; j < loopMax; j++)
             {
+                string cylinderString = "";
                 for (int i = 0; i < 3; i++)
                 {
-                    response += Cylinders[i].SlotPieces[(Cylinders[i].Pointer + j) % count].emoji;
+                    cylinderString += Cylinders[i].SlotPieces[(Cylinders[i].Pointer + j) % piceCount].emoji;
                 }
-                response += "\n";
+                response.Add(cylinderString);
             }
             return response;
         }
@@ -155,7 +173,7 @@ namespace CommunityBot.Features.Economy
             Cylinders[0].Pointer = Global.Rng.Next(count);
             Cylinders[1].Pointer = Global.Rng.Next(count);
             Cylinders[2].Pointer = Global.Rng.Next(count);
-            return GetEmojis();
+            return String.Join("\n", GetCylinderEmojis());
         }
     }
 }
