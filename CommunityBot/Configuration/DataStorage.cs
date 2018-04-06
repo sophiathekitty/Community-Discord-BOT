@@ -10,7 +10,7 @@ namespace CommunityBot.Configuration
 {
     class DataStorage
     {
-        private static readonly string resourcesFolder = "resources";
+        private static readonly string resourcesFolder = Constants.ResourceFolder;
 
         static DataStorage()
         {

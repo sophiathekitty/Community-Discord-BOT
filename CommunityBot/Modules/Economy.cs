@@ -64,7 +64,7 @@ namespace CommunityBot.Modules
             var transferTarget = GlobalUserAccounts.GetUserAccount(target.Id);
             transferSource.Miunies -= amount;
             transferTarget.Miunies += amount;
-            GlobalUserAccounts.SaveAccounts();
+            GlobalUserAccounts.SaveAccounts(transferSource.Id, transferTarget.Id);
             await ReplyAsync($" :white_check_mark: {Context.User.Username} has given {target.Username} {amount} Minuies!");
         }
 
@@ -98,7 +98,7 @@ namespace CommunityBot.Modules
             }
 
             account.Miunies -= amount;
-            GlobalUserAccounts.SaveAccounts();
+            GlobalUserAccounts.SaveAccounts(Context.User.Id);
 
             IUserMessage msg = await ReplyAsync(Global.slot.Spin());
             await Task.Delay(1000);
@@ -110,7 +110,7 @@ namespace CommunityBot.Modules
             if (moneyGain > 0)
             {
                 account.Miunies += moneyGain;
-                GlobalUserAccounts.SaveAccounts();
+                GlobalUserAccounts.SaveAccounts(Context.User.Id);
             }
 
             string message = "You played and ";

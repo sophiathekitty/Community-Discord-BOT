@@ -8,6 +8,8 @@ namespace CommunityBot
 {
     public static class Constants
     {
+        internal static readonly string ResourceFolder = "resources";
+        internal static readonly string UserAccountsFolder = "users";
         public const ulong DailyMuiniesGain = 250;
         public const int MessageRewardCooldown = 30;
         public const int MessageRewardMinLenght = 20;

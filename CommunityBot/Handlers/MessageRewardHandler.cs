@@ -31,7 +31,7 @@ namespace CommunityBot.Handlers
             userAcc.Miunies += (ulong) Global.Rng.Next(Constants.MessagRewardMinMax.Item1, Constants.MessagRewardMinMax.Item2 + 1);
             userAcc.LastMessage = now;
 
-            GlobalUserAccounts.SaveAccounts();
+            GlobalUserAccounts.SaveAccounts(msg.Author.Id);
         }
     }
 }
