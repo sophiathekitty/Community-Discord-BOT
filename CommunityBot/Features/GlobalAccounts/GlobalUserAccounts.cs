@@ -1,8 +1,11 @@
 ﻿using CommunityBot.Configuration;
+using System;
 using CommunityBot.Entities;
 using Discord;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace CommunityBot.Features.GlobalAccounts
 {
@@ -41,6 +44,16 @@ namespace CommunityBot.Features.GlobalAccounts
         internal static GlobalUserAccount GetUserAccount(IUser user)
         {
             return GetUserAccount(user.Id);
+        }
+
+        internal static List<GlobalUserAccount> GetAllAccounts()
+        {
+            return userAccounts.Values.ToList();
+        }
+
+        internal static List<GlobalUserAccount> GetFilteredAccounts(Func<GlobalUserAccount, bool> filter)
+        {
+            return userAccounts.Values.Where(filter).ToList();
         }
 
         /// <summary>
