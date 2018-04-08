@@ -6,15 +6,17 @@ using System.Threading.Tasks;
 
 namespace CommunityBot.Entities
 {
-    public class GlobalUserAccount : IGlobalAccount
+    public class GlobalGuildAccount : IGlobalAccount
     {
         public ulong Id { get; set; }
 
-        public ulong Miunies { get; set; }
+        public ulong AnnouncementChannelId { get; set; }
 
-        public DateTime LastDaily { get; set; } = DateTime.UtcNow.AddDays(-2);
+        public List<string> Prefixes { get; set; } = new List<string>();
 
-        public DateTime LastMessage { get; set; } = DateTime.UtcNow;
+        public List<string> WelcomeMessages { get; set; } = new List<string> { };
+
+        public List<string> LeaveMessages { get; set; } = new List<string>();
 
         public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
         /* Add more values to store */

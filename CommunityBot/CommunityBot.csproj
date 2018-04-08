@@ -133,9 +133,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="Entities\GlobalGuildAccount.cs" />
+    <Compile Include="Entities\IGlobalAccount.cs" />
     <Compile Include="Features\Blogs\BlogItem.cs" />
     <Compile Include="Features\Economy\Daily.cs" />
     <Compile Include="Features\Economy\Slots.cs" />
+    <Compile Include="Features\GlobalAccounts\GlobalGuildAccounts.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="Handlers\BlogHandler.cs" />
     <Compile Include="Handlers\CommandHandler.cs" />
@@ -149,9 +152,12 @@
     <Compile Include="Helpers\ActionResult.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Modules\Admin.cs" />
+    <Compile Include="Modules\Announcements.cs" />
+    <Compile Include="Modules\Tags.cs" />
     <Compile Include="Modules\Basics.cs" />
     <Compile Include="Modules\Blogs.cs" />
     <Compile Include="Modules\Economy.cs" />
+    <Compile Include="Modules\Prefix.cs" />
     <Compile Include="Modules\Voice.cs" />
     <Compile Include="Modules\Misc.cs" />
     <Compile Include="Preconditions\Cooldown.cs" />
