@@ -135,6 +135,8 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Features\Blogs\BlogItem.cs" />
     <Compile Include="Features\Economy\Daily.cs" />
+    <Compile Include="Features\Economy\Slots.cs" />
+    <Compile Include="Helpers\RepeatedTaskFunctions.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="Handlers\BlogHandler.cs" />
     <Compile Include="Handlers\CommandHandler.cs" />
@@ -144,23 +146,30 @@
     <Compile Include="Entities\GlobalUserAccount.cs" />
     <Compile Include="Features\GlobalAccounts\GlobalUserAccounts.cs" />
     <Compile Include="Handlers\EmbedHandler.cs" />
+    <Compile Include="Handlers\MessageRewardHandler.cs" />
+    <Compile Include="Features\RepeatedTasks\RepeatedTaskHandler.cs" />
     <Compile Include="Helpers\ActionResult.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Modules\Admin.cs" />
     <Compile Include="Modules\Basics.cs" />
     <Compile Include="Modules\Blogs.cs" />
     <Compile Include="Modules\Economy.cs" />
+    <Compile Include="Modules\Reminder.cs" />
+    <Compile Include="Modules\RepeatedTasks.cs" />
     <Compile Include="Modules\Voice.cs" />
     <Compile Include="Modules\Misc.cs" />
     <Compile Include="Preconditions\Cooldown.cs" />
     <Compile Include="Preconditions\NoSelf.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Helpers\Timers.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
 </Project>
