@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using CommunityBot.Entities;
 using CommunityBot.Features.Economy;
 using CommunityBot.Features.GlobalAccounts;
 using Discord;
@@ -43,6 +45,40 @@ namespace CommunityBot.Modules
         {
             var account = GlobalUserAccounts.GetUserAccount(target.Id);
             await ReplyAsync(GetMiuniesReport(account.Miunies, target.Mention));
+        }
+
+        [Command("Richest")]
+        [Alias("Top", "Top10")]
+        public async Task ShowRichesPeople(int page = 1)
+        {
+            page -= 1;
+            if (page < 0)
+            {
+                await ReplyAsync("Are you really trying that right now? **REALLY?**");
+                return;
+            }
+
+            var guildUserIds = Context.Guild.Users.Select(user => user.Id);
+            // Get only accounts of this server
+            var accounts = GlobalUserAccounts.GetFilteredAccounts(acc => guildUserIds.Contains(acc.Id));
+            var maxPage = (accounts.Count + 9) / 10;
+            if (page >= maxPage)
+            {
+                await ReplyAsync($"There are not that many pages...\nPage {maxPage} is the last one...");
+                return;
+            }
+            var ordered = accounts.OrderByDescending(acc => acc.Miunies).ToList();
+            var embB = new EmbedBuilder()
+                .WithTitle($"These are the richest people:")
+                .WithFooter($"Page {page + 1}/{maxPage}");
+            for (var i = 0; i < 10 && i + 10 * page < ordered.Count; i++)
+            {
+                var account = ordered[i + 10 * page];
+                var user = Global.Client.GetUser(account.Id);
+                embB.AddField($"#{i + 1 + 10*page} {user.Username}", $"{account.Miunies} Miunies", true);
+            }
+
+            await ReplyAsync("", false, embB.Build());
         }
 
         [Command("Transfer")]

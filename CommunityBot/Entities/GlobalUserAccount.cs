@@ -10,7 +10,7 @@ namespace CommunityBot.Entities
     {
         public ulong Id { get; set; }
 
-        public ulong Miunies { get; set; }
+        public ulong Miunies { get; set; } = 1;
 
         public DateTime LastDaily { get; set; } = DateTime.UtcNow.AddDays(-2);
 
