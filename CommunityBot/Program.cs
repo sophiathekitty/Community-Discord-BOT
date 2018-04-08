@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using CommunityBot.Configuration;
@@ -28,7 +27,7 @@ namespace CommunityBot
 
             _client = new DiscordSocketClient(discordSocketConfig);
             _client.Log += Logger.Log;
-            _client.Ready += Timers.StartTimer;
+            _client.Ready += RepeatedTaskFunctions.InitRepeatedTasks;
             _client.ReactionAdded += OnReactionAdded;
             _client.MessageReceived += MessageRewardHandler.HandleMessageRewards;
             // Subscribe to other events here.

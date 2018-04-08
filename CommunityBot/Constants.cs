@@ -14,6 +14,7 @@ namespace CommunityBot
         public const int MessageRewardCooldown = 30;
         public const int MessageRewardMinLenght = 20;
         public static readonly Tuple<int, int> MessagRewardMinMax = Tuple.Create(1, 5);
+        public static readonly int MinTimerIntervall = 3000;
         
         public static readonly string[] DidYouKnows = {
             "You can fork me on GitHub ;) xoxo <3",
