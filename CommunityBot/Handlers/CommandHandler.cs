@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using CommunityBot.Configuration;
+using CommunityBot.Features.GlobalAccounts;
 using Discord.Commands;
 using Discord.WebSocket;
 
@@ -22,12 +24,6 @@ namespace CommunityBot.Handlers
             _client.UserLeft += _client_UserLeft;
             Global.Client = client;
         }
-
-        private async Task _client_UserJoined(SocketGuildUser user)
-        {
-            var dmChannel = await user.GetOrCreateDMChannelAsync();
-            await dmChannel.SendMessageAsync($"{user.Mention}, Welcome to **{user.Guild.Name}**. try using ``@Community-Bot#8321 help`` for all the commands!");
-        }
         
         private async Task HandleCommandAsync(SocketMessage s)
         {
@@ -39,7 +35,7 @@ namespace CommunityBot.Handlers
             if (context.User.IsBot) return;
             
             int argPos = 0;
-            if (msg.HasMentionPrefix(_client.CurrentUser, ref argPos))
+            if (msg.HasMentionPrefix(_client.CurrentUser, ref argPos) || CheckPrefix(ref argPos, context))
             {
                 var cmdSearchResult = _service.Search(context, argPos);
                 if (cmdSearchResult.Commands.Count == 0) return;
@@ -60,13 +56,43 @@ namespace CommunityBot.Handlers
             }
         }
 
+        private static bool CheckPrefix(ref int argPos, SocketCommandContext context)
+        {
+            var prefixes = GlobalGuildAccounts.GetGuildAccount(context.Guild.Id).Prefixes;
+            var tmpArgPos = 0;
+            var success = prefixes.Any(pre =>
+            {
+                if (context.Message.Content.StartsWith(pre))
+                {
+                    tmpArgPos = pre.Length + 1;
+                    return true;
+                }
+                return false;
+            });
+            argPos = tmpArgPos;
+            return success;
+        }
+
+        private async Task _client_UserJoined(SocketGuildUser user)
+        {
+            var dmChannel = await user.GetOrCreateDMChannelAsync();
+            var possibleMessages = GlobalGuildAccounts.GetGuildAccount(user.Guild.Id).WelcomeMessages;
+            var messageString = possibleMessages[Global.Rng.Next(possibleMessages.Count)];
+            messageString = Global.ReplacePlacehoderStrings(messageString, user);
+            if (string.IsNullOrEmpty(messageString)) return;
+            await dmChannel.SendMessageAsync(messageString);
+        }
+
         private async Task _client_UserLeft(SocketGuildUser user)
         {
-            if (user.Guild.Name == "Discord-BOT-Tutorial")
-            {
-                var DiscordBotTutorial_General = _client.GetChannel(377879473644765185) as SocketTextChannel;
-                await DiscordBotTutorial_General.SendMessageAsync($"{user.Username} ({user.Id}) left **{user.Guild.Name}**!");
-            }
+            var guildAcc = GlobalGuildAccounts.GetGuildAccount(user.Guild.Id);
+            if (guildAcc.AnnouncementChannelId == 0) return;
+            if (!(_client.GetChannel(guildAcc.AnnouncementChannelId) is SocketTextChannel channel)) return;
+            var possibleMessages = guildAcc.LeaveMessages;
+            var messageString = possibleMessages[Global.Rng.Next(possibleMessages.Count)];
+            messageString = Global.ReplacePlacehoderStrings(messageString, user);
+            if (string.IsNullOrEmpty(messageString)) return;
+            await channel.SendMessageAsync(messageString);
         }
     }
 }

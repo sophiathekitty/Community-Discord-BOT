@@ -10,6 +10,8 @@ namespace CommunityBot
     {
         internal static readonly string ResourceFolder = "resources";
         internal static readonly string UserAccountsFolder = "users";
+        internal static readonly string ServerAccountsFolder = "servers";
+        internal static readonly string InvisibleString = "\u200b";
         public const ulong DailyMuiniesGain = 250;
         public const int MessageRewardCooldown = 30;
         public const int MessageRewardMinLenght = 20;
@@ -22,7 +24,8 @@ namespace CommunityBot
             "Wanna see someone's Miunies? Add a mention to your cash command.",
             "I just love when a programmer PULL requests their code into me.",
             "Protection? I don't accept code just from anybody, alright?",
-            "You get a couple Miunies for sending messages (with a short cooldown)."
+            "You get a couple Miunies for sending messages (with a short cooldown).", 
+            "A lot of commands have shorter and easier to use aliases!"
         };
     }
 }

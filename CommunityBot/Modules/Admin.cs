@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
 using CommunityBot.Configuration;
+using CommunityBot.Features.GlobalAccounts;
 using CommunityBot.Handlers;
 using CommunityBot.Preconditions;
 
@@ -208,24 +209,6 @@ namespace CommunityBot.Modules
             catch (Exception)
             {
                 var embed = EmbedHandler.CreateEmbed("Avatar", "Coult not set the avatar!", EmbedHandler.EmbedMessageType.Exception);
-                await Context.Channel.SendMessageAsync("", false, embed);
-            }
-        }
-
-        [Command("prefix")]
-        [RequireUserPermission(GuildPermission.Administrator)]
-        public async Task Prefix(string prefix)
-        {
-            var editSettingsResult = BotSettings.SetCommandPrefix(prefix);
-
-            if (editSettingsResult.Success)
-            {
-                var embed = EmbedHandler.CreateEmbed("Prefix", "New prefix set", EmbedHandler.EmbedMessageType.Success);
-                await Context.Channel.SendMessageAsync("", false, embed);
-            }
-            else
-            {
-                var embed = EmbedHandler.CreateEmbed("Prefix", editSettingsResult.Alerts.FirstOrDefault().Description, EmbedHandler.EmbedMessageType.Success);
                 await Context.Channel.SendMessageAsync("", false, embed);
             }
         }

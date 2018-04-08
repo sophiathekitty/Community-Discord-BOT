@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CommunityBot.Entities
 {
-    public class GlobalUserAccount
+    public class GlobalUserAccount : IGlobalAccount
     {
         public ulong Id { get; set; }
 
@@ -15,6 +15,9 @@ namespace CommunityBot.Entities
         public DateTime LastDaily { get; set; } = DateTime.UtcNow.AddDays(-2);
 
         public DateTime LastMessage { get; set; } = DateTime.UtcNow;
+
+        public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
+        
         public List<ReminderEntry> Reminders { get; internal set; } = new List<ReminderEntry>();
         /* Add more values to store */
     }
