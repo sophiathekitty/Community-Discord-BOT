@@ -13,7 +13,7 @@ namespace CommunityBot.Modules
 {
     public class Economy : ModuleBase<SocketCommandContext>
     {
-        [Command("Daily")]
+        [Command("Daily"), Remarks("Gives you some Miunies but can only be used once a day")]
         [Alias("GetDaily", "ClaimDaily")]
         public async Task GetDaily()
         {
@@ -29,7 +29,7 @@ namespace CommunityBot.Modules
             }
         }
 
-        [Command("Miunies")]
+        [Command("Miunies"), Remarks("Shows how many Miunies you have")]
         [Alias("Cash", "Money")]
         public async Task CheckMiunies()
         {
@@ -37,7 +37,7 @@ namespace CommunityBot.Modules
             await ReplyAsync(GetMiuniesReport(account.Miunies, Context.User.Mention));
         }
 
-        [Command("Miunies")]
+        [Command("Miunies"), Remarks("Shows how many Miunies the mentioned user has")]
         [Alias("Cash", "Money")]
         public async Task CheckMiuniesOther(IGuildUser target)
         {
@@ -73,7 +73,7 @@ namespace CommunityBot.Modules
             return $"{mention} has **{miunies} miunies**! {GetMiuniesCountReaction(miunies, mention)} \n\nDid you know?\n`{Global.GetRandomDidYouKnow()}`";
         }
 
-        [Command("newslot")]
+        [Command("newslot"), Remarks("Creates a new slot machine if you feel the current one is unlucky")]
         [Alias("newslots")]
         public async Task NewSlot(int amount = 0)
         {
@@ -81,7 +81,7 @@ namespace CommunityBot.Modules
             await ReplyAsync("A new slotmachine got generated! Good luck with this puppy!");
         }
 
-        [Command("slots")]
+        [Command("slots"), Remarks("Play the slots! Win or lose some Miunies!")]
         [Alias("slot")]
         public async Task SpinSlot(uint amount)
         {
@@ -114,7 +114,7 @@ namespace CommunityBot.Modules
             await ReplyAsync(payoutAndFlavour.Item2);
         }
 
-        [Command("showslots")]
+        [Command("showslots"), Remarks("Shows the configuration of the current slot machine")]
         [Alias("showslot")]
         public async Task ShowSlot()
         {
