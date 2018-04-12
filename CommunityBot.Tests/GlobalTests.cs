@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace CommunityBot.Tests
 {
-    public class EconomyTests
+    public class GlobalTests
     {
         [Test]
         public void FirstUnitTest()
