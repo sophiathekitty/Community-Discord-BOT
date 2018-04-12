@@ -47,12 +47,11 @@ namespace CommunityBot.Modules
             await ReplyAsync(GetMiuniesReport(account.Miunies, target.Mention));
         }
 
-        [Command("Richest")]
+        [Command("Richest"), Remarks("Shows a user list of the sorted by Miunies. Pageable to see lower ranked users.")]
         [Alias("Top", "Top10")]
         public async Task ShowRichesPeople(int page = 1)
         {
-            page -= 1;
-            if (page < 0)
+            if (page < 1)
             {
                 await ReplyAsync("Are you really trying that right now? **REALLY?**");
                 return;
@@ -61,21 +60,32 @@ namespace CommunityBot.Modules
             var guildUserIds = Context.Guild.Users.Select(user => user.Id);
             // Get only accounts of this server
             var accounts = GlobalUserAccounts.GetFilteredAccounts(acc => guildUserIds.Contains(acc.Id));
-            var maxPage = (accounts.Count + 9) / 10;
-            if (page >= maxPage)
+
+            const int usersPerPage = 9;
+            // Calculate the highest accepted page number => amount of pages we need to be able to fit all users in them
+            // (amount of users) / (how many to show per page + 1) results in +1 page more every time we exceed our usersPerPage  
+            var lastPageNumber = 1 + (accounts.Count / (usersPerPage+1));
+            if (page > lastPageNumber)
             {
-                await ReplyAsync($"There are not that many pages...\nPage {maxPage} is the last one...");
+                await ReplyAsync($"There are not that many pages...\nPage {lastPageNumber} is the last one...");
                 return;
             }
+            // Sort the accounts descending by Minuies
             var ordered = accounts.OrderByDescending(acc => acc.Miunies).ToList();
+
             var embB = new EmbedBuilder()
                 .WithTitle($"These are the richest people:")
-                .WithFooter($"Page {page + 1}/{maxPage}");
-            for (var i = 0; i < 10 && i + 10 * page < ordered.Count; i++)
+                .WithFooter($"Page {page}/{lastPageNumber}");
+
+            // Add fields to the embed with information of users according to the provided page we should show
+            // Two conditions because:  1. Only get as many as we want 
+            //                          2. The last page might not be completely filled so we have to interrupt early
+            for (var i = 0; i < usersPerPage && i + usersPerPage * (page - 1) < ordered.Count; i++)
             {
-                var account = ordered[i + 10 * page];
+                // -1 because we take the users non zero based input
+                var account = ordered[i + usersPerPage * (page - 1)];
                 var user = Global.Client.GetUser(account.Id);
-                embB.AddField($"#{i + 1 + 10*page} {user.Username}", $"{account.Miunies} Miunies", true);
+                embB.AddField($"#{i + usersPerPage * page} {user.Username}", $"{account.Miunies} Miunies", true);
             }
 
             await ReplyAsync("", false, embB.Build());
