@@ -26,7 +26,7 @@ namespace CommunityBot
         
         internal static string ReplacePlacehoderStrings(string messageString, SocketGuildUser user)
         {
-            return messageString.Replace("<username>", user.Username)
+            return messageString.Replace("<username>", user.Nickname ?? user.Username)
                 .Replace("<usermention>", user.Mention)
                 .Replace("<guildname>", user.Guild.Name)
                 .Replace("<botmention>", Client.CurrentUser.Mention)
