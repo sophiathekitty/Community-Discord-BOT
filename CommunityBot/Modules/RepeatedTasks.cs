@@ -11,6 +11,7 @@ namespace CommunityBot.Modules
     {
         [Command("")]
         [Alias("List", "L")]
+        [RequireOwner]
         public Task ListTasks()
         {
             var embBuilder = new EmbedBuilder();
@@ -25,7 +26,7 @@ namespace CommunityBot.Modules
         }
 
         [Command("Start")]
-        [RequireUserPermission(GuildPermission.Administrator)]
+        [RequireOwner]
         public async Task StartTask([Remainder] string name)
         {
             var success = Global.TaskHander.StartTimer(name);
@@ -34,7 +35,7 @@ namespace CommunityBot.Modules
         }
 
         [Command("Interval")]
-        [RequireUserPermission(GuildPermission.Administrator)]
+        [RequireOwner]
         public async Task ChangeIntervalOfTask(int interval, [Remainder] string name)
         {
             var success = Global.TaskHander.ChangeInterval(name, interval);
@@ -43,7 +44,7 @@ namespace CommunityBot.Modules
         }
 
         [Command("Stop")]
-        [RequireUserPermission(GuildPermission.Administrator)]
+        [RequireOwner]
         public async Task StopTask([Remainder] string name)
         {
             var success = Global.TaskHander.StopTimer(name);
