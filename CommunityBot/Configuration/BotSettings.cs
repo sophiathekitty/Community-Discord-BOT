@@ -54,7 +54,7 @@ namespace CommunityBot.Configuration
             {
                 DataStorage.StoreObject(config, configFile, useIndentations: true);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 result.AddAlert(new Alert("Settings error", "Could not save the Settings", LevelEnum.Exception));
             }
