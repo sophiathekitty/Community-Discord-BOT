@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CommunityBot.Features.Economy;
 using Discord.Commands;
 using CommunityBot.Features.RepeatedTasks;
+using Discord;
 using Discord.WebSocket;
 
 namespace CommunityBot
@@ -24,12 +25,32 @@ namespace CommunityBot
             return Constants.DidYouKnows[Rng.Next(0, Constants.DidYouKnows.Length)];
         }
         
-        internal static string ReplacePlacehoderStrings(string messageString, SocketGuildUser user)
+        public static string ReplacePlacehoderStrings(this string messageString, IGuildUser user = null)
+        {
+            var result = messageString;
+            if (user != null)
+            {
+                result = ReplaceGuildUserPlaceholderStrings(result, user);
+            }
+
+            if (Client != null)
+            {
+                result = ReplaceClientPlaceholderStrings(result);
+            }
+
+            return result;
+        }
+
+        private static string ReplaceGuildUserPlaceholderStrings(string messageString, IGuildUser user)
         {
             return messageString.Replace("<username>", user.Nickname ?? user.Username)
                 .Replace("<usermention>", user.Mention)
-                .Replace("<guildname>", user.Guild.Name)
-                .Replace("<botmention>", Client.CurrentUser.Mention)
+                .Replace("<guildname>", user.Guild.Name);
+        }
+
+        private static string ReplaceClientPlaceholderStrings(string messageString)
+        {
+            return messageString.Replace("<botmention>", Client.CurrentUser.Mention)
                 .Replace("<botdiscriminator>", Client.CurrentUser.Discriminator)
                 .Replace("<botname>", Client.CurrentUser.Username);
         }

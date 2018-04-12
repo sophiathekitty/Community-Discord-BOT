@@ -78,7 +78,7 @@ namespace CommunityBot.Handlers
             var dmChannel = await user.GetOrCreateDMChannelAsync();
             var possibleMessages = GlobalGuildAccounts.GetGuildAccount(user.Guild.Id).WelcomeMessages;
             var messageString = possibleMessages[Global.Rng.Next(possibleMessages.Count)];
-            messageString = Global.ReplacePlacehoderStrings(messageString, user);
+            messageString = messageString.ReplacePlacehoderStrings(user);
             if (string.IsNullOrEmpty(messageString)) return;
             await dmChannel.SendMessageAsync(messageString);
         }
@@ -90,7 +90,7 @@ namespace CommunityBot.Handlers
             if (!(_client.GetChannel(guildAcc.AnnouncementChannelId) is SocketTextChannel channel)) return;
             var possibleMessages = guildAcc.LeaveMessages;
             var messageString = possibleMessages[Global.Rng.Next(possibleMessages.Count)];
-            messageString = Global.ReplacePlacehoderStrings(messageString, user);
+            messageString = messageString.ReplacePlacehoderStrings(user);
             if (string.IsNullOrEmpty(messageString)) return;
             await channel.SendMessageAsync(messageString);
         }
