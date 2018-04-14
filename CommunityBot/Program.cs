@@ -7,6 +7,7 @@ using Discord;
 using CommunityBot.Configuration;
 using CommunityBot.Handlers;
 using CommunityBot.Helpers;
+using CommunityBot.Modules;
 
 namespace CommunityBot
 {
@@ -31,6 +32,7 @@ namespace CommunityBot
             _client.ReactionAdded += OnReactionAdded;
             _client.MessageReceived += MessageRewardHandler.HandleMessageRewards;
             // Subscribe to other events here.
+            _client.Ready += ServerBots.Init;
 
             await InitializeCommandHandler();
             await AttemptLogin();

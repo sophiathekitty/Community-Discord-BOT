@@ -155,6 +155,7 @@
     <Compile Include="Logger.cs" />
     <Compile Include="Modules\Admin.cs" />
     <Compile Include="Modules\Announcements.cs" />
+    <Compile Include="Modules\ServerBots.cs" />
     <Compile Include="Modules\Tags.cs" />
     <Compile Include="Modules\Basics.cs" />
     <Compile Include="Modules\Blogs.cs" />

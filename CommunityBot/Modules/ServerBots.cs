@@ -1,0 +1,372 @@
+﻿using Discord.Commands;
+using Discord.WebSocket;
+using Discord;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+using System.Diagnostics;
+using System.IO;
+using CommunityBot.Configuration;
+using CommunityBot.Features.GlobalAccounts;
+using CommunityBot.Handlers;
+using CommunityBot.Preconditions;
+using Newtonsoft.Json;
+
+namespace CommunityBot.Modules
+{
+    [Group("Bots")]
+    [Summary("Allows access to pending and archived invite links to bots. This allows for you to submit your invite links for bots so that the guild's managers can add them.")]
+    public class ServerBots : ModuleBase<SocketCommandContext>
+    {
+        [Serializable]
+        public class AllGuildsData
+        {
+            public List<GuildData> guilds;
+
+            public GuildData GetGuild(ulong id)
+            {
+                foreach (GuildData guild in guilds)
+                    if (guild.guildId == id)
+                        return guild;
+
+                return null;
+            }
+
+            public AllGuildsData()
+            {
+                guilds = new List<GuildData>();
+            }
+        }
+
+        [Serializable]
+        public class GuildData
+        {
+            public ulong guildId;
+            public List<Submission> queue;
+            public List<Submission> archive;
+
+            public GuildData(ulong _guildId)
+            {
+                guildId = _guildId;
+                queue = new List<Submission>();
+                archive = new List<Submission>();
+            }
+
+            public Submission GetSubmissionFromQueue(ulong id)
+            {
+                foreach (Submission submission in queue)
+                    if (submission.botId == id)
+                        return submission;
+
+                return null;
+            }
+
+            public Submission GetSubmissionFromArchives(ulong id)
+            {
+                foreach (Submission submission in archive)
+                    if (submission.botId == id)
+                        return submission;
+
+                return null;
+            }
+        }
+
+        [Serializable]
+        public class Submission
+        {
+            public ulong userId;
+            public ulong botId;
+            public string name;
+            public string description;
+
+            public Submission(ulong _botId, ulong _userId, string _name, string _description)
+            {
+                botId = _botId;
+                name = _name;
+                userId = _userId;
+                description = _description;
+            }
+        }
+
+        public static AllGuildsData data;
+
+        const string FILE_NAME = "ServerBots.json";
+        const string LINK_TEMPLATE_FIRST = "https://discordapp.com/api/oauth2/authorize?client_id=";
+        const string LINK_TEMPLATE_LAST = "&scope=bot&permissions=1";
+        const int SUBMISSIONS_PER_PAGE = 4;
+
+        public static Task Init()
+        {
+            data = DataStorage.RestoreObject<AllGuildsData>(FILE_NAME);
+            if (data == null)
+                data = new AllGuildsData();
+
+            foreach (SocketGuild guild in Global.Client.Guilds)
+            {
+                bool inDatabase = false;
+                foreach (GuildData data in data.guilds)
+                {
+                    if (data.guildId == guild.Id)
+                    {
+                        inDatabase = true;
+                        break;
+                    }
+                }
+
+                if (!inDatabase)
+                    AddGuild(guild.Id);
+            }
+            StoreData();
+
+            Global.Client.JoinedGuild += JoinedGuild;
+
+            return Task.CompletedTask;
+        }
+
+        private static Task JoinedGuild(SocketGuild guild)
+        {
+            AddGuild(guild.Id);
+            return Task.CompletedTask;
+        }
+
+        async Task ArchiveSubmission(ulong id)
+        {
+            GuildData guildData = data.GetGuild(Context.Guild.Id);
+            if (guildData != null)
+            {
+                Submission submission = guildData.GetSubmissionFromQueue(id);
+                if (submission != null)
+                {
+                    guildData.archive.Add(submission);
+                    guildData.queue.Remove(submission);
+                    StoreData();
+                    await Context.Channel.SendMessageAsync("Submission successfully archived.");
+                }
+                else
+                {
+                    await Context.Channel.SendMessageAsync("Could not find the given id in the pending list.");
+                }
+            }
+            else
+            {
+                await ReplyAsync("Error: Guild data not found.");
+            }
+        }
+
+        static void AddGuild(ulong guildId)
+        {
+            data.guilds.Add(new GuildData(guildId));
+        }
+
+        async Task AddSubmission(Submission submission, ulong guildId)
+        {
+            GuildData guild = data.GetGuild(guildId);
+            if (guild != null)
+            {
+                guild.queue.Add(submission);
+                StoreData();
+            }
+            else
+            {
+                await Context.Channel.SendMessageAsync("Could not submit.");
+            }
+        }
+
+        static void StoreData()
+        {
+            DataStorage.StoreObject(data, FILE_NAME, Formatting.None);
+        }
+
+        [Command("add")]
+        [Alias("add")]
+        [Remarks("Adds your bot's invite link to the invite queue where server managers can add your bot. Usage: bots add <bot's client id> <bot's name> \"|\" <description>")]
+        public async Task AddBot(params string[] args)
+        {
+            if (ulong.TryParse(args[0], out ulong id))
+            {
+                if (args.Length > 2)
+                {
+                    string botName = "";
+                    string description = "";
+                    bool syntax = false;
+                    for (int i = 1; i < args.Length; i++)
+                    {
+                        if (args[i] == "|")
+                            syntax = true;
+                        else if (syntax)
+                        {
+                            description += args[i];
+                            if (args.Length - 1 > i)
+                                description += " ";
+                        }
+                        else
+                            botName += args[i];
+                    }
+
+                    if (syntax)
+                    {
+                        await AddSubmission(new Submission(id, Context.User.Id, botName, description), Context.Guild.Id);
+                        await ReplyAsync("Submission sent!");
+                    }
+                    else
+                        await ReplyAsync("Please include the description of your bot.");
+
+                }
+                else
+                {
+                    await ReplyAsync("Please include your bot's name.");
+                }
+            }
+            else
+            {
+                await ReplyAsync("Please type a valid bot id.");
+            }
+        }
+
+        [Command("list")]
+        [Alias("list")]
+        [Remarks("Views all pending bots' invite links in the order requested at. Usage: bots list <page number> <archives/pending>")]
+        public async Task ViewBots(params string[] args)
+        {
+            if (!(args.Length == 2))
+            {
+                await ReplyAsync("Please use the right number of arguments.");
+            }
+            if (int.TryParse(args[0], out int page))
+            {
+                if (page <= 0)
+                {
+                    await ReplyAsync("You're really going to try that one on me??");
+                    return;
+                }
+                
+                List<Submission> list;
+                if (args[1] == "pending")
+                    list = data.GetGuild(Context.Guild.Id).queue;
+                else if (args[1] == "archives")
+                    list = data.GetGuild(Context.Guild.Id).archive;
+                else
+                {
+                    await ReplyAsync("Please specify either archives or pending lists.");
+                    return;
+                }
+
+                if (list.Count == 0)
+                {
+                    await ReplyAsync("There are no submissions in this list.");
+                    return;
+                }
+
+                EmbedBuilder builder = new EmbedBuilder
+                {
+                    Title = $"**__Pending bot links | Page {page}__**",
+                    Description = "",
+                    Color = new Color(119, 165, 239)
+                };
+
+                if (Math.Ceiling( (decimal) (list.Count) / SUBMISSIONS_PER_PAGE) >= page)
+                {
+                    for (int i = 0; i < SUBMISSIONS_PER_PAGE; i++)
+                    {
+                        try
+                        {
+                            int index = i + (SUBMISSIONS_PER_PAGE * (page - 1));
+
+                            if (index < list.Count)
+                            builder.Description += $"[{list[index].name}]({LINK_TEMPLATE_FIRST + list[index].botId + LINK_TEMPLATE_LAST})" + 
+                                $" by **{Global.Client.GetUser(list[index].userId).Username}**:\n{list[index].description}\n" + 
+                                $"*Client ID: {list[index].botId}*\n";
+                        }
+                        catch (IndexOutOfRangeException)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                await ReplyAsync("", false, builder.Build());
+            }
+            else
+            {
+                await ReplyAsync("Argument 1 should be an integer.");
+            }
+        }
+
+        [Command("remove"), RequireUserPermission(GuildPermission.ManageGuild)]
+        [Alias("remove")]
+        [Remarks("Removes a submission from the pending or archives list. Requires ManageGuild Permission. Usage: bots remove <bot's client id> <archives/pending>")]
+        public async Task RemoveBot(params string[] args)
+        {
+            if (!(args.Length == 2))
+            {
+                await ReplyAsync("Please use the right number of arguments.");
+                return;
+            }
+
+            if (ulong.TryParse(args[0], out ulong id))
+            {
+                Submission toRemove;
+                GuildData guildData = data.GetGuild(Context.Guild.Id);
+                if (guildData != null)
+                {
+                    if (args[1] == "archives")
+                    {
+                        toRemove = guildData.GetSubmissionFromArchives(id);
+                        if (toRemove != null)
+                        {
+                            guildData.archive.Remove(toRemove);
+                            StoreData();
+                            await ReplyAsync("Successfully removed submission from the archives list.");
+                        }
+                        else
+                            await ReplyAsync("Could not find bot in archives list.");
+                    }
+                    else if (args[1] == "pending")
+                    {
+                        toRemove = guildData.GetSubmissionFromQueue(id);
+                        if (toRemove != null)
+                        {
+                            guildData.queue.Remove(toRemove);
+                            StoreData();
+                            await ReplyAsync("Successfully removed submission from the pending list.");
+                        }
+                        else
+                            await ReplyAsync("Could not find bot in pending list.");
+                    }
+                    else
+                        await ReplyAsync("Please specify either archives or pending lists.");
+                }
+                else
+                    await ReplyAsync("Error getting guild data.");
+            }
+            else
+            {
+                await ReplyAsync("Please type a valid bot id.");
+            }
+        }
+
+        [Command("archive"), RequireUserPermission(GuildPermission.ManageGuild)]
+        [Alias("archive")]
+        [Remarks("Archives a submission from the pending list. Requires ManageGuild Permission. Usage: bots archive <bot's client id>")]
+        public async Task ArchiveBot(params string[] args)
+        {
+            if (args.Length != 1)
+            {
+                await ReplyAsync("Please use the correct amount of arguments.");
+                return;
+            }
+
+            if (ulong.TryParse(args[0], out ulong id))
+            {
+                await ArchiveSubmission(id);
+            }
+            else
+            {
+                await ReplyAsync("Please send a valid client id.");
+            }
+        }
+    }
+}
