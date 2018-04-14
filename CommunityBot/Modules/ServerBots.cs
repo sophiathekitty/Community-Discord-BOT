@@ -187,6 +187,12 @@ namespace CommunityBot.Modules
         {
             if (ulong.TryParse(args[0], out ulong id))
             {
+                if (data.GetGuild(Context.Guild.Id).GetSubmissionFromQueue(id) != null || data.GetGuild(Context.Guild.Id).GetSubmissionFromArchives(id) != null)
+                {
+                    await ReplyAsync("This bot has already been submitted.");
+                    return;
+                }
+
                 if (args.Length > 2)
                 {
                     string botName = "";
@@ -203,7 +209,11 @@ namespace CommunityBot.Modules
                                 description += " ";
                         }
                         else
+                        {
                             botName += args[i];
+                            if (args.Length - 1 > i)
+                                botName += " ";
+                        }
                     }
 
                     if (syntax)
@@ -260,14 +270,20 @@ namespace CommunityBot.Modules
                     return;
                 }
 
+                decimal pages = Math.Ceiling((decimal)(list.Count) / SUBMISSIONS_PER_PAGE);
+
                 EmbedBuilder builder = new EmbedBuilder
                 {
-                    Title = $"**__Pending bot links | Page {page}__**",
+                    Title = $"**Bot links from {args[1]} list**",
                     Description = "",
-                    Color = new Color(119, 165, 239)
+                    Color = new Color(119, 165, 239),
+                    Footer = new EmbedFooterBuilder
+                    {
+                        Text = $"Page {page}/{pages}"
+                    }
                 };
 
-                if (Math.Ceiling( (decimal) (list.Count) / SUBMISSIONS_PER_PAGE) >= page)
+                if (pages >= page)
                 {
                     for (int i = 0; i < SUBMISSIONS_PER_PAGE; i++)
                     {
@@ -276,18 +292,22 @@ namespace CommunityBot.Modules
                             int index = i + (SUBMISSIONS_PER_PAGE * (page - 1));
 
                             if (index < list.Count)
-                            builder.Description += $"[{list[index].name}]({LINK_TEMPLATE_FIRST + list[index].botId + LINK_TEMPLATE_LAST})" + 
+                            builder.Description += $"{index + 1}. [{list[index].name}]({LINK_TEMPLATE_FIRST + list[index].botId + LINK_TEMPLATE_LAST})" + 
                                 $" by **{Global.Client.GetUser(list[index].userId).Username}**:\n{list[index].description}\n" + 
-                                $"*Client ID: {list[index].botId}*\n";
+                                $"*Client ID: {list[index].botId}*\n\n";
                         }
                         catch (IndexOutOfRangeException)
                         {
                             break;
                         }
                     }
-                }
 
-                await ReplyAsync("", false, builder.Build());
+                    await ReplyAsync("", false, builder.Build());
+                }
+                else
+                {
+                    await ReplyAsync("There are not that many pages of submissions.");
+                }
             }
             else
             {
