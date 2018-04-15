@@ -81,13 +81,15 @@ namespace CommunityBot.Modules
             public ulong botId;
             public string name;
             public string description;
+            public DateTime timeSent;
 
-            public Submission(ulong _botId, ulong _userId, string _name, string _description)
+            public Submission(ulong _botId, ulong _userId, string _name, string _description, DateTime _timeSent)
             {
                 botId = _botId;
                 name = _name;
                 userId = _userId;
                 description = _description;
+                timeSent = _timeSent;
             }
         }
 
@@ -168,6 +170,7 @@ namespace CommunityBot.Modules
             {
                 guild.queue.Add(submission);
                 StoreData();
+                await Context.Channel.SendMessageAsync("Submission sent!");
             }
             else
             {
@@ -177,7 +180,7 @@ namespace CommunityBot.Modules
 
         static void StoreData()
         {
-            DataStorage.StoreObject(data, FILE_NAME, Formatting.None);
+            DataStorage.StoreObject(data, FILE_NAME, Formatting.Indented);
         }
 
         [Command("add")]
@@ -218,8 +221,7 @@ namespace CommunityBot.Modules
 
                     if (syntax)
                     {
-                        await AddSubmission(new Submission(id, Context.User.Id, botName, description), Context.Guild.Id);
-                        await ReplyAsync("Submission sent!");
+                        await AddSubmission(new Submission(id, Context.User.Id, botName, description, DateTime.Now), Context.Guild.Id);
                     }
                     else
                         await ReplyAsync("Please include the description of your bot.");
@@ -293,8 +295,8 @@ namespace CommunityBot.Modules
 
                             if (index < list.Count)
                             builder.Description += $"{index + 1}. [{list[index].name}]({LINK_TEMPLATE_FIRST + list[index].botId + LINK_TEMPLATE_LAST})" + 
-                                $" by **{Global.Client.GetUser(list[index].userId).Username}**:\n{list[index].description}\n" + 
-                                $"*Client ID: {list[index].botId}*\n\n";
+                                $"by **{Global.Client.GetUser(list[index].userId).Username}**:\n{list[index].description}\n" + 
+                                $"*Client ID: {list[index].botId}*\n{list[index].timeSent} {TimeZone.CurrentTimeZone.StandardName}\n\n";
                         }
                         catch (IndexOutOfRangeException)
                         {
