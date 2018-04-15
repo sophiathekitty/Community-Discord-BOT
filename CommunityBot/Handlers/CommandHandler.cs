@@ -27,14 +27,13 @@ namespace CommunityBot.Handlers
         
         private async Task HandleCommandAsync(SocketMessage s)
         {
-            var msg = s as SocketUserMessage;
-            if (msg == null) return;
+            if (!(s is SocketUserMessage msg)) return;
             if (msg.Channel == msg.Author.GetOrCreateDMChannelAsync()) return;
 
             var context = new SocketCommandContext(_client, msg);
             if (context.User.IsBot) return;
             
-            int argPos = 0;
+            var argPos = 0;
             if (msg.HasMentionPrefix(_client.CurrentUser, ref argPos) || CheckPrefix(ref argPos, context))
             {
                 var cmdSearchResult = _service.Search(context, argPos);
@@ -45,12 +44,10 @@ namespace CommunityBot.Handlers
                 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 executionTask.ContinueWith(task =>
                 {
-                    if (!task.Result.IsSuccess && task.Result.Error != CommandError.UnknownCommand)
-                    {
-                        string errTemplate = "{0}, Error: {1}.";
-                        string errMessage = String.Format(errTemplate, context.User.Mention, task.Result.ErrorReason);
-                        context.Channel.SendMessageAsync(errMessage);
-                    }
+                    if (task.Result.IsSuccess || task.Result.Error == CommandError.UnknownCommand) return;
+                    const string errTemplate = "{0}, Error: {1}.";
+                    var errMessage = string.Format(errTemplate, context.User.Mention, task.Result.ErrorReason);
+                    context.Channel.SendMessageAsync(errMessage);
                 });
                 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
@@ -62,12 +59,9 @@ namespace CommunityBot.Handlers
             var tmpArgPos = 0;
             var success = prefixes.Any(pre =>
             {
-                if (context.Message.Content.StartsWith(pre))
-                {
-                    tmpArgPos = pre.Length + 1;
-                    return true;
-                }
-                return false;
+                if (!context.Message.Content.StartsWith(pre)) return false;
+                tmpArgPos = pre.Length + 1;
+                return true;
             });
             argPos = tmpArgPos;
             return success;
