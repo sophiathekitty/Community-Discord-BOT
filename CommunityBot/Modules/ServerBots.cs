@@ -95,33 +95,27 @@ namespace CommunityBot.Modules
 
         public static AllGuildsData data;
 
-        const string FILE_NAME = "ServerBots.json";
         const string LINK_TEMPLATE_FIRST = "https://discordapp.com/api/oauth2/authorize?client_id=";
         const string LINK_TEMPLATE_LAST = "&scope=bot&permissions=1";
         const int SUBMISSIONS_PER_PAGE = 4;
 
         public static Task Init()
         {
-            data = DataStorage.RestoreObject<AllGuildsData>(FILE_NAME);
-            if (data == null)
-                data = new AllGuildsData();
+            data = new AllGuildsData();
 
             foreach (SocketGuild guild in Global.Client.Guilds)
             {
-                bool inDatabase = false;
-                foreach (GuildData data in data.guilds)
+                GuildData savedData = GlobalGuildAccounts.GetGuildAccount(guild.Id).BotData;
+                if (savedData == null)
                 {
-                    if (data.guildId == guild.Id)
-                    {
-                        inDatabase = true;
-                        break;
-                    }
-                }
-
-                if (!inDatabase)
                     AddGuild(guild.Id);
+                }
+                else
+                {
+                    data.guilds.Add(savedData);
+                }
+                StoreData(guild.Id);
             }
-            StoreData();
 
             Global.Client.JoinedGuild += JoinedGuild;
 
@@ -144,7 +138,7 @@ namespace CommunityBot.Modules
                 {
                     guildData.archive.Add(submission);
                     guildData.queue.Remove(submission);
-                    StoreData();
+                    StoreData(id);
                     await Context.Channel.SendMessageAsync("Submission successfully archived.");
                 }
                 else
@@ -169,7 +163,7 @@ namespace CommunityBot.Modules
             if (guild != null)
             {
                 guild.queue.Add(submission);
-                StoreData();
+                StoreData(guildId);
                 await Context.Channel.SendMessageAsync("Submission sent!");
             }
             else
@@ -178,9 +172,10 @@ namespace CommunityBot.Modules
             }
         }
 
-        static void StoreData()
+        static void StoreData(ulong id)
         {
-            DataStorage.StoreObject(data, FILE_NAME, Formatting.Indented);
+            GlobalGuildAccounts.GetGuildAccount(id).BotData = data.GetGuild(id);
+            GlobalGuildAccounts.SaveAccounts(id);
         }
 
         [Command("add")]
@@ -340,7 +335,7 @@ namespace CommunityBot.Modules
                         if (toRemove != null)
                         {
                             guildData.archive.Remove(toRemove);
-                            StoreData();
+                            StoreData(id);
                             await ReplyAsync("Successfully removed submission from the archives list.");
                         }
                         else
@@ -352,7 +347,7 @@ namespace CommunityBot.Modules
                         if (toRemove != null)
                         {
                             guildData.queue.Remove(toRemove);
-                            StoreData();
+                            StoreData(id);
                             await ReplyAsync("Successfully removed submission from the pending list.");
                         }
                         else
