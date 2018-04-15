@@ -123,7 +123,7 @@ namespace CommunityBot.Modules
         [Alias("newslots")]
         public async Task NewSlot(int amount = 0)
         {
-            Global.slot = new Slot(amount);
+            Global.Slot = new Slot(amount);
             await ReplyAsync("A new slotmachine got generated! Good luck with this puppy!");
         }
 
@@ -146,8 +146,8 @@ namespace CommunityBot.Modules
             account.Miunies -= amount;
             GlobalUserAccounts.SaveAccounts(Context.User.Id);
 
-            string slotEmojis = Global.slot.Spin();
-            var payoutAndFlavour = Global.slot.GetPayoutAndFlavourText(amount);
+            string slotEmojis = Global.Slot.Spin();
+            var payoutAndFlavour = Global.Slot.GetPayoutAndFlavourText(amount);
 
             if (payoutAndFlavour.Item1 > 0)
             {
@@ -164,7 +164,7 @@ namespace CommunityBot.Modules
         [Alias("showslot")]
         public async Task ShowSlot()
         {
-            await ReplyAsync(String.Join("\n", Global.slot.GetCylinderEmojis(true)));
+            await ReplyAsync(String.Join("\n", Global.Slot.GetCylinderEmojis(true)));
         }
 
         private string GetMiuniesCountReaction(ulong value, string mention)

@@ -16,7 +16,7 @@ namespace CommunityBot
         internal static DiscordSocketClient Client { get; set; }
         internal static Dictionary<ulong, string> MessagesIdToTrack { get; set; }
         internal static Random Rng { get; set; } = new Random();
-        internal static Slot slot = new Slot();
+        internal static Slot Slot = new Slot();
         internal static RepeatedTaskHandler TaskHander = new RepeatedTaskHandler();
         // Global Helper methods
 
