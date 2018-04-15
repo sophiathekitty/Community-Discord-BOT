@@ -4,13 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using CommunityBot.Features.Economy;
 using Discord.Commands;
 using CommunityBot.Features.RepeatedTasks;
 using Discord;
+using CommunityBot.Features.Trivia;
+using CommunityBot.Modules;
 using Discord.WebSocket;
 
 namespace CommunityBot
@@ -19,6 +20,7 @@ namespace CommunityBot
     {
         internal static DiscordSocketClient Client { get; set; }
         internal static Dictionary<ulong, string> MessagesIdToTrack { get; set; }
+        internal static List<TriviaGame> TriviaGames { get; set; } = new List<TriviaGame>();
         internal static Random Rng { get; set; } = new Random();
         internal static Slot slot = new Slot();
         internal static RepeatedTaskHandler TaskHander = new RepeatedTaskHandler();
