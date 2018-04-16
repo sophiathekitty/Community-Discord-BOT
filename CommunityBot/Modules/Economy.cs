@@ -80,10 +80,11 @@ namespace CommunityBot.Modules
             // Add fields to the embed with information of users according to the provided page we should show
             // Two conditions because:  1. Only get as many as we want 
             //                          2. The last page might not be completely filled so we have to interrupt early
-            for (var i = 0; i < usersPerPage && i + usersPerPage * (page - 1) < ordered.Count; i++)
+            page--;
+            for (var i = 1; i <= usersPerPage && i + usersPerPage * page <= ordered.Count; i++)
             {
                 // -1 because we take the users non zero based input
-                var account = ordered[i + usersPerPage * (page - 1)];
+                var account = ordered[i - 1 + usersPerPage * page];
                 var user = Global.Client.GetUser(account.Id);
                 embB.AddField($"#{i + usersPerPage * page} {user.Username}", $"{account.Miunies} Miunies", true);
             }
