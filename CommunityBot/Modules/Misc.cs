@@ -7,20 +7,25 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using CommunityBot.Entities;
+using CommunityBot.Helpers;
+using Newtonsoft.Json;
 
 namespace CommunityBot.Modules
 {
     public class Misc : ModuleBase<SocketCommandContext>
     {
         private CommandService _service;
-        
+
         public Misc(CommandService service)
         {
             _service = service;
         }
 
         [Cooldown(15)]
-        [Command("help"), Alias("h"), Remarks("DMs you a huge message if called without parameter - otherwise shows help to the provided command or module")]
+        [Command("help"), Alias("h"),
+         Remarks(
+             "DMs you a huge message if called without parameter - otherwise shows help to the provided command or module")]
         public async Task Help()
         {
             await Context.Channel.SendMessageAsync("Check your DMs.");
@@ -51,14 +56,14 @@ namespace CommunityBot.Modules
             {
                 builder.Fields.RemoveRange(0, 25);
                 await dmChannel.SendMessageAsync("", false, builder.Build());
-                
+
             }
         }
 
         [Command("help"), Alias("h")]
         [Remarks("Shows what a specific command or module does and what parameters it takes.")]
         [Cooldown(5)]
-        public async Task HelpQuery([Remainder]string query)
+        public async Task HelpQuery([Remainder] string query)
         {
             var builder = new EmbedBuilder()
             {
@@ -87,8 +92,8 @@ namespace CommunityBot.Modules
                 var cmd = match.Command;
                 var parameters = cmd.Parameters.Select(p => string.IsNullOrEmpty(p.Summary) ? p.Name : p.Summary);
                 var paramsString = $"Parameters: {string.Join(", ", parameters)}" +
-                                (string.IsNullOrEmpty(cmd.Remarks) ? "" : $"\nRemarks: {cmd.Remarks}") +
-                                (string.IsNullOrEmpty(cmd.Summary) ? "" : $"\nSummary: {cmd.Summary}");
+                                   (string.IsNullOrEmpty(cmd.Remarks) ? "" : $"\nRemarks: {cmd.Remarks}") +
+                                   (string.IsNullOrEmpty(cmd.Summary) ? "" : $"\nSummary: {cmd.Summary}");
 
                 builder.AddField(x =>
                 {
@@ -103,7 +108,8 @@ namespace CommunityBot.Modules
 
         private async Task<Embed> HelpModule(string moduleName, EmbedBuilder builder)
         {
-            var module = _service.Modules.ToList().Find(mod => string.Equals(mod.Name, moduleName, StringComparison.CurrentCultureIgnoreCase));
+            var module = _service.Modules.ToList().Find(mod =>
+                string.Equals(mod.Name, moduleName, StringComparison.CurrentCultureIgnoreCase));
             await AddModuleEmbedField(module, builder);
             return builder.Build();
         }
@@ -120,9 +126,9 @@ namespace CommunityBot.Modules
                 duplicateChecker.Add(cmd.Aliases.First());
                 var cmdDescription = $"`{cmd.Aliases.First()}`";
                 if (string.IsNullOrEmpty(cmd.Summary) == false)
-                    cmdDescription +=  $" | {cmd.Summary}";
+                    cmdDescription += $" | {cmd.Summary}";
                 if (string.IsNullOrEmpty(cmd.Remarks) == false)
-                    cmdDescription +=  $" | {cmd.Remarks}";
+                    cmdDescription += $" | {cmd.Remarks}";
                 if (cmdDescription != "``")
                     descriptionBuilder.Add(cmdDescription);
             }
@@ -131,18 +137,51 @@ namespace CommunityBot.Modules
 
             var moduleNotes = "";
             if (string.IsNullOrEmpty(module.Summary) == false)
-                moduleNotes +=  $" {module.Summary}";
+                moduleNotes += $" {module.Summary}";
             if (string.IsNullOrEmpty(module.Remarks) == false)
-                moduleNotes +=  $" {module.Remarks}";
+                moduleNotes += $" {module.Remarks}";
             if (string.IsNullOrEmpty(moduleNotes) == false)
                 moduleNotes += "\n";
             if (string.IsNullOrEmpty(module.Name) == false)
             {
-                builder.AddField($"__**{module.Name}:**__", $"{moduleNotes}" + string.Join("\n", descriptionBuilder) + $"\n{Constants.InvisibleString}");
+                builder.AddField($"__**{module.Name}:**__",
+                    $"{moduleNotes}" + string.Join("\n", descriptionBuilder) + $"\n{Constants.InvisibleString}");
             }
         }
 
-        [Command("Addition")]
+        [Command("credits")]
+        [Summary("Shows everyone who has worked on and contributed to me")]
+        public async Task Credits()
+        {
+            var embB = new EmbedBuilder()
+                .WithTitle("Credits")
+                .WithColor(Color.Blue)
+                .WithUrl("https://www.github.com/repos/petrspelos/Community-Discord-BOT/")
+                .WithFooter(Global.GetRandomDidYouKnow())
+                // Someone needs to pimp this message... it is lame
+                .WithDescription("Peter is the one who created me... fleshed me out and tought me to speak.\n" +
+                                 "Everything was organized... My life was good :smiley:\n" +
+                                 "And then he let those People lose on me... :scream:\n");
+
+
+            var contributions = await GitHub.Contributions("petrspelos", "Community-Discord-BOT");
+            // Sort contributions by commits
+            contributions = contributions.OrderByDescending(contribution => contribution.total).ToList();
+            // Creating the embeds with all the contributers and their stats
+            embB = contributions.Aggregate(embB, (emb, cont) =>
+            {
+                // Accumulate all the weeks stats to the total stat
+                var stats = cont.weeks.Aggregate(
+                    Tuple.Create(0, 0),
+                    (acc, week) => Tuple.Create(acc.Item1 + week.a, acc.Item2 + week.d)
+                );
+                return emb.AddField(GitHub.ContributionStat(cont, stats));
+            });
+            
+            await ReplyAsync("", false, embB.Build());
+        }
+
+    [Command("Addition")]
         [Summary("Adds 2 numbers together.")]
         public async Task AddAsync(int num1, int num2)
         {
