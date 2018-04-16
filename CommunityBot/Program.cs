@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using CommunityBot.Configuration;
+using CommunityBot.Features.Trivia;
 using CommunityBot.Handlers;
 using CommunityBot.Helpers;
 using CommunityBot.Modules;
@@ -40,7 +41,7 @@ namespace CommunityBot
             await Task.Delay(-1);
         }
 
-        private Task OnReactionAdded(Cacheable<IUserMessage, ulong> cache, ISocketMessageChannel channel, SocketReaction reaction)
+        private async Task OnReactionAdded(Cacheable<IUserMessage, ulong> cache, ISocketMessageChannel channel, SocketReaction reaction)
         {
             if (!reaction.User.Value.IsBot)
             {
@@ -53,9 +54,10 @@ namespace CommunityBot
                         var embed = BlogHandler.SubscribeToBlog(reaction.User.Value.Id, item.Value);
                     }
                 }
+                // Checks if the rection is associated with a running game and if it is 
+                // from the same user who ran the command - if so it handles it
+                await TriviaGames.HandleReactionAdded(cache, reaction);
             }
-
-            return Task.CompletedTask;
         }
 
         private async Task InitializeCommandHandler()

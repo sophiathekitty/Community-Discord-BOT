@@ -139,6 +139,8 @@
     <Compile Include="Features\Blogs\BlogItem.cs" />
     <Compile Include="Features\Economy\Daily.cs" />
     <Compile Include="Features\Economy\Slots.cs" />
+    <Compile Include="Features\Trivia\TriviaGame.cs" />
+    <Compile Include="Features\Trivia\TriviaGames.cs" />
     <Compile Include="Features\GlobalAccounts\GlobalGuildAccounts.cs" />
     <Compile Include="Helpers\RepeatedTaskFunctions.cs" />
     <Compile Include="Global.cs" />
@@ -161,6 +163,7 @@
     <Compile Include="Modules\Basics.cs" />
     <Compile Include="Modules\Blogs.cs" />
     <Compile Include="Modules\Economy.cs" />
+    <Compile Include="Modules\Fun\Trivia.cs" />
     <Compile Include="Modules\Prefix.cs" />
     <Compile Include="Modules\Reminder.cs" />
     <Compile Include="Modules\RepeatedTasks.cs" />
