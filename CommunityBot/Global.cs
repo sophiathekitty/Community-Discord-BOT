@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using CommunityBot.Features.Economy;
@@ -103,6 +107,20 @@ namespace CommunityBot
             }
 
             return "The whole concept of miunies is fake. I hope you know that";
+        }
+
+        public static async Task<string> SendWebRequest(string requestUrl)
+        {
+            using (var client = new HttpClient(new HttpClientHandler()))
+            {
+                client.DefaultRequestHeaders.Add("User-Agent", "Community-Discord-BOT");
+                using (var response = await client.GetAsync(requestUrl))
+                {
+                    if (response.StatusCode != HttpStatusCode.OK)
+                        return response.StatusCode.ToString();
+                    return await response.Content.ReadAsStringAsync();
+                }
+            }
         }
     }
 }
