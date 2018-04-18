@@ -124,5 +124,13 @@ namespace CommunityBot
                 }
             }
         }
+
+        internal static void WriteColoredLine(string text, ConsoleColor color, ConsoleColor backgroundColor = ConsoleColor.Black)
+        {
+            Console.BackgroundColor = backgroundColor;
+            Console.ForegroundColor = color;
+            Console.WriteLine(text);
+            Console.ResetColor();
+        }
     }
 }
