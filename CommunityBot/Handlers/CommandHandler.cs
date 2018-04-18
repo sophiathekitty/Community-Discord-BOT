@@ -2,10 +2,9 @@
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using CommunityBot.Configuration;
-using CommunityBot.Features.GlobalAccounts;
 using Discord.Commands;
 using Discord.WebSocket;
+using CommunityBot.Features.GlobalAccounts;
 
 namespace CommunityBot.Handlers
 {
@@ -28,7 +27,7 @@ namespace CommunityBot.Handlers
         private async Task HandleCommandAsync(SocketMessage s)
         {
             if (!(s is SocketUserMessage msg)) return;
-            if (msg.Channel == msg.Author.GetOrCreateDMChannelAsync()) return;
+            if (msg.Channel is SocketDMChannel) return;
 
             var context = new SocketCommandContext(_client, msg);
             if (context.User.IsBot) return;
