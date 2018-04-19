@@ -22,7 +22,7 @@ namespace CommunityBot.Modules
             embed.WithColor(240, 98, 146);
             embed.WithImageUrl(Global.Client.CurrentUser.GetAvatarUrl());
 
-            await Context.Channel.SendMessageAsync("", embed: embed);
+            await Context.Channel.SendMessageAsync("", embed: embed.Build());
         }
     }
 }

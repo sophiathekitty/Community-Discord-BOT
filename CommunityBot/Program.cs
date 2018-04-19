@@ -10,7 +10,6 @@ using CommunityBot.Features.Trivia;
 using CommunityBot.Handlers;
 using CommunityBot.Helpers;
 using CommunityBot.Modules;
-using Discord.Net;
 
 namespace CommunityBot
 {

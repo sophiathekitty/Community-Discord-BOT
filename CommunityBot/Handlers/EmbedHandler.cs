@@ -48,7 +48,7 @@ namespace CommunityBot.Handlers
                 embed.WithCurrentTimestamp();
             }
 
-            return embed;
+            return embed.Build();
         }
 
         public static Embed CreateBlogEmbed(string title, string body, string subscribers, EmbedMessageType type, bool withTimeStamp = false)
@@ -84,7 +84,7 @@ namespace CommunityBot.Handlers
                 embed.WithCurrentTimestamp();
             }
 
-            return embed;
+            return embed.Build();
         }
 
         public enum EmbedMessageType

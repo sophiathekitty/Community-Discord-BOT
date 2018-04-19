@@ -29,7 +29,7 @@ namespace CommunityBot.Modules
                 embed.AddField("Maximum time", "60 minutes");
                 embed.WithCurrentTimestamp();
                 embed.WithColor(0, 0, 255);
-                await Context.Channel.SendMessageAsync("", embed: embed);
+                await Context.Channel.SendMessageAsync("", embed: embed.Build());
             }
             else if (lifetimeInMinutes == 60000)
             {
