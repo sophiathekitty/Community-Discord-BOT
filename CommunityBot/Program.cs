@@ -37,7 +37,7 @@ namespace CommunityBot
             _client.Ready += ServerBots.Init;
 
             await InitializeCommandHandler();
-            await AttemptLogin();
+            while (!await AttemptLogin()){}
             await _client.StartAsync();
             await Task.Delay(-1);
         }
@@ -67,11 +67,12 @@ namespace CommunityBot
             await _handler.InitializeAsync(_client);
         }
 
-        private async Task AttemptLogin(int attempt = 1)
+        private async Task<bool> AttemptLogin()
         {
             try
             {
                 await _client.LoginAsync(TokenType.Bot, BotSettings.config.Token);
+                return true;
             }
             catch (HttpRequestException e)
             {
@@ -85,25 +86,24 @@ namespace CommunityBot
                         ConsoleColor.Red);
                 }
 
-                var shouldTryAgain = GetTryAgainRequested(attempt);
-
+                var shouldTryAgain = GetTryAgainRequested();
                 if (!shouldTryAgain) Environment.Exit(0);
-
-                await AttemptLogin(attempt + 1);
+                return false;
             }
             catch (Exception)
             {
                 Console.WriteLine("An exception occurred. Your token might not be configured, or it might be wrong.");
-                Environment.Exit(0);
+
+                var shouldTryAgain = GetTryAgainRequested();
+                if (!shouldTryAgain) Environment.Exit(0);
+                return false;
             }
         }
-
-        private static bool GetTryAgainRequested(int attempt)
+        
+        private static bool GetTryAgainRequested()
         {
-            if (attempt >= 4) return false;
-
-            Console.WriteLine($"\nDo you want to try again? (y/n) [{4 - attempt} {(4 - attempt == 1 ? "attempt" : "attempts")} left]");
-            Global.WriteColoredLine("(not trying again closes the application)", ConsoleColor.Yellow);
+            Console.WriteLine("\nDo you want to try again? (y/n)");
+            Global.WriteColoredLine("(not trying again closes the application)\n", ConsoleColor.Yellow);
 
             return Console.ReadKey().Key == ConsoleKey.Y;
         }
