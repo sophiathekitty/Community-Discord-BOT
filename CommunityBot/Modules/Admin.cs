@@ -25,7 +25,8 @@ namespace CommunityBot.Modules
         [RequireUserPermission(GuildPermission.ManageMessages)]
         public async Task Clear(int amountOfMessagesToDelete)
         {
-            await Context.Message.Channel.DeleteMessagesAsync(await Context.Message.Channel.GetMessagesAsync(amountOfMessagesToDelete).Flatten());
+            // TODO: Port to Discord .NET 2.0
+            //await Context.Message.Channel.DeleteMessagesAsync(await Context.Message.Channel.GetMessagesAsync(amountOfMessagesToDelete).Flatten());
         }
 
         [Command("purge")]
@@ -33,11 +34,13 @@ namespace CommunityBot.Modules
         [RequireUserPermission(GuildPermission.ManageMessages)]
         public async Task Clear(SocketGuildUser user)
         {
-            var messages = await Context.Message.Channel.GetMessagesAsync(100).Flatten();
+            // TODO: Port to Discord .NET 2.0
 
-            var result = messages.Where(x => x.Author.Id == user.Id && x.CreatedAt >= DateTimeOffset.UtcNow.Subtract(TimeSpan.FromDays(14)));
+            //var messages = await Context.Message.Channel.GetMessagesAsync(100).Flatten();
 
-            await Context.Message.Channel.DeleteMessagesAsync(result);
+            //var result = messages.Where(x => x.Author.Id == user.Id && x.CreatedAt >= DateTimeOffset.UtcNow.Subtract(TimeSpan.FromDays(14)));
+
+            //await Context.Message.Channel.DeleteMessagesAsync(result);
         }
 
         [Command("kick")]
@@ -155,7 +158,8 @@ namespace CommunityBot.Modules
         public async Task SetGame([Remainder] string gamename)
         {
             await Context.Client.SetGameAsync(gamename);
-            await ReplyAsync($"Changed game to {Context.Client.CurrentUser.Game?.Name}");
+            // TODO: Port to Discord .NET 2.0
+            //await ReplyAsync($"Changed game to {Context.Client.CurrentUser.Game?.Name}");
         }
 
         public async Task<IRole> GetMuteRole(IGuild guild)

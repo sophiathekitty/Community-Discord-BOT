@@ -23,7 +23,19 @@ namespace CommunityBot.Preconditions
             AdminsAreLimited = adminsAreLimited;
         }
 
-        public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command, IServiceProvider services)
+        public struct CooldownInfo
+        {
+            public ulong UserId { get; }
+            public int CommandHashCode { get; }
+
+            public CooldownInfo(ulong userId, int commandHashCode)
+            {
+                UserId = userId;
+                CommandHashCode = commandHashCode;
+            }
+        }
+
+        public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
         {
             // Check if the user is administrator and if it needs to apply cooldown for him.
             if (!AdminsAreLimited && context.User is IGuildUser user && user.GuildPermissions.Administrator)
@@ -50,17 +62,6 @@ namespace CommunityBot.Preconditions
             }
 
             return Task.FromResult(PreconditionResult.FromSuccess());
-        }
-        public struct CooldownInfo
-        {
-            public ulong UserId { get; }
-            public int CommandHashCode { get; }
-
-            public CooldownInfo(ulong userId, int commandHashCode)
-            {
-                UserId = userId;
-                CommandHashCode = commandHashCode;
-            }
         }
     }
 }
