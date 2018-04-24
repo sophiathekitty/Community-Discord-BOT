@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/petrspelos/Community-Discord-BOT.svg?branch=master)](https://travis-ci.org/petrspelos/Community-Discord-BOT)
+
 # Community-Discord-BOT
 A community driven public Discord-BOT using C# and Discord .NET, feel free to contribute!
 
