@@ -96,20 +96,20 @@ namespace CommunityBot.Modules
         {
             if (Context.User.Id == target.Id)
             {
-                await ReplyAsync($":negative_squared_cross_mark: You can\'t gift yourself...\n**And you KNOW it!**");
+                await ReplyAsync(":negative_squared_cross_mark: You can't gift yourself...\n**And you KNOW it!**");
                 return;
             }
             var transferSource = GlobalUserAccounts.GetUserAccount(Context.User.Id);
             if (transferSource.Miunies < amount)
             {
-                await ReplyAsync($":negative_squared_cross_mark: You don\'t have that much Minuies! You only have {transferSource.Miunies}.");
+                await ReplyAsync($":negative_squared_cross_mark: You don't have that much Minuies! You only have {transferSource.Miunies}.");
                 return;
             }
             var transferTarget = GlobalUserAccounts.GetUserAccount(target.Id);
             transferSource.Miunies -= amount;
             transferTarget.Miunies += amount;
             GlobalUserAccounts.SaveAccounts(transferSource.Id, transferTarget.Id);
-            await ReplyAsync($" :white_check_mark: {Context.User.Username} has given {target.Username} {amount} Minuies!");
+            await ReplyAsync($":white_check_mark: {Context.User.Username} has given {target.Username} {amount} Minuies!");
         }
 
         public string GetMiuniesReport(ulong miunies, string mention)
