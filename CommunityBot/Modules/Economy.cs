@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using CommunityBot.Entities;
-using CommunityBot.Features.Economy;
+﻿using CommunityBot.Features.Economy;
 using CommunityBot.Features.GlobalAccounts;
 using Discord;
 using Discord.Commands;
+using System.Linq;
+using System.Threading.Tasks;
+using static CommunityBot.Features.Economy.Daily;
+using static CommunityBot.Global;
+// ReSharper disable ConvertIfStatementToSwitchStatement
 
 namespace CommunityBot.Modules
 {
@@ -20,14 +17,14 @@ namespace CommunityBot.Modules
         public async Task GetDaily()
         {
             var result = Daily.GetDaily(Context.User.Id);
-            switch (result)
+
+            if (result == DailyResult.Success)
             {
-                case Daily.DailyResult.AlreadyRecieved:
-                    await ReplyAsync($"You already got your daily, {Context.User.Mention}.");
-                    break;
-                case Daily.DailyResult.Success:
-                    await ReplyAsync($"Here's {Constants.DailyMuiniesGain} miunies, {Context.User.Mention}! Just for you...");
-                    break;
+                await ReplyAsync($"Here's {Constants.DailyMuiniesGain} miunies, {Context.User.Mention}! Just for you...");
+            }
+            else // if (result == DailyResult.AlreadyRecieved)
+            {
+                await ReplyAsync($"You already got your daily, {Context.User.Mention}.");
             }
         }
 
@@ -74,7 +71,7 @@ namespace CommunityBot.Modules
             var ordered = accounts.OrderByDescending(acc => acc.Miunies).ToList();
 
             var embB = new EmbedBuilder()
-                .WithTitle($"These are the richest people:")
+                .WithTitle("These are the richest people:")
                 .WithFooter($"Page {page}/{lastPageNumber}");
 
             // Add fields to the embed with information of users according to the provided page we should show
@@ -85,7 +82,7 @@ namespace CommunityBot.Modules
             {
                 // -1 because we take the users non zero based input
                 var account = ordered[i - 1 + usersPerPage * page];
-                var user = Global.Client.GetUser(account.Id);
+                var user = Client.GetUser(account.Id);
                 embB.AddField($"#{i + usersPerPage * page} {user.Username}", $"{account.Miunies} Miunies", true);
             }
 
@@ -117,7 +114,7 @@ namespace CommunityBot.Modules
 
         public string GetMiuniesReport(ulong miunies, string mention)
         {
-            return $"{mention} has **{miunies} miunies**! {GetMiuniesCountReaction(miunies, mention)} \n\nDid you know?\n`{Global.GetRandomDidYouKnow()}`";
+            return $"{mention} has **{miunies} miunies**! {GetMiuniesCountReaction(miunies, mention)} \n\nDid you know?\n`{GetRandomDidYouKnow()}`";
         }
 
         [Command("newslot"), Remarks("Creates a new slot machine if you feel the current one is unlucky")]
@@ -147,7 +144,7 @@ namespace CommunityBot.Modules
             account.Miunies -= amount;
             GlobalUserAccounts.SaveAccounts(Context.User.Id);
 
-            string slotEmojis = Global.Slot.Spin();
+            var slotEmojis = Global.Slot.Spin();
             var payoutAndFlavour = Global.Slot.GetPayoutAndFlavourText(amount);
 
             if (payoutAndFlavour.Item1 > 0)
@@ -156,7 +153,7 @@ namespace CommunityBot.Modules
                 GlobalUserAccounts.SaveAccounts();
             }            
 
-            IUserMessage msg = await ReplyAsync(slotEmojis);
+            await ReplyAsync(slotEmojis);
             await Task.Delay(1000);
             await ReplyAsync(payoutAndFlavour.Item2);
         }
@@ -165,57 +162,7 @@ namespace CommunityBot.Modules
         [Alias("showslot")]
         public async Task ShowSlot()
         {
-            await ReplyAsync(String.Join("\n", Global.Slot.GetCylinderEmojis(true)));
-        }
-
-        private string GetMiuniesCountReaction(ulong value, string mention)
-        {
-            if (value > 100000)
-            {
-                return $"Holy shit, {mention}! You're either cheating or you're really dedicated.";
-            }
-            else if (value > 50000)
-            {
-                return $"Damn, you must be here often, {mention}. Do you have a crush on me or something?";
-            }
-            else if (value > 20000)
-            {
-                return $"That's enough to buy a house... In Miunie land... \n\nIt's a real place, shut up, {mention}!";
-            }
-            else if (value > 10000)
-            {
-                return $"{mention} is kinda getting rich. Do we rob them or what?";
-            }
-            else if (value > 5000)
-            {
-                return $"Is it just me or is {mention} taking this economy a little too seriously?";
-            }
-            else if (value > 2500)
-            {
-                return $"Great, {mention}! Now you can give all those miunies to your superior mistress, ME.";
-            }
-            else if (value > 1100)
-            {
-                return $"{mention} is showing their wealth on the internet again.";
-            }
-            else if (value > 800)
-            {
-                return $"Alright, {mention}. Put the miunies in the back and nobody gets hurt.";
-            }
-            else if (value > 550)
-            {
-                return $"I like how {mention} think that's impressive.";
-            }
-            else if (value > 200)
-            {
-                return $"Outch, {mention}! If I knew that is all you've got, I would just DM you the amount. Embarrassing!";
-            }
-            else if (value == 0)
-            {
-                return $"Yea, {mention} is broke. What a surprise.";
-            }
-
-            return $"The whole concept of miunies is fake. I hope you know that";
+            await ReplyAsync(string.Join("\n", Global.Slot.GetCylinderEmojis(true)));
         }
     }
 }
