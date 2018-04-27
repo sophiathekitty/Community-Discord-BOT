@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using static CommunityBot.Features.Economy.Daily;
 using static CommunityBot.Global;
+using static CommunityBot.Features.Economy.Transfer;
 // ReSharper disable ConvertIfStatementToSwitchStatement
 
 namespace CommunityBot.Modules
@@ -94,22 +95,23 @@ namespace CommunityBot.Modules
         [Alias("Give", "Gift")]
         public async Task TransferMinuies(IGuildUser target, ulong amount)
         {
-            if (Context.User.Id == target.Id)
+            // Class name left for readability
+            // ToUser alone doesn't mean much.
+            var result = Transfer.ToUser(Context.User, target, amount);
+
+            if (result == TransferResult.SelfTransfer)
             {
                 await ReplyAsync(":negative_squared_cross_mark: You can't gift yourself...\n**And you KNOW it!**");
-                return;
             }
-            var transferSource = GlobalUserAccounts.GetUserAccount(Context.User.Id);
-            if (transferSource.Miunies < amount)
+            else if (result == TransferResult.NotEnoughMiunies)
             {
-                await ReplyAsync($":negative_squared_cross_mark: You don't have that much Minuies! You only have {transferSource.Miunies}.");
-                return;
+                var userAccount = GlobalUserAccounts.GetUserAccount(Context.User.Id);
+                await ReplyAsync($":negative_squared_cross_mark: You don't have that much Minuies! You only have {userAccount.Miunies}.");
             }
-            var transferTarget = GlobalUserAccounts.GetUserAccount(target.Id);
-            transferSource.Miunies -= amount;
-            transferTarget.Miunies += amount;
-            GlobalUserAccounts.SaveAccounts(transferSource.Id, transferTarget.Id);
-            await ReplyAsync($":white_check_mark: {Context.User.Username} has given {target.Username} {amount} Minuies!");
+            else if (result == TransferResult.Success)
+            {
+                await ReplyAsync($":white_check_mark: {Context.User.Username} has given {target.Username} {amount} Minuies!");
+            }
         }
 
         public string GetMiuniesReport(ulong miunies, string mention)
