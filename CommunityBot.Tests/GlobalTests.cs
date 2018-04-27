@@ -8,12 +8,6 @@ namespace CommunityBot.Tests
     public class GlobalTests
     {
         [Test]
-        public void FirstUnitTest()
-        {
-            Assert.Pass();
-        }
-
-        [Test]
         public void ReplacePlaceholderString_NoNicknameTest()
         {
             const string expected = "Username";
