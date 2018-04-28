@@ -15,7 +15,7 @@ namespace CommunityBot.Features.Economy
 
             if (transferSource.Miunies < amount) return TransferResult.NotEnoughMiunies;
 
-            var transferTarget = GlobalUserAccounts.GetUserAccount(from.Id);
+            var transferTarget = GlobalUserAccounts.GetUserAccount(to.Id);
 
             transferSource.Miunies -= amount;
             transferTarget.Miunies += amount;
