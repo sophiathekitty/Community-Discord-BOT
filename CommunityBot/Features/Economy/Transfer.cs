@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using CommunityBot.Features.GlobalAccounts;
+﻿using CommunityBot.Features.GlobalAccounts;
 using Discord;
 
 namespace CommunityBot.Features.Economy
@@ -10,7 +7,7 @@ namespace CommunityBot.Features.Economy
     {
         internal enum TransferResult { Success, SelfTransfer, NotEnoughMiunies }
 
-        internal static TransferResult ToUser(IUser from, IUser to, ulong amount)
+        internal static TransferResult UserToUser(IUser from, IUser to, ulong amount)
         {
             if (from.Id == to.Id) return TransferResult.SelfTransfer;
 

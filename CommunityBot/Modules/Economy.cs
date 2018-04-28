@@ -96,8 +96,8 @@ namespace CommunityBot.Modules
         public async Task TransferMinuies(IGuildUser target, ulong amount)
         {
             // Class name left for readability
-            // ToUser alone doesn't mean much.
-            var result = Transfer.ToUser(Context.User, target, amount);
+            // UserToUser alone doesn't mean much.
+            var result = Transfer.UserToUser(Context.User, target, amount);
 
             if (result == TransferResult.SelfTransfer)
             {
@@ -133,7 +133,7 @@ namespace CommunityBot.Modules
         {
             if (amount < 1)
             {
-                await ReplyAsync($"You can' spin for that amount of Miunies.\nAND YOU KNOW IT!");
+                await ReplyAsync("You can' spin for that amount of Miunies.\nAND YOU KNOW IT!");
                 return;
             }
             var account = GlobalUserAccounts.GetUserAccount(Context.User.Id);

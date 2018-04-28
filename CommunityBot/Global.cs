@@ -34,21 +34,14 @@ namespace CommunityBot
         public static string ReplacePlacehoderStrings(this string messageString, IGuildUser user = null)
         {
             var result = messageString;
-            if (user != null)
-            {
-                result = ReplaceGuildUserPlaceholderStrings(result, user);
-            }
-
-            if (Client != null)
-            {
-                result = ReplaceClientPlaceholderStrings(result);
-            }
-
+            result = ReplaceGuildUserPlaceholderStrings(result, user);
+            result = ReplaceClientPlaceholderStrings(result);
             return result;
         }
 
         private static string ReplaceGuildUserPlaceholderStrings(string messageString, IGuildUser user)
         {
+            if (user == null) return messageString;
             return messageString.Replace("<username>", user.Nickname ?? user.Username)
                 .Replace("<usermention>", user.Mention)
                 .Replace("<guildname>", user.Guild.Name);
@@ -56,6 +49,7 @@ namespace CommunityBot
 
         private static string ReplaceClientPlaceholderStrings(string messageString)
         {
+            if (Client == null) return messageString;
             return messageString.Replace("<botmention>", Client.CurrentUser.Mention)
                 .Replace("<botdiscriminator>", Client.CurrentUser.Discriminator)
                 .Replace("<botname>", Client.CurrentUser.Username);
