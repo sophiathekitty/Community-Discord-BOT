@@ -17,7 +17,12 @@ namespace CommunityBot.Configuration
 
         static BotSettings()
         {
-            if(DataStorage.LocalFileExists(configFile))
+            LoadConfig();
+        }
+
+        internal static void LoadConfig()
+        {
+            if (DataStorage.LocalFileExists(configFile))
             {
                 config = DataStorage.RestoreObject<BotConfig>(configFile);
             }

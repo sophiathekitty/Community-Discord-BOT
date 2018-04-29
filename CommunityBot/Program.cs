@@ -23,6 +23,8 @@ namespace CommunityBot
 
         public async Task StartAsync(string[] args)
         {
+            Console.WriteLine(Environment.CurrentDirectory);
+
             var discordSocketConfig = new DiscordSocketConfig()
             {
                 LogLevel = LogSeverity.Verbose
@@ -99,6 +101,7 @@ namespace CommunityBot
 
                 var shouldTryAgain = GetTryAgainRequested();
                 if (!shouldTryAgain) Environment.Exit(0);
+                BotSettings.LoadConfig();
                 return false;
             }
         }
