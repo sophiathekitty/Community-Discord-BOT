@@ -19,9 +19,9 @@ namespace CommunityBot
         private CommandHandler _handler;
 
         static void Main(string[] args)
-        => new Program().StartAsync().GetAwaiter().GetResult();
+        => new Program().StartAsync(args).GetAwaiter().GetResult();
 
-        public async Task StartAsync()
+        public async Task StartAsync(string[] args)
         {
             var discordSocketConfig = new DiscordSocketConfig()
             {
@@ -35,6 +35,9 @@ namespace CommunityBot
             _client.MessageReceived += MessageRewardHandler.HandleMessageRewards;
             // Subscribe to other events here.
             _client.Ready += ServerBots.Init;
+
+            // Use argument token if available
+            if (args.Any()) BotSettings.config.Token = args.First();
 
             await InitializeCommandHandler();
             while (!await AttemptLogin()){}
