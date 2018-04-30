@@ -6,7 +6,7 @@
 
 Hello, I'm Miunie!
 
-I'm a commiunity bot for Discord written in C# using the [Discord .NET library](https://github.com/RogueException/Discord.Net).
+I'm a community bot for Discord written in C# using the [Discord .NET library](https://github.com/RogueException/Discord.Net).
 
 ## Getting Miunie
 
