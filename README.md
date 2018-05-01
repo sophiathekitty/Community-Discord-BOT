@@ -4,7 +4,7 @@
 
 ## About Miunie
 
-Hello, I'm Miunie!
+Hello, my name is Miunie!
 
 I'm a community bot for Discord written in C# using the [Discord .NET library](https://github.com/RogueException/Discord.Net).
 
