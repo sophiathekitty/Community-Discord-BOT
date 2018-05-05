@@ -159,9 +159,9 @@ namespace CommunityBot.Modules
                 .WithUrl("https://www.github.com/repos/petrspelos/Community-Discord-BOT/")
                 .WithFooter(Global.GetRandomDidYouKnow())
                 // Someone needs to pimp this message... it is lame
-                .WithDescription("Peter is the one who created me... fleshed me out and tought me to speak.\n" +
-                                 "Everything was organized... My life was good :smiley:\n" +
-                                 "And then he let those People lose on me... :scream:\n");
+                .WithDescription("Peter is the one who created me... fleshed me out and taught me how to speak.\n" +
+                                 "Everything was organized... my life was good :smiley:\n" +
+                                 "And then he let those people lose on me... :scream:\n");
 
 
             var contributions = await GitHub.Contributions("petrspelos", "Community-Discord-BOT");
