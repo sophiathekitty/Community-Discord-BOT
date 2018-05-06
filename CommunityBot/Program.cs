@@ -23,7 +23,7 @@ namespace CommunityBot
 
         public async Task StartAsync(string[] args)
         {
-            Console.WriteLine(Environment.CurrentDirectory);
+            if (args.Contains("-h")) Global.Headless = true;
 
             var discordSocketConfig = new DiscordSocketConfig()
             {
@@ -31,7 +31,12 @@ namespace CommunityBot
             };
 
             _client = new DiscordSocketClient(discordSocketConfig);
-            _client.Log += Logger.Log;
+
+            if (!Global.Headless)
+            {
+                _client.Log += Logger.Log;
+            }
+
             _client.Ready += RepeatedTaskFunctions.InitRepeatedTasks;
             _client.ReactionAdded += OnReactionAdded;
             _client.MessageReceived += MessageRewardHandler.HandleMessageRewards;
@@ -108,6 +113,8 @@ namespace CommunityBot
         
         private static bool GetTryAgainRequested()
         {
+            if (Global.Headless) return false;
+
             Console.WriteLine("\nDo you want to try again? (y/n)");
             Global.WriteColoredLine("(not trying again closes the application)\n", ConsoleColor.Yellow);
 
