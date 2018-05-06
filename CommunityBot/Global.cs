@@ -24,6 +24,7 @@ namespace CommunityBot
         internal static Random Rng { get; set; } = new Random();
         internal static Slot Slot = new Slot();
         internal static RepeatedTaskHandler TaskHander = new RepeatedTaskHandler();
+        internal static String version = "0.0"; // Set to the current version!
 
         internal static bool Headless = false;
         // Global Helper methods

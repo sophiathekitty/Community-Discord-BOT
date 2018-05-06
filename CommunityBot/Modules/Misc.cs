@@ -60,6 +60,18 @@ namespace CommunityBot.Modules
             }
         }
 
+        [Command("version"), Alias("ver")]
+        [Remarks("Returns the current version of the bot.")]
+        [Cooldown(5)]
+        public async Task Version()
+        {
+            EmbedBuilder builder = new EmbedBuilder();
+            builder.Color = new Color(114, 137, 218);
+            builder.AddField("Version", $"The current version of the bot is: `{Global.version}`");
+            await ReplyAsync("", false, builder.Build());
+        }
+
+
         [Command("help"), Alias("h")]
         [Remarks("Shows what a specific command or module does and what parameters it takes.")]
         [Cooldown(5)]
