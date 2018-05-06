@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/petrspelos/Community-Discord-BOT.svg?branch=master)](https://travis-ci.org/petrspelos/Community-Discord-BOT)
+| [![Build Status](https://travis-ci.org/petrspelos/Community-Discord-BOT.svg?branch=master)](https://travis-ci.org/petrspelos/Community-Discord-BOT) | [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/petrspelos/Community-Discord-BOT/blob/master/LICENSE) |
+|---|---|
 
 # Miunie - the Co**MIUNIE**ty Discord Bot
 
