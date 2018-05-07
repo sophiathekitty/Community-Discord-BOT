@@ -20,7 +20,7 @@ namespace CommunityBot.Modules
     {
         private static readonly OverwritePermissions denyOverwrite = new OverwritePermissions(addReactions: PermValue.Deny, sendMessages: PermValue.Deny, attachFiles: PermValue.Deny);
 
-        [Command("purge")]
+        [Command("purge", RunMode = RunMode.Async)]
         [Remarks("Purges An Amount Of Messages")]
         [RequireUserPermission(GuildPermission.ManageMessages)]
         public async Task Clear(int amountOfMessagesToDelete)
@@ -41,6 +41,7 @@ namespace CommunityBot.Modules
             //var result = messages.Where(x => x.Author.Id == user.Id && x.CreatedAt >= DateTimeOffset.UtcNow.Subtract(TimeSpan.FromDays(14)));
 
             //await Context.Message.Channel.DeleteMessagesAsync(result);
+
         }
 
         [Command("kick")]
@@ -158,8 +159,7 @@ namespace CommunityBot.Modules
         public async Task SetGame([Remainder] string gamename)
         {
             await Context.Client.SetGameAsync(gamename);
-            // TODO: Port to Discord .NET 2.0
-            //await ReplyAsync($"Changed game to {Context.Client.CurrentUser.Game?.Name}");
+            await ReplyAsync($"Changed game to `{gamename}`");
         }
 
         public async Task<IRole> GetMuteRole(IGuild guild)

@@ -13,6 +13,7 @@ using Discord;
 using CommunityBot.Features.Trivia;
 using CommunityBot.Modules;
 using Discord.WebSocket;
+using System.Reflection;
 
 namespace CommunityBot
 {
@@ -24,7 +25,7 @@ namespace CommunityBot
         internal static Random Rng { get; set; } = new Random();
         internal static Slot Slot = new Slot();
         internal static RepeatedTaskHandler TaskHander = new RepeatedTaskHandler();
-        internal static String version = "0.0"; // Set to the current version!
+        internal static readonly String version = Assembly.GetExecutingAssembly().GetName().Version.ToString().TrimEnd('0').TrimEnd('.');
 
         internal static bool Headless = false;
         // Global Helper methods
