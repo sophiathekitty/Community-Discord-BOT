@@ -32,7 +32,7 @@ namespace CommunityBot.Configuration
                 config = new BotConfig()
                 {
                     Prefix = "$",
-                    Token = "NDM2OTE2MjQ2MjI3NzE0MDY4.DdH9aA.e-kQKuDq5iL9CaEdB57JQaofwuU"
+                    Token = "YOUR-TOKEN-HERE"
                 };
                 DataStorage.StoreObject(config, configFile, useIndentations: true);
             }
