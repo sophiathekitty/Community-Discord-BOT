@@ -20,13 +20,23 @@ namespace CommunityBot.Modules
     {
         private static readonly OverwritePermissions denyOverwrite = new OverwritePermissions(addReactions: PermValue.Deny, sendMessages: PermValue.Deny, attachFiles: PermValue.Deny);
 
-        [Command("purge")]
+        [Command("purge", RunMode = RunMode.Async)]
         [Remarks("Purges An Amount Of Messages")]
         [RequireUserPermission(GuildPermission.ManageMessages)]
         public async Task Clear(int amountOfMessagesToDelete)
         {
             // TODO: Port to Discord .NET 2.0
             //await Context.Message.Channel.DeleteMessagesAsync(await Context.Message.Channel.GetMessagesAsync(amountOfMessagesToDelete).Flatten());
+
+            // So I am not sure how you want the purge command to be but I will make one right now but not add it. Please note this is just a **rough** idea and is still rough around the edges I intend something to improve this.
+
+            //var messages = await Context.Channel.GetMessagesAsync(amountOfMessagesToDelete + 1).FlattenAsync(); // Gets the messages, adds one message to the amount of messages to delete to delete the user's command then flattens it async.
+
+            //foreach(IMessage msg in messages) // Gets every message in the collection we just made above.
+            //{
+            //    await Task.Delay(600); // Delay so it doesn't reach rate limit.
+            //    await msg.DeleteAsync(); // Deletes the message
+            //}
         }
 
         [Command("purge")]
@@ -41,6 +51,21 @@ namespace CommunityBot.Modules
             //var result = messages.Where(x => x.Author.Id == user.Id && x.CreatedAt >= DateTimeOffset.UtcNow.Subtract(TimeSpan.FromDays(14)));
 
             //await Context.Message.Channel.DeleteMessagesAsync(result);
+
+            // We are going to do the same thing above except add a if statement
+
+            //var messages = await Context.Channel.GetMessagesAsync(101).FlattenAsync(); 
+
+            //foreach (IMessage msg in messages) 
+            //{
+            //    // This is the easy part all we have to do is this
+            //    if (msg.Author == user)
+            //    {
+            //        await Task.Delay(600);
+            //        await msg.DeleteAsync();
+            //    }
+            //}
+
         }
 
         [Command("kick")]
@@ -158,8 +183,7 @@ namespace CommunityBot.Modules
         public async Task SetGame([Remainder] string gamename)
         {
             await Context.Client.SetGameAsync(gamename);
-            // TODO: Port to Discord .NET 2.0
-            //await ReplyAsync($"Changed game to {Context.Client.CurrentUser.Game?.Name}");
+            await ReplyAsync($"Changed game to `{gamename}`");
         }
 
         public async Task<IRole> GetMuteRole(IGuild guild)
