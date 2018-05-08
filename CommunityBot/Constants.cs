@@ -15,9 +15,10 @@ namespace CommunityBot
         public const ulong DailyMuiniesGain = 250;
         public const int MessageRewardCooldown = 30;
         public const int MessageRewardMinLenght = 20;
+        public const int MaxMessageLength = 2000;
         public static readonly Tuple<int, int> MessagRewardMinMax = Tuple.Create(1, 5);
         public static readonly int MinTimerIntervall = 3000;
-        
+
         public static readonly string[] DidYouKnows = {
             "You can fork me on GitHub ;) xoxo <3",
             "If you don't know what to add, you can add some of my messages. :P",
