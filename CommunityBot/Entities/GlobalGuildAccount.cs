@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using CommunityBot.Features.RoleAssignment;
 
 namespace CommunityBot.Entities
 {
@@ -21,6 +18,9 @@ namespace CommunityBot.Entities
         public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
         public Modules.ServerBots.GuildData BotData { get; set; }
+
+        public RoleByPhraseSettings RoleByPhraseSettings { get; set; } = new RoleByPhraseSettings();
+
         /* Add more values to store */
     }
 }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
 using CommunityBot.Features.GlobalAccounts;
+using CommunityBot.Providers;
 
 namespace CommunityBot.Handlers
 {
@@ -28,10 +29,16 @@ namespace CommunityBot.Handlers
         {
             if (!(s is SocketUserMessage msg)) return;
             if (msg.Channel is SocketDMChannel) return;
-
+            
             var context = new SocketCommandContext(_client, msg);
             if (context.User.IsBot) return;
-            
+
+            await RoleByPhraseProvider.EvaluateMessage(
+                context.Guild, 
+                context.Message.Content,
+                (SocketGuildUser) context.User
+            );
+
             var argPos = 0;
             if (msg.HasMentionPrefix(_client.CurrentUser, ref argPos) || CheckPrefix(ref argPos, context))
             {
