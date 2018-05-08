@@ -1,35 +1,85 @@
-| [![Build Status](https://travis-ci.org/petrspelos/Community-Discord-BOT.svg?branch=master)](https://travis-ci.org/petrspelos/Community-Discord-BOT) | [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/petrspelos/Community-Discord-BOT/blob/master/LICENSE) |
-|---|---|
+# Discord Community bot
+[![Build Status](https://travis-ci.org/petrspelos/Community-Discord-BOT.svg?branch=master)](https://travis-ci.org/petrspelos/Community-Discord-BOT)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/petrspelos/Community-Discord-BOT/blob/master/LICENSE)
 
-# Miunie - the Co**MIUNIE**ty Discord Bot
-
-## About Miunie
-
-Hello, my name is Miunie!
+Hello, I'm Miunie the com**MIUNIE**ty bot. :wave:
 
 I'm a community bot for Discord written in C# using the [Discord .NET library](https://github.com/RogueException/Discord.Net).
 
-## Getting Miunie
+The goal of this project is to create a solid general-purpose bot that can be easily extended and used in new and interesting ways.
 
-To host Miunie, you can just download the source code either by cloning the repository or downloading the ZIP version.
+## Getting Started
 
-Miunie was developed using **.NET Core 2.0** with **Visual Studio Community 2017**. These tools are recommended for compilation of the project.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See [deployment](#deployment) for notes on how to deploy the project on a live system.
 
-After running Miunie for the first time, an Error might display, saying your bot token might not be configured. 
+### Prerequisites
 
-If you're developing/testing, you might want to set your token as an argument. You can do that by going to your project settings (Solution Explorer > Right click [ProjectName] > Properties > Debug > Application arguments) and pasting your bot token in there. There is a `.gitignore` entry in place so that you don't accidentally commit your token to the project.
+* The recommended IDE is [Visual Studio 2017 Community](https://www.visualstudio.com/thank-you-downloading-visual-studio/?sku=Community&rel=15).
+* Using **Visual Studio Installer** make sure you installed `.NET Core cross-platform development`.
+    * Visual Studio Installer should be automatically installed with VS 2017 Community.
 
-If you're not developing and want to use Miunie as a finished product, after getting the Token not configured message, find the directory from which Miunie is running. There should be a `resources` directory containing `config.json` this is a JSON structured text file, that you can edit using Notepad or some other text editor. Once open, edit the Token to use your bot's token. Save the file and either hit retry in Miunie or run the application again.
+### Installing
 
-## How to contribute
+This is a step by step guide of getting Miunie ready on your machine and ready for development.
 
-### I'm new to Git, GitHub / This is my first project
+**Getting the source**
+1. [Fork the repository](https://help.github.com/articles/fork-a-repo/).
+2. Navigate to your fork.
+3. [Clone](https://help.github.com/articles/cloning-a-repository/) your fork to your local machine.
 
-If you're new, you can checkout the following tutorial:
+**Setting up the environment**
 
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/85s_-i4hHbM/0.jpg)](https://youtu.be/85s_-i4hHbM)
+* The root directory of the project contains `CommunityBot.sln`, this is a Visual Studio solution file and you can open it with Visual Studio (see [prerequisites](#prerequisites)).
 
-### I know what I'm doing in terms of Git, GitHub
+* After the solution is loaded, right-click the CommunityBot project through the Solution Explorer in Visual Studio _(It has a little C# in a green box icon by default)_ and go to Properties. Under **Debug**, you will see an `Application arguments:` field. You can paste your [bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token) there. Application arguments are already added to `.gitignore` so you don't have to worry about accidentaly making it public.
 
-* Generally, you are free to contribute and improve any feature you might like.
-* Try to follow the style we are currently using and make sure your code is understandable and commented if need be.
+* Once you save your changes from the previous step, you can compile and run the application.
+    * In Visual Studio, a common way of doing this is with the `F5` or `Ctrl + F5` shortcut.
+
+* Try it out
+    * The bot you have assigned with your token should now be online. Try to mention him and say hello!
+
+```
+
+@MyBot Hello
+
+```
+If you get a reponse back, everything is ready for development.
+
+## Running the tests
+
+To run Unit Tests in Visual Studio, you use the `Ctrl + R, A` shortcut or go to `Test > Run > All Tests`.
+
+## Deployment
+
+To publish a version of Miunie and run it on a machine, you can use [this tutorial](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-publish?tabs=netcore2x) that walks you through the process.
+
+## Built With
+
+* [.NET Core 2.0](https://docs.microsoft.com/en-us/dotnet/core/) - Platform used
+* [Discord .NET](https://github.com/RogueException/Discord.Net) - Discord API wrapper library
+* :heart: Love and Care :blue_heart:
+
+## Contributing
+
+Please read [CONTRIBUTING.md](https://github.com/petrspelos/Community-Discord-BOT/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+
+## Versioning
+
+There is currently no versioning system used. Feel free to create a new Issue suggesting one.
+
+## Authors
+
+* **Petr Sedláček** - *Initial work* - [PetrSpelos](https://github.com/petrspelos)
+
+See also the list of [contributors](https://github.com/petrspelos/Community-Discord-BOT/graphs/contributors) who participated in this project.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+
+## Acknowledgments
+
+* This project is possible thanks to the amazing Discord .NET library.
+* Thank you to all people who contributed, especially those coming from my Discord tutorial.
+* If you're still not sure about the way to contribute, there's a simple [tutorial video](https://youtu.be/85s_-i4hHbM) I made.
