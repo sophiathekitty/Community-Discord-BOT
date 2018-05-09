@@ -20,7 +20,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Installing
 
-This is a step by step guide of getting Miunie ready on your machine and ready for development.
+This is a step by step guide to get Miunie ready on your machine and ready for development.
 
 **Getting the source**
 1. [Fork the repository](https://help.github.com/articles/fork-a-repo/).
@@ -31,7 +31,7 @@ This is a step by step guide of getting Miunie ready on your machine and ready f
 
 * The root directory of the project contains `CommunityBot.sln`, this is a Visual Studio solution file and you can open it with Visual Studio (see [prerequisites](#prerequisites)).
 
-* After the solution is loaded, right-click the CommunityBot project through the Solution Explorer in Visual Studio _(It has a little C# in a green box icon by default)_ and go to Properties. Under **Debug**, you will see an `Application arguments:` field. You can paste your [bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token) there. Application arguments are already added to `.gitignore` so you don't have to worry about accidentaly making it public.
+* After the solution is loaded, right-click the CommunityBot project through the Solution Explorer in Visual Studio _(It has a little C# in a green box icon by default)_ and go to Properties. Under **Debug**, you will see an `Application arguments:` field. You can paste your [bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token) there. Application arguments are already added to `.gitignore` so you don't have to worry about accidentally making it public.
 
 * Once you save your changes from the previous step, you can compile and run the application.
     * In Visual Studio, a common way of doing this is with the `F5` or `Ctrl + F5` shortcut.
@@ -44,7 +44,7 @@ This is a step by step guide of getting Miunie ready on your machine and ready f
 @MyBot Hello
 
 ```
-If you get a reponse back, everything is ready for development.
+If you get a response back, everything is ready for development.
 
 ## Running the tests
 
