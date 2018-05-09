@@ -5,7 +5,7 @@
 * [Setting up Miunie](https://github.com/petrspelos/Community-Discord-BOT#getting-started) - _Explains how to get a development version ready._
 * [First time contributing](https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github) - _Free course walking you through your first contribution._
 * [Discord Server](https://discord.gg/R9j8DJF) - _Contributors get a cool role._
-* [Discord .NET Docs](https://github.com/RogueException/Discord.Net/tree/dev/docs) - _Documentation for the library we're using._
+* [Discord .NET Docs](https://docs.stillu.cc/) - _Documentation for the library we're using._
 
 ## How to submit changes
 
