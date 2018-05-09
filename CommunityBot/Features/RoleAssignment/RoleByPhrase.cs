@@ -143,7 +143,7 @@ namespace CommunityBot.Features.RoleAssignment
             if (!settings.Relations.Any(r => r.PhraseIndex == phraseIndex && r.RoleIdIndex == roleIdIndex)) throw new RelationNotFoundException();
 
             settings.Relations = settings.Relations
-                .Where(r => r.PhraseIndex != phraseIndex && r.RoleIdIndex != roleIdIndex).ToList();
+                .Where(r => r.PhraseIndex != phraseIndex || r.RoleIdIndex != roleIdIndex).ToList();
         }
     }
 }
