@@ -19,13 +19,14 @@ namespace CommunityBot.Modules
         {
             var result = Daily.GetDaily(Context.User.Id);
 
-            if (result == DailyResult.Success)
+            if (result.Success)
             {
                 await ReplyAsync($"Here's {Constants.DailyMuiniesGain} miunies, {Context.User.Mention}! Just for you...");
             }
-            else // if (result == DailyResult.AlreadyRecieved)
+            else
             {
-                await ReplyAsync($"You already got your daily, {Context.User.Mention}.");
+                var timeSpanString = string.Format("{0:%h} hours {0:%m} minutes {0:%s} seconds", result.RefreshTimeSpan);
+                await ReplyAsync($"You already got your daily, {Context.User.Mention}.\nCome back in {timeSpanString}.");
             }
         }
 
