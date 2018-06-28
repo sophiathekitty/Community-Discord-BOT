@@ -23,11 +23,37 @@ namespace CommunityBot
 
         public async Task StartAsync(string[] args)
         {
-            if (args.Contains("-h")) Global.Headless = true;
+            if (args.Length > 0) args = args[0].Split(" ");
+            if (args.Any(arg => new string[]{"-help", "-h", "-info", "-i"}.Contains(arg)))
+            {
+                Console.WriteLine(   
+                    "Possible arguments you can provide are:\n" +
+                    "-help | -h | -info -i  : shows this help\n" +
+                    "-hl                    : run in headless mode (no output to console)\n" +
+                    "-vb                    : run with verbose discord logging\n" +
+                    "-token=<token>         : run with specific token instead of the saved one in bot configs\n" +
+                    "-cs=<number>           : message cache size per channel (defaults to 0)"
+                );
+                return;
+            }
+
+            if (args.Contains("-hl")) Global.Headless = true;
+
+            var logLevel = LogSeverity.Info;
+            if (args.Contains("-vb"))
+                logLevel = LogSeverity.Verbose;
+            
+            var chacheSize = 0;
+            if (args.Any(arg => arg.StartsWith("-cs=")))
+            {
+                var numberString = args.FirstOrDefault(arg => arg.StartsWith("-cs=")).Replace("-cs=", "");
+                int.TryParse(numberString, out chacheSize);
+            }
 
             var discordSocketConfig = new DiscordSocketConfig()
             {
-                LogLevel = LogSeverity.Verbose
+                LogLevel = logLevel,
+                MessageCacheSize = chacheSize
             };
 
             _client = new DiscordSocketClient(discordSocketConfig);
@@ -44,7 +70,11 @@ namespace CommunityBot
             _client.Ready += ServerBots.Init;
 
             // Use argument token if available
-            if (args.Any()) BotSettings.config.Token = args.First();
+            var tokenString = args.FirstOrDefault(arg => arg.StartsWith("-token="));
+            if (tokenString is null == false) 
+            {
+                BotSettings.config.Token = tokenString.Replace("-token=", "");
+            }
 
             await InitializeCommandHandler();
             while (!await AttemptLogin()){}
