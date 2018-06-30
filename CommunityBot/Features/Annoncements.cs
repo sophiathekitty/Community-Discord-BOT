@@ -4,8 +4,8 @@ using Discord.WebSocket;
 
 namespace CommunityBot.Features
 {
-    public class Announcements
-    {        
+    public static class Announcements
+    {
         public static async Task UserJoined(SocketGuildUser user)
         {
             var dmChannel = await user.GetOrCreateDMChannelAsync();

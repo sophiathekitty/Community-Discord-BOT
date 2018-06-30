@@ -25,17 +25,17 @@ namespace CommunityBot.Handlers
             await _service.AddModulesAsync(Assembly.GetEntryAssembly());
             Global.Client = _client;
         }
-        
+
         public async Task HandleCommandAsync(SocketMessage s)
         {
             if (!(s is SocketUserMessage msg)) return;
             if (msg.Channel is SocketDMChannel) return;
-            
+
             var context = new SocketCommandContext(_client, msg);
             if (context.User.IsBot) return;
 
             await RoleByPhraseProvider.EvaluateMessage(
-                context.Guild, 
+                context.Guild,
                 context.Message.Content,
                 (SocketGuildUser) context.User
             );
@@ -44,7 +44,7 @@ namespace CommunityBot.Handlers
             if (msg.HasMentionPrefix(_client.CurrentUser, ref argPos) || CheckPrefix(ref argPos, context))
             {
                 var cmdSearchResult = _service.Search(context, argPos);
-                if (cmdSearchResult.Commands.Count == 0) return;
+                if (cmdSearchResult.IsSuccess == false) return;
 
                 var executionTask = _service.ExecuteAsync(context, argPos);
 
@@ -62,6 +62,7 @@ namespace CommunityBot.Handlers
 
         private static bool CheckPrefix(ref int argPos, SocketCommandContext context)
         {
+            if (context.Guild is null) return false;
             var prefixes = GlobalGuildAccounts.GetGuildAccount(context.Guild.Id).Prefixes;
             var tmpArgPos = 0;
             var success = prefixes.Any(pre =>

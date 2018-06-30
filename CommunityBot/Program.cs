@@ -20,14 +20,14 @@ namespace CommunityBot
         => new Program().StartAsync(args).GetAwaiter().GetResult();
 
         public async Task StartAsync(string[] args)
-        {      
+        {
             var discordSocketConfig = HandleCommandlineArguments(args);
             if (discordSocketConfig == null) return;
 
             _client = new DiscordSocketClient(discordSocketConfig);
 
             _serviceProvider = ConfigureServices();
-            
+
             _serviceProvider.GetRequiredService<DiscordEventHandler>().InitDiscordEvents();
             await _serviceProvider.GetRequiredService<CommandHandler>().InitializeAsync();
 
@@ -45,7 +45,7 @@ namespace CommunityBot
             // Help argument handling -help / -h / -info / -i
             if (args.Any(arg => new string[]{"-help", "-h", "-info", "-i"}.Contains(arg)))
             {
-                Console.WriteLine(   
+                Console.WriteLine(
                     "Possible arguments you can provide are:\n" +
                     "-help | -h | -info -i  : shows this help\n" +
                     "-hl                    : run in headless mode (no output to console)\n" +
@@ -63,7 +63,7 @@ namespace CommunityBot
             var logLevel = LogSeverity.Info;
             if (args.Contains("-vb"))
                 logLevel = LogSeverity.Verbose;
-            
+
             // Cachesize argument handling -cs=<cacheSize>
             var chacheSize = 0;
             if (args.Any(arg => arg.StartsWith("-cs=")))
@@ -74,7 +74,7 @@ namespace CommunityBot
 
              // Token argument handling -token=YOUR.TOKEN.HERE
             var tokenString = args.FirstOrDefault(arg => arg.StartsWith("-token="));
-            if (tokenString is null == false) 
+            if (string.IsNullOrWhiteSpace(tokenString) == false)
             {
                 BotSettings.config.Token = tokenString.Replace("-token=", "");
             }
@@ -120,7 +120,7 @@ namespace CommunityBot
                 return false;
             }
         }
-        
+
         private static bool GetTryAgainRequested()
         {
             if (Global.Headless) return false;
