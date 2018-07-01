@@ -10,7 +10,11 @@ namespace CommunityBot.Entities
 {
     public class GlobalGuildAccount : IGlobalAccount
     {
-        public ulong Id { get; set; }
+        public GlobalGuildAccount(ulong id)
+        {
+            Id = id;
+        }
+        public ulong Id { get; }
 
         public ulong AnnouncementChannelId { get; private set; }
 
@@ -27,6 +31,7 @@ namespace CommunityBot.Entities
         public RoleByPhraseSettings RoleByPhraseSettings { get; private set; } = new RoleByPhraseSettings();
 
         /* Add more values to store */
+        
         public GlobalGuildAccount Modify(Action<GuildAccountSettings> func)
         {
             var settings = new GuildAccountSettings();
@@ -48,6 +53,30 @@ namespace CommunityBot.Entities
                 RoleByPhraseSettings = settings.RoleByPhraseSettings.Value;
             GlobalGuildAccounts.SaveAccounts(Id);
             return this;
+        }
+        
+        // override object.Equals
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+            return Equals(obj as IGlobalAccount);
+        }
+
+        // implementation for IEquatable
+        public bool Equals(IGlobalAccount other)
+        {
+            return Id == other.Id;
+        }
+
+        // override object.GetHashCode
+        public override int GetHashCode()
+        {
+            return unchecked((int)Id);
         }
     }
     public class GuildAccountSettings

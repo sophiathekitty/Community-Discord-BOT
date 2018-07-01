@@ -35,7 +35,7 @@ namespace CommunityBot.Features.GlobalAccounts
         {
             return userAccounts.GetOrAdd(id, (key) =>
             {
-                var newAccount = new GlobalUserAccount { Id = id };
+                var newAccount = new GlobalUserAccount(id);
                 DataStorage.StoreObject(newAccount, Path.Combine(Constants.UserAccountsFolder, $"{id}.json"), useIndentations: true);
                 return newAccount;
             });
@@ -63,7 +63,7 @@ namespace CommunityBot.Features.GlobalAccounts
         {
             foreach (var id in userAccounts.Keys)
             {
-                SaveAccounts(id);    
+                SaveAccounts(id);
             }
         }
 

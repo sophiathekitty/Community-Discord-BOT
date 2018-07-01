@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CommunityBot.Entities
 {
     public class GlobalUserAccount : IGlobalAccount
     {
-        public ulong Id { get; set; }
+        public GlobalUserAccount(ulong id)
+        {
+            Id = id;
+        }
+
+        public ulong Id { get; }
 
         public ulong Miunies { get; set; } = 1;
 
@@ -20,6 +22,30 @@ namespace CommunityBot.Entities
 
         public List<ReminderEntry> Reminders { get; internal set; } = new List<ReminderEntry>();
         /* Add more values to store */
+
+        // override object.Equals
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+            return Equals(obj as IGlobalAccount);
+        }
+
+        // implementation for IEquatable
+        public bool Equals(IGlobalAccount other)
+        {
+            return Id == other.Id;
+        }
+
+        // override object.GetHashCode
+        public override int GetHashCode()
+        {
+            return unchecked((int)Id);
+        }
     }
 
     public struct ReminderEntry
