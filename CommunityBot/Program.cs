@@ -17,6 +17,7 @@ namespace CommunityBot
     {
         private DiscordSocketClient _client;
         private CommandHandler _handler;
+        private readonly IServiceProvider _services;
 
         static void Main(string[] args)
         => new Program().StartAsync(args).GetAwaiter().GetResult();
@@ -27,7 +28,8 @@ namespace CommunityBot
 
             var discordSocketConfig = new DiscordSocketConfig()
             {
-                LogLevel = LogSeverity.Verbose
+                LogLevel = LogSeverity.Verbose,
+                MessageCacheSize = 1000
             };
 
             _client = new DiscordSocketClient(discordSocketConfig);
@@ -42,7 +44,7 @@ namespace CommunityBot
             _client.MessageReceived += MessageRewardHandler.HandleMessageRewards;
             // Subscribe to other events here.
             _client.Ready += ServerBots.Init;
-
+            _client.Ready += ServerActivityLogger.ServerActivityLogger._client_Ready;
             // Use argument token if available
             if (args.Any()) BotSettings.config.Token = args.First();
 
