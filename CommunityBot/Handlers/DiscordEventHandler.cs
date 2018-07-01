@@ -76,12 +76,12 @@ namespace CommunityBot.Handlers
 
         private async Task ChannelCreated(SocketChannel channel)
         {
-            
+            ServerActivityLogger.ServerActivityLogger.Client_ChannelCreated(channel);
         }
 
         private async Task ChannelDestroyed(SocketChannel channel)
         {
-            
+            ServerActivityLogger.ServerActivityLogger.Client_ChannelDestroyed(channel);
         }
 
         private async Task ChannelUpdated(SocketChannel channelBefore, SocketChannel channelAfter)
@@ -116,7 +116,7 @@ namespace CommunityBot.Handlers
 
         private async Task GuildMemberUpdated(SocketGuildUser userBefore, SocketGuildUser userAfter)
         {
-            
+            ServerActivityLogger.ServerActivityLogger.Client_GuildMemberUpdated(userBefore, userAfter);
         }
 
         private async Task GuildUnavailable(SocketGuild guild)
@@ -161,18 +161,20 @@ namespace CommunityBot.Handlers
 
         private async Task MessageDeleted(Cacheable<IMessage, ulong> cacheMessage, ISocketMessageChannel channel)
         {
-            
+            ServerActivityLogger.ServerActivityLogger.Client_MessageDeleted(cacheMessage, channel);
         }
 
         private async Task MessageReceived(SocketMessage message)
         {
             _commandHandler.HandleCommandAsync(message);
             MessageRewardHandler.HandleMessageRewards(message);
+            //ServerActivityLogger.ServerActivityLogger.MessageReceived(message); // For downloading attachments
+
         }
 
         private async Task MessageUpdated(Cacheable<IMessage, ulong> cacheMessageBefore, SocketMessage messageAfter, ISocketMessageChannel channel)
         {
-            
+            ServerActivityLogger.ServerActivityLogger.MessageUpdated(cacheMessageBefore, messageAfter, channel);
         }
 
         private async Task ReactionAdded(Cacheable<IUserMessage, ulong> cacheMessage, ISocketMessageChannel channel, SocketReaction reaction)
@@ -196,7 +198,7 @@ namespace CommunityBot.Handlers
         {
             RepeatedTaskFunctions.InitRepeatedTasks();
             ServerBots.Init();
-            ServerActivityLogger.ServerActivityLogger._client_Ready();
+         
         }
 
         private async Task RecipientAdded(SocketGroupUser user)
@@ -216,12 +218,12 @@ namespace CommunityBot.Handlers
 
         private async Task RoleDeleted(SocketRole role)
         {
-            
+            ServerActivityLogger.ServerActivityLogger.Client_RoleDeleted(role);
         }
 
         private async Task RoleUpdated(SocketRole roleBefore, SocketRole roleAfter)
         {
-            
+            ServerActivityLogger.ServerActivityLogger.Client_RoleUpdated(roleBefore, roleAfter);
         }
 
         private async Task UserBanned(SocketUser user, SocketGuild guild)
@@ -237,6 +239,7 @@ namespace CommunityBot.Handlers
         private async Task UserJoined(SocketGuildUser user)
         {
             Announcements.UserJoined(user);
+            ServerActivityLogger.ServerActivityLogger.Client_UserJoined_ForRoleOnJoin(user);
         }
 
         private async Task UserLeft(SocketGuildUser user)

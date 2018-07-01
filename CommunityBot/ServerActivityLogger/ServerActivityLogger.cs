@@ -1,41 +1,20 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Reflection;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Commands;
 using Discord.Rest;
 using Discord.WebSocket;
 using CommunityBot.Features.GlobalAccounts;
-using CommunityBot.Modules;
 
 namespace CommunityBot.ServerActivityLogger
 {
     public class ServerActivityLogger
     {
-        private static readonly DiscordSocketClient Client = Global.Client;
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+#pragma warning disable CS1998 // This async method lacks 'await' operators and will run synchronously. Consider using the 'await' operator to await non-blocking API calls, or 'await Task.Run(...)' to do CPU-bound work on a background thread.
 
 
-        public static Task _client_Ready()
-        {
-
-            Client.Disconnected +=
-                Client_Disconnected; // -= for every += on Ready Event in Program.cs, so it will be only 1 task at a time after a disconnect
-            Client.MessageUpdated += Client_MessageUpdated;
-            Client.MessageDeleted += Client_MessageDeleted;
-            Client.ChannelCreated += Client_ChannelCreated;
-            Client.ChannelDestroyed += Client_ChannelDestroyed;
-            Client.RoleDeleted += Client_RoleDeleted;
-            Client.RoleUpdated += Client_RoleUpdated;
-            //   Client.MessageReceived += Client_MessageReceived;
-            Client.GuildMemberUpdated += Client_GuildMemberUpdated;
-            Client.UserJoined += Client_UserJoined_ForRoleOnJoin;
-            return Task.CompletedTask;
-        }
-
-        private static async Task ChannelDestroyed(IChannel arg)
+        public static async Task ChannelDestroyed(IChannel arg)
         {
             try
             {
@@ -77,13 +56,13 @@ namespace CommunityBot.ServerActivityLogger
             }
         }
 
-        private static async Task Client_ChannelDestroyed(IChannel arg)
+        public static async Task Client_ChannelDestroyed(IChannel arg)
         {
-            var k = ChannelDestroyed(arg);
+            ChannelDestroyed(arg);
             await Task.CompletedTask;
         }
 
-        private static async Task ChannelCreated(IChannel arg)
+        public static async Task ChannelCreated(IChannel arg)
         {
             try
             {
@@ -108,7 +87,7 @@ namespace CommunityBot.ServerActivityLogger
 
 
                 var currentIGuildChannel = (IGuildChannel) arg;
-                var guild = GlobalGuildAccounts.GetGuildAccount(currentIGuildChannel.Guild.Id); 
+                var guild = GlobalGuildAccounts.GetGuildAccount(currentIGuildChannel.Guild.Id);
                 if (guild.ServerActivityLog == 1)
                 {
                     await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
@@ -122,21 +101,21 @@ namespace CommunityBot.ServerActivityLogger
 
         }
 
-        private static async Task Client_ChannelCreated(IChannel arg)
+        public static async Task Client_ChannelCreated(IChannel arg)
         {
-            var k = ChannelCreated(arg);
+            ChannelCreated(arg);
             await Task.CompletedTask;
 
         }
 
-        private static async Task GuildMemberUpdated(SocketGuildUser before, SocketGuildUser after)
+        public static async Task GuildMemberUpdated(SocketGuildUser before, SocketGuildUser after)
         {
             try
             {
                 if (after == null || before == after || before.IsBot)
                     return;
 
-                var guild = GlobalGuildAccounts.GetGuildAccount(before.Guild.Id); 
+                var guild = GlobalGuildAccounts.GetGuildAccount(before.Guild.Id);
 
                 var embed = new EmbedBuilder();
                 if (before.Nickname != after.Nickname)
@@ -265,16 +244,9 @@ namespace CommunityBot.ServerActivityLogger
 
         }
 
-        private static async Task Client_GuildMemberUpdated(SocketGuildUser before, SocketGuildUser after)
+        public static async Task Client_GuildMemberUpdated(SocketGuildUser before, SocketGuildUser after)
         {
-            var k = GuildMemberUpdated(before, after);
-            await Task.CompletedTask;
-        }
-
-
-        public static async Task Client_Disconnected(Exception arg)
-        {
-            Global.Client.Ready -= _client_Ready;
+            GuildMemberUpdated(before, after);
             await Task.CompletedTask;
         }
 
@@ -286,7 +258,7 @@ namespace CommunityBot.ServerActivityLogger
                 var before = (messageBefore.HasValue ? messageBefore.Value : null) as IUserMessage;
                 if (arg3 is IGuildChannel currentIGuildChannel)
                 {
-                    var guild = GlobalGuildAccounts.GetGuildAccount(currentIGuildChannel.Guild.Id); 
+                    var guild = GlobalGuildAccounts.GetGuildAccount(currentIGuildChannel.Guild.Id);
                     if (messageAfter.Author.IsBot)
                         return;
 
@@ -474,112 +446,109 @@ namespace CommunityBot.ServerActivityLogger
         public static async Task Client_MessageUpdated(Cacheable<IMessage, ulong> messageBefore,
             SocketMessage messageAfter, ISocketMessageChannel arg3)
         {
-            var k = MessageUpdated(messageBefore, messageAfter, arg3);
+            MessageUpdated(messageBefore, messageAfter, arg3);
             await Task.CompletedTask;
 
         }
 
 
-
-
-        
         // This Function, downloads all the attachments it saw, saves it as "Mess_ID" and if anyone edits message or delete it, the bot will pull the file from the drive with that name
         // to post it as well. multiple files handled as well.
         // This section together with it's posting implementation commented by Snoops request, so it will not affect storage.
 
-          /*  
-        private static async Task MessageReceivedDownloadAttachment(SocketMessage arg)
-        {
-            try
-            {
-                if (arg.Attachments.Count == 1)
-                {
+        /*  
+       public static async Task MessageReceivedDownloadAttachment(SocketMessage arg)
+      {
+          try
+          {
+              if (arg.Attachments.Count == 1)
+              {
 
-                    var ll = arg.Channel as IGuildChannel;
+                  var ll = arg.Channel as IGuildChannel;
 
-                    Directory.CreateDirectory($@"OctoDataBase/OctoAttachments");
-                    Directory.CreateDirectory($@"OctoDataBase/OctoAttachments/{ll?.GuildId}");
+                  Directory.CreateDirectory($@"OctoDataBase/OctoAttachments");
+                  Directory.CreateDirectory($@"OctoDataBase/OctoAttachments/{ll?.GuildId}");
 
-                    var temp = arg.Attachments.FirstOrDefault()?.Url;
-                    if (!arg.Attachments.Any())
-                        return;
-                    var check = $"{temp?.Substring(temp.Length - 8, 8)}";
-                    var output = check.Substring(check.IndexOf('.') + 1);
+                  var temp = arg.Attachments.FirstOrDefault()?.Url;
+                  if (!arg.Attachments.Any())
+                      return;
+                  var check = $"{temp?.Substring(temp.Length - 8, 8)}";
+                  var output = check.Substring(check.IndexOf('.') + 1);
 
-                    if (output == "png" || output == "jpg" || output == "gif")
-                    {
-                        using (var client = new WebClient())
-                        {
-                            client.DownloadFileAsync(new Uri(arg.Attachments.FirstOrDefault()?.Url),
-                                $@"OctoDataBase/OctoAttachments/{ll?.GuildId}/{arg.Id}.{output}");
-                        }
-                    }
-                    else
-                    {
-                        // Console.WriteLine(output);
-                        using (var client = new WebClient())
-                        {
-                            client.DownloadFileAsync(new Uri(arg.Attachments.FirstOrDefault()?.Url),
-                                $@"OctoDataBase/OctoAttachments/{ll?.GuildId}/{arg.Id}.{output}");
-                        }
-                    }
-                }
-                else
-                {
-                    for (var i = 0; i < arg.Attachments.Count; i++)
-                    {
-                        var ll = arg.Channel as IGuildChannel;
+                  if (output == "png" || output == "jpg" || output == "gif")
+                  {
+                      using (var client = new WebClient())
+                      {
+                          client.DownloadFileAsync(new Uri(arg.Attachments.FirstOrDefault()?.Url),
+                              $@"OctoDataBase/OctoAttachments/{ll?.GuildId}/{arg.Id}.{output}");
+                      }
+                  }
+                  else
+                  {
+                      // Console.WriteLine(output);
+                      using (var client = new WebClient())
+                      {
+                          client.DownloadFileAsync(new Uri(arg.Attachments.FirstOrDefault()?.Url),
+                              $@"OctoDataBase/OctoAttachments/{ll?.GuildId}/{arg.Id}.{output}");
+                      }
+                  }
+              }
+              else
+              {
+                  for (var i = 0; i < arg.Attachments.Count; i++)
+                  {
+                      var ll = arg.Channel as IGuildChannel;
 
-                        Directory.CreateDirectory($@"OctoDataBase/OctoAttachments");
-                        Directory.CreateDirectory($@"OctoDataBase/OctoAttachments/{ll?.GuildId}");
+                      Directory.CreateDirectory($@"OctoDataBase/OctoAttachments");
+                      Directory.CreateDirectory($@"OctoDataBase/OctoAttachments/{ll?.GuildId}");
 
-                        var temp = arg.Attachments.ToList();
+                      var temp = arg.Attachments.ToList();
 
 
 
-                        var check = $"{temp[i].Url.Substring(temp[i].Url.Length - 8, 8)}";
-                        var output = check.Substring(check.IndexOf('.') + 1);
+                      var check = $"{temp[i].Url.Substring(temp[i].Url.Length - 8, 8)}";
+                      var output = check.Substring(check.IndexOf('.') + 1);
 
-                        if (output == "png" || output == "jpg" || output == "gif")
-                        {
-                            using (var client = new WebClient())
-                            {
-                                client.DownloadFileAsync(new Uri(temp[i].Url),
-                                    $@"OctoDataBase/OctoAttachments/{ll?.GuildId}/{arg.Id}-{i + 1}.{output}");
-                            }
-                        }
-                        else
-                        {
-                            // Console.WriteLine(output);
-                            using (var client = new WebClient())
-                            {
-                                client.DownloadFileAsync(new Uri(temp[i].Url),
-                                    $@"OctoDataBase/OctoAttachments/{ll?.GuildId}/{arg.Id}-{i + 1}.{output}");
-                            }
-                        }
-                    }
-                }
+                      if (output == "png" || output == "jpg" || output == "gif")
+                      {
+                          using (var client = new WebClient())
+                          {
+                              client.DownloadFileAsync(new Uri(temp[i].Url),
+                                  $@"OctoDataBase/OctoAttachments/{ll?.GuildId}/{arg.Id}-{i + 1}.{output}");
+                          }
+                      }
+                      else
+                      {
+                          // Console.WriteLine(output);
+                          using (var client = new WebClient())
+                          {
+                              client.DownloadFileAsync(new Uri(temp[i].Url),
+                                  $@"OctoDataBase/OctoAttachments/{ll?.GuildId}/{arg.Id}-{i + 1}.{output}");
+                          }
+                      }
+                  }
+              }
 
-                await Task.CompletedTask;
-            }
-            catch
-            {
-                //
-            }
-        }
-       
+              await Task.CompletedTask;
+          }
+          catch
+          {
+              //
+          }
+      }
+     
 
-        private static async Task Client_MessageReceived(SocketMessage arg)
-        {
-            if (arg.Author.Id == Global.Client.CurrentUser.Id)
-                return;
+       public static async Task Client_MessageReceived(SocketMessage arg)
+      {
+          if (arg.Author.Id == Global.Client.CurrentUser.Id)
+              return;
 
-            var k = MessageReceivedDownloadAttachment(arg);
-            await Task.CompletedTask;
-        }
-         */
+           MessageReceivedDownloadAttachment(arg);
+          await Task.CompletedTask;
+      }
+       */
 
-        private static async Task DeleteLogg(Cacheable<IMessage, ulong> messageBefore,
+        public static async Task DeleteLogg(Cacheable<IMessage, ulong> messageBefore,
             ISocketMessageChannel arg3)
         {
             try
@@ -758,15 +727,15 @@ namespace CommunityBot.ServerActivityLogger
 
         }
 
-        private static async Task Client_MessageDeleted(Cacheable<IMessage, ulong> messageBefore,
+        public static async Task Client_MessageDeleted(Cacheable<IMessage, ulong> messageBefore,
             ISocketMessageChannel arg3)
         {
-            var k = DeleteLogg(messageBefore, arg3);
+            DeleteLogg(messageBefore, arg3);
             await Task.CompletedTask;
         }
 
 
-        private static async Task RoleDeleted(SocketRole arg)
+        public static async Task RoleDeleted(SocketRole arg)
         {
             try
             {
@@ -793,7 +762,7 @@ namespace CommunityBot.ServerActivityLogger
                 embed.WithThumbnailUrl($"{audit[0].User.GetAvatarUrl()}");
 
 
-                var guild = GlobalGuildAccounts.GetGuildAccount(arg.Guild.Id); 
+                var guild = GlobalGuildAccounts.GetGuildAccount(arg.Guild.Id);
 
                 if (guild.ServerActivityLog == 1)
                 {
@@ -808,14 +777,14 @@ namespace CommunityBot.ServerActivityLogger
 
         }
 
-        private static async Task Client_RoleDeleted(SocketRole arg)
+        public static async Task Client_RoleDeleted(SocketRole arg)
         {
-            var k = RoleDeleted(arg);
+            RoleDeleted(arg);
             await Task.CompletedTask;
         }
 
         // Does not work fully correctly, PM me if you can fix it
-        private static async Task RoleUpdated(SocketRole arg1, SocketRole arg2)
+        public static async Task RoleUpdated(SocketRole arg1, SocketRole arg2)
         {
             try
             {
@@ -918,14 +887,14 @@ namespace CommunityBot.ServerActivityLogger
             }
         }
 
-        private static async Task Client_RoleUpdated(SocketRole arg1, SocketRole arg2)
+        public static async Task Client_RoleUpdated(SocketRole arg1, SocketRole arg2)
         {
-            var k = RoleUpdated(arg1, arg2);
+            RoleUpdated(arg1, arg2);
             await Task.CompletedTask;
 
         }
 
-        private static async Task Client_UserJoined_ForRoleOnJoin(SocketGuildUser arg)
+        public static async Task Client_UserJoined_ForRoleOnJoin(SocketGuildUser arg)
         {
             var guid = GlobalGuildAccounts.GetGuildAccount(arg.Guild.Id);
 
