@@ -65,7 +65,7 @@ namespace CommunityBot
                 logLevel = LogSeverity.Verbose;
 
             // Cachesize argument handling -cs=<cacheSize>
-            var chacheSize = 0;
+            var chacheSize = 500;
             if (args.Any(arg => arg.StartsWith("-cs=")))
             {
                 var numberString = args.FirstOrDefault(arg => arg.StartsWith("-cs=")).Replace("-cs=", "");

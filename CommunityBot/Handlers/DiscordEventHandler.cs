@@ -194,8 +194,10 @@ namespace CommunityBot.Handlers
 
         private async Task Ready()
         {
+
             RepeatedTaskFunctions.InitRepeatedTasks();
             ServerBots.Init();
+            ServerActivityLogger.ServerActivityLogger._client_Ready();
         }
 
         private async Task RecipientAdded(SocketGroupUser user)
