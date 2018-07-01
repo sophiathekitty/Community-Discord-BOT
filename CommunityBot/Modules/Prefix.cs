@@ -23,15 +23,15 @@ namespace CommunityBot.Modules
             var response = $"Failed to add the Prefix... Was `{prefix}` already a prefix?";
             if (guildAcc.Prefixes.Contains(prefix) == false)
             {
-                guildAcc.Prefixes.Add(prefix);
-                GlobalGuildAccounts.SaveAccounts(Context.Guild.Id);
+                var prefixes = guildAcc.Prefixes.ToList();
+                guildAcc.Modify(g => g.SetPrefixes(prefixes.Append(prefix).ToList()));
                 response =  $"Successfully added `{prefix}` as prefix!";
             }
 
             await ReplyAsync(response);
         }
 
-        [Command("remove"), Remarks("Removes a prefix from the list of prefixes")] 
+        [Command("remove"), Remarks("Removes a prefix from the list of prefixes")]
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task RemovePrefix([Remainder] string prefix)
         {
@@ -39,8 +39,9 @@ namespace CommunityBot.Modules
             var response = $"Failed to remove the Prefix... Was `{prefix}` really a prefix?";
             if (guildAcc.Prefixes.Contains(prefix))
             {
-                guildAcc.Prefixes.Remove(prefix);
-                GlobalGuildAccounts.SaveAccounts(Context.Guild.Id);
+                var prefixes = guildAcc.Prefixes.ToList();
+                prefixes.Remove(prefix);
+                guildAcc.Modify(g => g.SetPrefixes(prefixes));
                 response =  $"Successfully removed `{prefix}` as possible prefix!";
             }
 
