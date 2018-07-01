@@ -17,7 +17,7 @@ namespace CommunityBot.Entities
         public DateTime LastMessage { get; set; } = DateTime.UtcNow;
 
         public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
-        
+
         public List<ReminderEntry> Reminders { get; internal set; } = new List<ReminderEntry>();
         /* Add more values to store */
     }

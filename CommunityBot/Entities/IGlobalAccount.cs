@@ -9,6 +9,6 @@ namespace CommunityBot.Entities
     public interface IGlobalAccount
     {
         ulong Id { get; set; }
-        Dictionary<string, string> Tags { get; set; }
+        Dictionary<string, string> Tags { get; }
     }
 }
