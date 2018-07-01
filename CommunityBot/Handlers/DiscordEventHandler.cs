@@ -194,7 +194,6 @@ namespace CommunityBot.Handlers
 
         private async Task Ready()
         {
-
             RepeatedTaskFunctions.InitRepeatedTasks();
             ServerBots.Init();
             ServerActivityLogger.ServerActivityLogger._client_Ready();
