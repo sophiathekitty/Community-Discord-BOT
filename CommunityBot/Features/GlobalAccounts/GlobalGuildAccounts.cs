@@ -32,7 +32,7 @@ namespace CommunityBot.Features.GlobalAccounts
         {
             return serverAccounts.GetOrAdd(id, (key) =>
             {
-                var newAccount = new GlobalGuildAccount { Id = id };
+                var newAccount = new GlobalGuildAccount(id);
                 DataStorage.StoreObject(newAccount, Path.Combine(Constants.ServerAccountsFolder, $"{id}.json"), useIndentations: true);
                 return newAccount;
             });
@@ -50,7 +50,7 @@ namespace CommunityBot.Features.GlobalAccounts
         {
             foreach (var id in serverAccounts.Keys)
             {
-                SaveAccounts(id);    
+                SaveAccounts(id);
             }
         }
 
