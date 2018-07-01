@@ -233,14 +233,6 @@ namespace CommunityBot.ServerActivityLogger
                         var socketRoles = differenceQuery as SocketRole[] ?? differenceQuery.ToArray();
                         for (var i = 0; i < socketRoles.Count(); i++)
                             role += socketRoles[i];
-                        if (role == "LoL")
-                        {
-                            await Global.Client.GetGuild(338355570669256705).GetTextChannel(429345059486564352)
-                                .SendMessageAsync(
-                                    $"Буль тебе, {after.Mention}! Если ты новенький в этом мире, то ты можешь попросить у нас реферальную ссылку, чтобы получить **сразу 50 персов на аккаунт**\n" +
-                                    $"А если ты профи, то можешь попробовать спросить mylorik аккаунт с персонажами, на время, разумеется.");
-
-                        }
                     }
 
                     var log = await before.Guild.GetAuditLogsAsync(1).FlattenAsync();
@@ -367,6 +359,8 @@ namespace CommunityBot.ServerActivityLogger
                     }
 
 
+                    //Attachment Handling
+
                     /*
                 if (messageBefore.Value.Attachments.Any())
                 {
@@ -485,6 +479,15 @@ namespace CommunityBot.ServerActivityLogger
 
         }
 
+
+
+
+        
+        // This Function, downloads all the attachments it saw, saves it as "Mess_ID" and if anyone edits message or delete it, the bot will pull the file from the drive with that name
+        // to post it as well. multiple files handled as well.
+        // This section together with it's posting implementation commented by Snoops request, so it will not affect storage.
+
+          /*  
         private static async Task MessageReceivedDownloadAttachment(SocketMessage arg)
         {
             try
@@ -564,7 +567,7 @@ namespace CommunityBot.ServerActivityLogger
                 //
             }
         }
-
+       
 
         private static async Task Client_MessageReceived(SocketMessage arg)
         {
@@ -574,7 +577,7 @@ namespace CommunityBot.ServerActivityLogger
             var k = MessageReceivedDownloadAttachment(arg);
             await Task.CompletedTask;
         }
-
+         */
 
         private static async Task DeleteLogg(Cacheable<IMessage, ulong> messageBefore,
             ISocketMessageChannel arg3)
@@ -629,6 +632,8 @@ namespace CommunityBot.ServerActivityLogger
                     {
                         embedDel.AddField("Content", $"{messageBefore.Value.Content}");
                     }
+
+                    //Attachment Handling
 
                     /*
                     if (messageBefore.Value.Attachments.Any())
