@@ -117,12 +117,10 @@ namespace CommunityBot.Modules
                 StoreData(guild.Id);
             }
 
-            Global.Client.JoinedGuild += JoinedGuild;
-
             return Task.CompletedTask;
         }
 
-        private static Task JoinedGuild(SocketGuild guild)
+        public static Task JoinedGuild(SocketGuild guild)
         {
             AddGuild(guild.Id);
             return Task.CompletedTask;
@@ -174,8 +172,8 @@ namespace CommunityBot.Modules
 
         static void StoreData(ulong id)
         {
-            GlobalGuildAccounts.GetGuildAccount(id).BotData = data.GetGuild(id);
-            GlobalGuildAccounts.SaveAccounts(id);
+            var guildAccount = GlobalGuildAccounts.GetGuildAccount(id);
+            guildAccount.Modify(g => g.SetBotData(data.GetGuild(id)));
         }
 
         [Command("add")]
@@ -249,7 +247,7 @@ namespace CommunityBot.Modules
                     await ReplyAsync("You're really going to try that one on me??");
                     return;
                 }
-                
+
                 List<Submission> list;
                 if (args[1] == "pending")
                     list = data.GetGuild(Context.Guild.Id).queue;
@@ -289,8 +287,8 @@ namespace CommunityBot.Modules
                             int index = i + (SUBMISSIONS_PER_PAGE * (page - 1));
 
                             if (index < list.Count)
-                            builder.Description += $"{index + 1}. [{list[index].name}]({LINK_TEMPLATE_FIRST + list[index].botId + LINK_TEMPLATE_LAST})" + 
-                                $"by **{Global.Client.GetUser(list[index].userId).Username}**:\n{list[index].description}\n" + 
+                            builder.Description += $"{index + 1}. [{list[index].name}]({LINK_TEMPLATE_FIRST + list[index].botId + LINK_TEMPLATE_LAST})" +
+                                $"by **{Global.Client.GetUser(list[index].userId).Username}**:\n{list[index].description}\n" +
                                 $"*Client ID: {list[index].botId}*\n{list[index].timeSent} {TimeZone.CurrentTimeZone.StandardName}\n\n";
                         }
                         catch (IndexOutOfRangeException)

@@ -31,8 +31,8 @@ namespace CommunityBot.Configuration
                 // Setting up defaults
                 config = new BotConfig()
                 {
-                    Prefix = "$", // Does not work????
-                    Token = "TOKEN"
+                    Prefix = "$",
+                    Token = "YOUR-TOKEN-HERE"
                 };
                 DataStorage.StoreObject(config, configFile, useIndentations: true);
             }
