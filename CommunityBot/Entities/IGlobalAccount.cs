@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace CommunityBot.Entities
 {
-    public interface IGlobalAccount
+    public interface IGlobalAccount : IEquatable<IGlobalAccount>
     {
-        ulong Id { get; set; }
+        ulong Id { get; }
         Dictionary<string, string> Tags { get; set; }
     }
 }
