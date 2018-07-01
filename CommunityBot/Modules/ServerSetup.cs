@@ -1,6 +1,5 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using CommunityBot.ConfigServerAccount;
+﻿using System.Threading.Tasks;
+using CommunityBot.Features.GlobalAccounts;
 using Discord;
 using Discord.Commands;
 
@@ -9,59 +8,15 @@ namespace CommunityBot.Modules
     public class ServerSetup : ModuleBase<SocketCommandContext>
 
     {
-        [Command("build")]
-        [RequireUserPermission(GuildPermission.Administrator)]
-        public async Task BuildExistingServer()
-        {
-            var guild = Global.Client.Guilds.ToList();
-
-            foreach (var t in guild)
-            {
-                ServerAccounts.GetServerAccount(t);
-            } 
-                await ReplyAsync("I have added all servers into the file.");
-        }
-
-        [Command("prefix")]
-        public async Task CheckPrefix()
-        {
-            var guild = ServerAccounts.GetServerAccount(Context.Guild);
-            await ReplyAsync($"current prefix: `{guild.Prefix}`");
-        }
-
-        [Command("setPrefix")]
-        [Alias("setpref")]
-        [RequireUserPermission(GuildPermission.ManageRoles)]
-        public async Task SetPrefix([Remainder]string prefix)
-        {
-            try
-            {
-                if (prefix.Length >= 5)
-                {
-                    await ReplyAsync($" Please choose prefix using up to 4 characters");
-                    return;
-                }
-
-                var guild = ServerAccounts.GetServerAccount(Context.Guild);
-                guild.Prefix = prefix;
-                ServerAccounts.SaveServerAccounts();            
-                    await ReplyAsync($"Prefix is now: `{guild.Prefix}`");
-            }
-            catch
-            {
-                //
-            }
-        }
-
 
         [Command("offLog")]
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task SetServerActivivtyLogOff()
         {
-            var guild = ServerAccounts.GetServerAccount(Context.Guild);
+            var guild = GlobalGuildAccounts.GetGuildAccount(Context.Guild);
             guild.LogChannelId = 0;
             guild.ServerActivityLog = 0;
-            ServerAccounts.SaveServerAccounts();
+            GlobalGuildAccounts.SaveAccounts(Context.Guild.Id);
 
             await ReplyAsync($"No more Logging");
 
@@ -79,7 +34,7 @@ namespace CommunityBot.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task SetServerActivivtyLog(ulong logChannel = 0)
         {
-            var guild = ServerAccounts.GetServerAccount(Context.Guild);
+            var guild = GlobalGuildAccounts.GetGuildAccount(Context.Guild);
 
             if (logChannel != 0)
             {
@@ -88,7 +43,7 @@ namespace CommunityBot.Modules
                     var channel = Context.Guild.GetTextChannel(logChannel);
                     guild.LogChannelId = channel.Id;
                     guild.ServerActivityLog = 1;
-                    ServerAccounts.SaveServerAccounts();
+                    GlobalGuildAccounts.SaveAccounts(Context.Guild.Id);
 
                 }
                 catch
@@ -104,7 +59,7 @@ namespace CommunityBot.Modules
                 case 1:
                     guild.ServerActivityLog = 0;
                     guild.LogChannelId = 0;
-                    ServerAccounts.SaveServerAccounts();
+                    GlobalGuildAccounts.SaveAccounts(Context.Guild.Id);
 
 
                         await ReplyAsync($"No more logging any activity now\n");
@@ -120,7 +75,7 @@ namespace CommunityBot.Modules
                             {
                                 guild.LogChannelId = tryChannel.Id;
                                 guild.ServerActivityLog = 1;
-                                ServerAccounts.SaveServerAccounts();
+                                GlobalGuildAccounts.SaveAccounts(Context.Guild.Id);
 
                                 await ReplyAsync(
                                     $"Now we log everything to {tryChannel.Mention}, you may rename and move it.");
@@ -132,7 +87,7 @@ namespace CommunityBot.Modules
                             var channel = Context.Guild.CreateTextChannelAsync("OctoLogs");
                             guild.LogChannelId = channel.Result.Id;
                             guild.ServerActivityLog = 1;
-                            ServerAccounts.SaveServerAccounts();
+                            GlobalGuildAccounts.SaveAccounts(Context.Guild.Id);
 
                             await ReplyAsync(
                                 $"Now we log everything to {channel.Result.Mention}, you may rename and move it.");
@@ -158,7 +113,7 @@ namespace CommunityBot.Modules
         {
 
             string text;
-            var guild = ServerAccounts.GetServerAccount(Context.Guild);
+            var guild = GlobalGuildAccounts.GetGuildAccount(Context.Guild);
             if (role == null)
             {
                 guild.RoleOnJoin = null;
@@ -170,7 +125,7 @@ namespace CommunityBot.Modules
                 text = $"Everyone will now be getting {role} role on join!";
             }
 
-            ServerAccounts.SaveServerAccounts();
+            GlobalGuildAccounts.SaveAccounts(Context.Guild.Id);
             await ReplyAsync(text);
 
         }

@@ -8,7 +8,6 @@ using Discord;
 using Discord.Commands;
 using Discord.Rest;
 using Discord.WebSocket;
-using CommunityBot.ConfigServerAccount;
 using CommunityBot.Features.GlobalAccounts;
 using CommunityBot.Modules;
 
@@ -62,13 +61,14 @@ namespace CommunityBot.ServerActivityLogger
                 }
 
 
-
-                var currentIguildChannel = arg as IGuildChannel;
-                var guild = ServerAccounts.GetServerAccount(currentIguildChannel);
-                if (guild.ServerActivityLog == 1)
+                if (arg is IGuildChannel currentIguildChannel)
                 {
-                    await Global.Client.GetGuild(guild.ServerId).GetTextChannel(guild.LogChannelId)
-                        .SendMessageAsync("", false, embed.Build());
+                    var guild = GlobalGuildAccounts.GetGuildAccount(currentIguildChannel.Guild.Id);
+                    if (guild.ServerActivityLog == 1)
+                    {
+                        await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                            .SendMessageAsync("", false, embed.Build());
+                    }
                 }
             }
             catch
@@ -108,10 +108,10 @@ namespace CommunityBot.ServerActivityLogger
 
 
                 var currentIGuildChannel = (IGuildChannel) arg;
-                var guild = ServerAccounts.GetServerAccount(currentIGuildChannel);
+                var guild = GlobalGuildAccounts.GetGuildAccount(currentIGuildChannel.Guild.Id); 
                 if (guild.ServerActivityLog == 1)
                 {
-                    await Global.Client.GetGuild(guild.ServerId).GetTextChannel(guild.LogChannelId)
+                    await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                         .SendMessageAsync("", false, embed.Build());
                 }
             }
@@ -136,7 +136,7 @@ namespace CommunityBot.ServerActivityLogger
                 if (after == null || before == after || before.IsBot)
                     return;
 
-                var guild = ServerAccounts.GetServerAccount(before.Guild);
+                var guild = GlobalGuildAccounts.GetGuildAccount(before.Guild.Id); 
 
                 var embed = new EmbedBuilder();
                 if (before.Nickname != after.Nickname)
@@ -162,7 +162,7 @@ namespace CommunityBot.ServerActivityLogger
 
                     if (guild.ServerActivityLog == 1)
                     {
-                        await Global.Client.GetGuild(guild.ServerId).GetTextChannel(guild.LogChannelId)
+                        await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                             .SendMessageAsync("", false, embed.Build());
                     }
                 }
@@ -184,7 +184,7 @@ namespace CommunityBot.ServerActivityLogger
 
                     if (guild.ServerActivityLog == 1)
                     {
-                        await Global.Client.GetGuild(guild.ServerId).GetTextChannel(guild.LogChannelId)
+                        await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                             .SendMessageAsync("", false, embed.Build());
                     }
                 }
@@ -206,7 +206,7 @@ namespace CommunityBot.ServerActivityLogger
 
                     if (guild.ServerActivityLog == 1)
                     {
-                        await Global.Client.GetGuild(guild.ServerId).GetTextChannel(guild.LogChannelId)
+                        await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                             .SendMessageAsync("", false, embed.Build());
                     }
                 }
@@ -260,7 +260,7 @@ namespace CommunityBot.ServerActivityLogger
 
                     if (guild.ServerActivityLog == 1)
                     {
-                        await Global.Client.GetGuild(guild.ServerId).GetTextChannel(guild.LogChannelId)
+                        await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                             .SendMessageAsync("", false, embed.Build());
                     }
                 }
@@ -291,85 +291,83 @@ namespace CommunityBot.ServerActivityLogger
         {
             try
             {
-                var currentIGuildChannel = arg3 as IGuildChannel;
-                var guild = ServerAccounts.GetServerAccount(currentIGuildChannel);
-                if (messageAfter.Author.IsBot)
-                    return;
-
-                var after = messageAfter as IUserMessage;
-
-                if (messageAfter.Content == null)
-                {
-                    return;
-                }
-
                 var before = (messageBefore.HasValue ? messageBefore.Value : null) as IUserMessage;
-                if (before == null)
-                    return;
-
-
-                if (arg3 == null)
-                    return;
-
-                if (before.Content == after?.Content)
-                    return;
-
-
-                var embed = new EmbedBuilder();
-                embed.WithColor(Color.Green);
-                embed.WithFooter($"MessId: {messageBefore.Id}");
-                embed.WithThumbnailUrl($"{messageBefore.Value.Author.GetAvatarUrl()}");
-                embed.WithTimestamp(DateTimeOffset.UtcNow);
-                embed.WithTitle($"📝 Updated Message");
-                embed.WithDescription($"Where: <#{before.Channel.Id}>" +
-                                      $"\nMess Author: **{after?.Author}**\n");
-
-
-
-
-                if (messageBefore.Value.Content.Length > 1000)
+                if (arg3 is IGuildChannel currentIGuildChannel)
                 {
-                    var string1 = messageBefore.Value.Content.Substring(0, 1000);
+                    var guild = GlobalGuildAccounts.GetGuildAccount(currentIGuildChannel.Guild.Id); 
+                    if (messageAfter.Author.IsBot)
+                        return;
 
-                    embed.AddField("Before:", $"{string1}");
+                    var after = messageAfter as IUserMessage;
 
-                    if (messageBefore.Value.Content.Length <= 2000)
+                    if (messageAfter.Content == null)
                     {
-
-                        var string2 =
-                            messageBefore.Value.Content.Substring(1000, messageBefore.Value.Content.Length - 1000);
-                        embed.AddField("Before: Continued", $"...{string2}");
-
+                        return;
                     }
-                }
-                else if (messageBefore.Value.Content.Length != 0)
-                {
-                    embed.AddField("Before:", $"{messageBefore.Value.Content}");
-                }
+
+                    if (before == null)
+                        return;
 
 
-                if (messageAfter.Content.Length > 1000)
-                {
-                    var string1 = messageAfter.Content.Substring(0, 1000);
+                    if (before.Content == after?.Content)
+                        return;
 
-                    embed.AddField("After:", $"{string1}");
 
-                    if (messageAfter.Content.Length <= 2000)
+                    var embed = new EmbedBuilder();
+                    embed.WithColor(Color.Green);
+                    embed.WithFooter($"MessId: {messageBefore.Id}");
+                    embed.WithThumbnailUrl($"{messageBefore.Value.Author.GetAvatarUrl()}");
+                    embed.WithTimestamp(DateTimeOffset.UtcNow);
+                    embed.WithTitle($"📝 Updated Message");
+                    embed.WithDescription($"Where: <#{before.Channel.Id}>" +
+                                          $"\nMess Author: **{after?.Author}**\n");
+
+
+
+
+                    if (messageBefore.Value.Content.Length > 1000)
                     {
+                        var string1 = messageBefore.Value.Content.Substring(0, 1000);
 
-                        var string2 =
-                            messageAfter.Content.Substring(1000, messageAfter.Content.Length - 1000);
-                        embed.AddField("After: Continued", $"...{string2}");
+                        embed.AddField("Before:", $"{string1}");
 
+                        if (messageBefore.Value.Content.Length <= 2000)
+                        {
+
+                            var string2 =
+                                messageBefore.Value.Content.Substring(1000, messageBefore.Value.Content.Length - 1000);
+                            embed.AddField("Before: Continued", $"...{string2}");
+
+                        }
                     }
-                }
-                else if (messageAfter.Content.Length != 0)
-                {
-                    embed.AddField("After:", $"{messageAfter.Content}");
-                }
+                    else if (messageBefore.Value.Content.Length != 0)
+                    {
+                        embed.AddField("Before:", $"{messageBefore.Value.Content}");
+                    }
 
 
-                /*
+                    if (messageAfter.Content.Length > 1000)
+                    {
+                        var string1 = messageAfter.Content.Substring(0, 1000);
+
+                        embed.AddField("After:", $"{string1}");
+
+                        if (messageAfter.Content.Length <= 2000)
+                        {
+
+                            var string2 =
+                                messageAfter.Content.Substring(1000, messageAfter.Content.Length - 1000);
+                            embed.AddField("After: Continued", $"...{string2}");
+
+                        }
+                    }
+                    else if (messageAfter.Content.Length != 0)
+                    {
+                        embed.AddField("After:", $"{messageAfter.Content}");
+                    }
+
+
+                    /*
                 if (messageBefore.Value.Attachments.Any())
                 {
 
@@ -463,14 +461,13 @@ namespace CommunityBot.ServerActivityLogger
 
 
 
-                if (guild.ServerActivityLog == 1)
-                {
+                    if (guild.ServerActivityLog == 1)
+                    {
 
-                    await Global.Client.GetGuild(guild.ServerId).GetTextChannel(guild.LogChannelId)
-                        .SendMessageAsync("", false, embed.Build());
+                        await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                            .SendMessageAsync("", false, embed.Build());
+                    }
                 }
-
-
             }
             catch
             {
@@ -736,13 +733,15 @@ namespace CommunityBot.ServerActivityLogger
                         }
                     }
                     */
-                    var currentIGuildChannel = arg3 as IGuildChannel;
-                    var guild = ServerAccounts.GetServerAccount(currentIGuildChannel);
-                    if (guild.ServerActivityLog == 1)
+                    if (arg3 is IGuildChannel currentIGuildChannel)
                     {
+                        var guild = GlobalGuildAccounts.GetGuildAccount(currentIGuildChannel.Guild.Id);
+                        if (guild.ServerActivityLog == 1)
+                        {
 
-                        await Global.Client.GetGuild(guild.ServerId).GetTextChannel(guild.LogChannelId)
-                            .SendMessageAsync("", false, embedDel.Build());
+                            await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                                .SendMessageAsync("", false, embedDel.Build());
+                        }
                     }
                 }
             }
@@ -789,11 +788,11 @@ namespace CommunityBot.ServerActivityLogger
                 embed.WithThumbnailUrl($"{audit[0].User.GetAvatarUrl()}");
 
 
-                var guild = ServerAccounts.GetServerAccount(arg.Guild);
+                var guild = GlobalGuildAccounts.GetGuildAccount(arg.Guild.Id); 
 
                 if (guild.ServerActivityLog == 1)
                 {
-                    await Global.Client.GetGuild(guild.ServerId).GetTextChannel(guild.LogChannelId)
+                    await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                         .SendMessageAsync("", false, embed.Build());
                 }
             }
@@ -881,7 +880,7 @@ namespace CommunityBot.ServerActivityLogger
                     name = audit[0].User.Mention;
                 }
 
-                var guild = ServerAccounts.GetServerAccount(before.Guild);
+                var guild = GlobalGuildAccounts.GetGuildAccount(before.Guild.Id);
                 var embed = new EmbedBuilder();
                 embed.WithColor(57, 51, 255);
                 embed.AddField($"🛠️ Role Updated({roleString})", $"Role: {after.Mention}\n" +
@@ -904,7 +903,7 @@ namespace CommunityBot.ServerActivityLogger
 
                 if (guild.ServerActivityLog == 1)
                 {
-                    await Global.Client.GetGuild(guild.ServerId).GetTextChannel(guild.LogChannelId)
+                    await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                         .SendMessageAsync("", false, embed.Build());
                 }
             }
@@ -923,8 +922,7 @@ namespace CommunityBot.ServerActivityLogger
 
         private static async Task Client_UserJoined_ForRoleOnJoin(SocketGuildUser arg)
         {
-            var guid = ServerAccounts.GetServerAccount(arg.Guild);
-            Console.WriteLine($"{guid.RoleOnJoin}");
+            var guid = GlobalGuildAccounts.GetGuildAccount(arg.Guild.Id);
 
             if (guid.RoleOnJoin == null)
                 return;
