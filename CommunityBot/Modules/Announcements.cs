@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using CommunityBot.Features.GlobalAccounts;
 using Discord;
 using Discord.Commands;
@@ -14,8 +15,7 @@ namespace CommunityBot.Modules
         public async Task SetAnnouncementChannel(ITextChannel channel)
         {
             var guildAcc = GlobalGuildAccounts.GetGuildAccount(Context.Guild.Id);
-            guildAcc.AnnouncementChannelId = channel.Id;
-            GlobalGuildAccounts.SaveAccounts(Context.Guild.Id);
+            guildAcc.Modify(g => g.SetAnnouncementChannelId(channel.Id));
             await ReplyAsync("The Announcement-Channel has been set to " + channel.Mention);
         }
 
@@ -24,8 +24,7 @@ namespace CommunityBot.Modules
         public async Task UnsetAnnouncementChannel()
         {
             var guildAcc = GlobalGuildAccounts.GetGuildAccount(Context.Guild.Id);
-            guildAcc.AnnouncementChannelId = 0;
-            GlobalGuildAccounts.SaveAccounts(Context.Guild.Id);
+            guildAcc.Modify(g => g.SetAnnouncementChannelId(0));
             await ReplyAsync("Now there is no Announcement-Channel anymore! No more Announcements from now on... RIP!");
         }
     }
@@ -44,8 +43,9 @@ namespace CommunityBot.Modules
             var response = $"Failed to add this Welcome Message...";
             if (guildAcc.WelcomeMessages.Contains(message) == false)
             {
-                guildAcc.WelcomeMessages.Add(message);
-                GlobalGuildAccounts.SaveAccounts(Context.Guild.Id);
+                var messages = guildAcc.WelcomeMessages.ToList();
+                messages.Add(message);
+                guildAcc.Modify(g => g.SetWelcomeMessages(messages));
                 response =  $"Successfully added ```\n{message}\n``` as Welcome Message!";
             }
 
@@ -56,12 +56,13 @@ namespace CommunityBot.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task RemoveWelcomeMessage(int messageIndex)
         {
-            var messages = GlobalGuildAccounts.GetGuildAccount(Context.Guild.Id).WelcomeMessages;
+            var guildAcc = GlobalGuildAccounts.GetGuildAccount(Context.Guild.Id);
+            var messages = guildAcc.WelcomeMessages.ToList();
             var response = $"Failed to remove this Welcome Message... Use the number shown in `welcome list` next to the `#` sign!";
             if (messages.Count > messageIndex - 1)
             {
                 messages.RemoveAt(messageIndex - 1);
-                GlobalGuildAccounts.SaveAccounts(Context.Guild.Id);
+                guildAcc.Modify(g => g.SetWelcomeMessages(messages));
                 response =  $"Successfully removed message #{messageIndex} as possible Welcome Message!";
             }
 
@@ -100,8 +101,9 @@ namespace CommunityBot.Modules
             var response = $"Failed to add this Leave Message...";
             if (guildAcc.LeaveMessages.Contains(message) == false)
             {
-                guildAcc.LeaveMessages.Add(message);
-                GlobalGuildAccounts.SaveAccounts(Context.Guild.Id);
+                var messages = guildAcc.WelcomeMessages.ToList();
+                messages.Add(message);
+                guildAcc.Modify(g => g.SetLeaveMessages(messages));
                 response =  $"Successfully added `{message}` as Leave Message!";
             }
 
@@ -112,12 +114,13 @@ namespace CommunityBot.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task RemoveLeaveMessage(int messageIndex)
         {
-            var messages = GlobalGuildAccounts.GetGuildAccount(Context.Guild.Id).LeaveMessages;
+            var guildAcc= GlobalGuildAccounts.GetGuildAccount(Context.Guild.Id);
+            var messages = guildAcc.LeaveMessages.ToList();
             var response = $"Failed to remove this Leave Message... Use the number shown in `leave list` next to the `#` sign!";
             if (messages.Count > messageIndex - 1)
             {
                 messages.RemoveAt(messageIndex - 1);
-                GlobalGuildAccounts.SaveAccounts(Context.Guild.Id);
+                guildAcc.Modify(g => g.SetLeaveMessages(messages));
                 response =  $"Successfully removed message #{messageIndex} as possible Welcome Message!";
             }
 
