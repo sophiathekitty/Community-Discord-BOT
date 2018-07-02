@@ -30,6 +30,12 @@ namespace CommunityBot.Entities
 
         public RoleByPhraseSettings RoleByPhraseSettings { get; private set; } = new RoleByPhraseSettings();
 
+        public int ServerActivityLog { get; set; }
+
+        public ulong LogChannelId { get; set; }
+
+        public string RoleOnJoin { get; set; }
+
         /* Add more values to store */
         
         public GlobalGuildAccount Modify(Action<GuildAccountSettings> func)

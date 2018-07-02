@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using CommunityBot.Configuration;
 using CommunityBot.Features;
 using CommunityBot.Features.Trivia;
 using CommunityBot.Helpers;
@@ -19,11 +20,15 @@ namespace CommunityBot.Handlers
     {
         private readonly DiscordSocketClient _client;
         private readonly CommandHandler _commandHandler;
+        private readonly ApplicationSettings _applicationSettings;
+        private readonly ServerActivityLogger.ServerActivityLogger _serverActivityLogger;
 
-        public DiscordEventHandler(DiscordSocketClient client, CommandHandler commandHandler)
+        public DiscordEventHandler(DiscordSocketClient client, CommandHandler commandHandler, ApplicationSettings applicationSettings,  ServerActivityLogger.ServerActivityLogger serverActivityLogger)
         {
             _client = client;
             _commandHandler = commandHandler;
+            _applicationSettings = applicationSettings;
+            _serverActivityLogger = serverActivityLogger;
         }
 
         public void InitDiscordEvents()
@@ -76,12 +81,12 @@ namespace CommunityBot.Handlers
 
         private async Task ChannelCreated(SocketChannel channel)
         {
-            
+            _serverActivityLogger.Client_ChannelCreated(channel);
         }
 
         private async Task ChannelDestroyed(SocketChannel channel)
         {
-            
+            _serverActivityLogger.Client_ChannelDestroyed(channel);
         }
 
         private async Task ChannelUpdated(SocketChannel channelBefore, SocketChannel channelAfter)
@@ -116,7 +121,7 @@ namespace CommunityBot.Handlers
 
         private async Task GuildMemberUpdated(SocketGuildUser userBefore, SocketGuildUser userAfter)
         {
-            
+            _serverActivityLogger.Client_GuildMemberUpdated(userBefore, userAfter);
         }
 
         private async Task GuildUnavailable(SocketGuild guild)
@@ -161,18 +166,22 @@ namespace CommunityBot.Handlers
 
         private async Task MessageDeleted(Cacheable<IMessage, ulong> cacheMessage, ISocketMessageChannel channel)
         {
-            
+            _serverActivityLogger.Client_MessageDeleted(cacheMessage, channel);
         }
 
         private async Task MessageReceived(SocketMessage message)
         {
             _commandHandler.HandleCommandAsync(message);
             MessageRewardHandler.HandleMessageRewards(message);
+
+            if(_applicationSettings.LoggerDownloadingAttachment)
+                _serverActivityLogger.Client_MessageReceived(message); 
+
         }
 
         private async Task MessageUpdated(Cacheable<IMessage, ulong> cacheMessageBefore, SocketMessage messageAfter, ISocketMessageChannel channel)
         {
-            
+            _serverActivityLogger.Client_MessageUpdated(cacheMessageBefore, messageAfter, channel);
         }
 
         private async Task ReactionAdded(Cacheable<IUserMessage, ulong> cacheMessage, ISocketMessageChannel channel, SocketReaction reaction)
@@ -196,6 +205,7 @@ namespace CommunityBot.Handlers
         {
             RepeatedTaskFunctions.InitRepeatedTasks();
             ServerBots.Init();
+         
         }
 
         private async Task RecipientAdded(SocketGroupUser user)
@@ -215,12 +225,12 @@ namespace CommunityBot.Handlers
 
         private async Task RoleDeleted(SocketRole role)
         {
-            
+            _serverActivityLogger.Client_RoleDeleted(role);
         }
 
         private async Task RoleUpdated(SocketRole roleBefore, SocketRole roleAfter)
         {
-            
+            _serverActivityLogger.Client_RoleUpdated(roleBefore, roleAfter);
         }
 
         private async Task UserBanned(SocketUser user, SocketGuild guild)
@@ -236,6 +246,7 @@ namespace CommunityBot.Handlers
         private async Task UserJoined(SocketGuildUser user)
         {
             Announcements.UserJoined(user);
+            _serverActivityLogger.Client_UserJoined_ForRoleOnJoin(user);
         }
 
         private async Task UserLeft(SocketGuildUser user)
