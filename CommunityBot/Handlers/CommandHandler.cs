@@ -11,19 +11,20 @@ namespace CommunityBot.Handlers
 {
     public class CommandHandler
     {
-        private DiscordSocketClient _client;
-        private CommandService _service;
-        private readonly IServiceProvider _services; // Always null, needed for nighly build + if yuo need a voice bot
+        private readonly DiscordSocketClient _client;
+        private readonly CommandService _cmdService;
+        private readonly IServiceProvider _serviceProvider;
 
-        public CommandHandler(DiscordSocketClient client, CommandService commandService)
+        public CommandHandler(DiscordSocketClient client, CommandService cmdService, IServiceProvider serviceProvider)
         {
             _client = client;
-            _service = commandService;
+            _cmdService = cmdService;
+            _serviceProvider = serviceProvider;
         }
 
         public async Task InitializeAsync()
         {
-            await _service.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+            await _cmdService.AddModulesAsync(Assembly.GetEntryAssembly(), _serviceProvider);
             Global.Client = _client;
         }
 
@@ -44,10 +45,10 @@ namespace CommunityBot.Handlers
             var argPos = 0;
             if (msg.HasMentionPrefix(_client.CurrentUser, ref argPos) || CheckPrefix(ref argPos, context))
             {
-                var cmdSearchResult = _service.Search(context, argPos);
+                var cmdSearchResult = _cmdService.Search(context, argPos);
                 if (cmdSearchResult.IsSuccess == false) return;
 
-                var executionTask = _service.ExecuteAsync(context, argPos, _services);
+                var executionTask = _cmdService.ExecuteAsync(context, argPos, _serviceProvider);
 
                 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 executionTask.ContinueWith(task =>
