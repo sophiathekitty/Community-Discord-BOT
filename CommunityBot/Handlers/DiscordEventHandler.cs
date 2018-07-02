@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using CommunityBot.Configuration;
 using CommunityBot.Features;
 using CommunityBot.Features.Trivia;
 using CommunityBot.Helpers;
@@ -19,11 +20,13 @@ namespace CommunityBot.Handlers
     {
         private readonly DiscordSocketClient _client;
         private readonly CommandHandler _commandHandler;
+        private readonly ApplicationSettings _applicationSettings;
 
-        public DiscordEventHandler(DiscordSocketClient client, CommandHandler commandHandler)
+        public DiscordEventHandler(DiscordSocketClient client, CommandHandler commandHandler, ApplicationSettings applicationSettings)
         {
             _client = client;
             _commandHandler = commandHandler;
+            _applicationSettings = applicationSettings;
         }
 
         public void InitDiscordEvents()
@@ -168,7 +171,9 @@ namespace CommunityBot.Handlers
         {
             _commandHandler.HandleCommandAsync(message);
             MessageRewardHandler.HandleMessageRewards(message);
-            //ServerActivityLogger.ServerActivityLogger.MessageReceived(message); // For downloading attachments
+
+            if(_applicationSettings.LoggerDownloadingAttachment)
+            ServerActivityLogger.ServerActivityLogger.Client_MessageReceived(message); 
 
         }
 

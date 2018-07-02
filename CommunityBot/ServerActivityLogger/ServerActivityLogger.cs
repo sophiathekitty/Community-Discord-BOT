@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Rest;
@@ -329,20 +331,14 @@ namespace CommunityBot.ServerActivityLogger
                     {
                         embed.AddField("After:", $"{messageAfter.Content}");
                     }
-
-
-                    //Attachment Handling
-
-                    /*
                 if (messageBefore.Value.Attachments.Any())
                 {
 
                     var temp = messageBefore.Value.Attachments.FirstOrDefault()?.Url;
-                    var output = "";
                     var check2 = $"{temp?.Substring(temp.Length - 8, 8)}";
-                    output = check2.Substring(check2.IndexOf('.') + 1);
+                    var output = check2.Substring(check2.IndexOf('.') + 1);
 
-                    var ll = arg3 as IGuildChannel;
+               
 
 
                     if (messageBefore.Value.Attachments.Count == 1)
@@ -350,13 +346,13 @@ namespace CommunityBot.ServerActivityLogger
                         if (output == "png" || output == "jpg" || output == "gif")
                         {
                             embed.WithImageUrl(
-                                $"attachment://{Path.GetFileName($"OctoDataBase/OctoAttachments/{ll?.GuildId}/{messageBefore.Id}.{output}")}");
+                                $"attachment://{Path.GetFileName($"Attachments/{currentIGuildChannel.GuildId}/{messageBefore.Id}.{output}")}");
                             if (guild.ServerActivityLog == 1)
                             {
 
-                                await Global.Client.GetGuild(guild.ServerId).GetTextChannel(guild.LogChannelId)
+                                await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                     .SendFileAsync(
-                                        $"OctoDataBase/OctoAttachments/{ll?.GuildId}/{messageBefore.Id}.{output}",
+                                        $"Attachments/{currentIGuildChannel.GuildId}/{messageBefore.Id}.{output}",
                                         "",
                                         embed: embed.Build());
                             }
@@ -366,11 +362,11 @@ namespace CommunityBot.ServerActivityLogger
                             if (guild.ServerActivityLog == 1)
                             {
 
-                                await Global.Client.GetGuild(guild.ServerId).GetTextChannel(guild.LogChannelId)
+                                await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                     .SendMessageAsync("", false, embed.Build());
-                                await Global.Client.GetGuild(guild.ServerId).GetTextChannel(guild.LogChannelId)
+                                await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                     .SendFileAsync(
-                                        $@"OctoDataBase/OctoAttachments/{ll?.GuildId}/{messageBefore.Id}.{output}",
+                                        $@"Attachments/{currentIGuildChannel.GuildId}/{messageBefore.Id}.{output}",
                                         $"");
                             }
                         }
@@ -388,14 +384,14 @@ namespace CommunityBot.ServerActivityLogger
                             {
                                 sent = 1;
                                 embed.WithImageUrl(
-                                    $"attachment://{Path.GetFileName($"OctoDataBase/OctoAttachments/{ll?.GuildId}/{messageBefore.Id}-{i + 1}.{outputMylty}")}");
+                                    $"attachment://{Path.GetFileName($"Attachments/{currentIGuildChannel.GuildId}/{messageBefore.Id}-{i + 1}.{outputMylty}")}");
 
                                 if (guild.ServerActivityLog == 1)
                                 {
 
-                                    await Global.Client.GetGuild(guild.ServerId).GetTextChannel(guild.LogChannelId)
+                                    await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                         .SendFileAsync(
-                                            $"OctoDataBase/OctoAttachments/{ll?.GuildId}/{messageBefore.Id}-{i + 1}.{outputMylty}",
+                                            $"Attachments/{currentIGuildChannel.GuildId}/{messageBefore.Id}-{i + 1}.{outputMylty}",
                                             "",
                                             embed: embed.Build());
                                 }
@@ -405,27 +401,22 @@ namespace CommunityBot.ServerActivityLogger
                                 if (guild.ServerActivityLog == 1)
                                 {
                                     if (sent != 1)
-                                        await Global.Client.GetGuild(guild.ServerId)
+                                        await Global.Client.GetGuild(guild.Id)
                                             .GetTextChannel(guild.LogChannelId)
                                             .SendMessageAsync("", false, embed.Build());
-                                    await Global.Client.GetGuild(guild.ServerId).GetTextChannel(guild.LogChannelId)
+                                    await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                         .SendFileAsync(
-                                            $@"OctoDataBase/OctoAttachments/{ll?.GuildId}/{messageBefore.Id}-{i + 1}.{
+                                            $@"Attachments/{currentIGuildChannel.GuildId}/{messageBefore.Id}-{i + 1}.{
                                                     outputMylty
                                                 }",
-                                            $"");
+                                            "");
                                 }
 
                                 sent = 1;
                             }
                         }
                     }
-                }
-                */
-
-
-
-
+                }    
 
                     if (guild.ServerActivityLog == 1)
                     {
@@ -451,12 +442,9 @@ namespace CommunityBot.ServerActivityLogger
 
         }
 
-
         // This Function, downloads all the attachments it saw, saves it as "Mess_ID" and if anyone edits message or delete it, the bot will pull the file from the drive with that name
         // to post it as well. multiple files handled as well.
-        // This section together with it's posting implementation commented by Snoops request, so it will not affect storage.
 
-        /*  
        public static async Task MessageReceivedDownloadAttachment(SocketMessage arg)
       {
           try
@@ -466,8 +454,8 @@ namespace CommunityBot.ServerActivityLogger
 
                   var ll = arg.Channel as IGuildChannel;
 
-                  Directory.CreateDirectory($@"OctoDataBase/OctoAttachments");
-                  Directory.CreateDirectory($@"OctoDataBase/OctoAttachments/{ll?.GuildId}");
+                  Directory.CreateDirectory($@"Attachments");
+                  Directory.CreateDirectory($@"Attachments/{ll?.GuildId}");
 
                   var temp = arg.Attachments.FirstOrDefault()?.Url;
                   if (!arg.Attachments.Any())
@@ -480,7 +468,7 @@ namespace CommunityBot.ServerActivityLogger
                       using (var client = new WebClient())
                       {
                           client.DownloadFileAsync(new Uri(arg.Attachments.FirstOrDefault()?.Url),
-                              $@"OctoDataBase/OctoAttachments/{ll?.GuildId}/{arg.Id}.{output}");
+                              $@"Attachments/{ll?.GuildId}/{arg.Id}.{output}");
                       }
                   }
                   else
@@ -489,7 +477,7 @@ namespace CommunityBot.ServerActivityLogger
                       using (var client = new WebClient())
                       {
                           client.DownloadFileAsync(new Uri(arg.Attachments.FirstOrDefault()?.Url),
-                              $@"OctoDataBase/OctoAttachments/{ll?.GuildId}/{arg.Id}.{output}");
+                              $@"Attachments/{ll?.GuildId}/{arg.Id}.{output}");
                       }
                   }
               }
@@ -499,8 +487,8 @@ namespace CommunityBot.ServerActivityLogger
                   {
                       var ll = arg.Channel as IGuildChannel;
 
-                      Directory.CreateDirectory($@"OctoDataBase/OctoAttachments");
-                      Directory.CreateDirectory($@"OctoDataBase/OctoAttachments/{ll?.GuildId}");
+                      Directory.CreateDirectory($@"Attachments");
+                      Directory.CreateDirectory($@"Attachments/{ll?.GuildId}");
 
                       var temp = arg.Attachments.ToList();
 
@@ -514,7 +502,7 @@ namespace CommunityBot.ServerActivityLogger
                           using (var client = new WebClient())
                           {
                               client.DownloadFileAsync(new Uri(temp[i].Url),
-                                  $@"OctoDataBase/OctoAttachments/{ll?.GuildId}/{arg.Id}-{i + 1}.{output}");
+                                  $@"Attachments/{ll?.GuildId}/{arg.Id}-{i + 1}.{output}");
                           }
                       }
                       else
@@ -523,7 +511,7 @@ namespace CommunityBot.ServerActivityLogger
                           using (var client = new WebClient())
                           {
                               client.DownloadFileAsync(new Uri(temp[i].Url),
-                                  $@"OctoDataBase/OctoAttachments/{ll?.GuildId}/{arg.Id}-{i + 1}.{output}");
+                                  $@"Attachments/{ll?.GuildId}/{arg.Id}-{i + 1}.{output}");
                           }
                       }
                   }
@@ -540,13 +528,14 @@ namespace CommunityBot.ServerActivityLogger
 
        public static async Task Client_MessageReceived(SocketMessage arg)
       {
+
           if (arg.Author.Id == Global.Client.CurrentUser.Id)
               return;
 
            MessageReceivedDownloadAttachment(arg);
           await Task.CompletedTask;
       }
-       */
+       
 
         public static async Task DeleteLogg(Cacheable<IMessage, ulong> messageBefore,
             ISocketMessageChannel arg3)
@@ -557,7 +546,7 @@ namespace CommunityBot.ServerActivityLogger
                     return;
                 if (messageBefore.Value.Channel is ITextChannel kek)
                 {
-
+                    var guild = GlobalGuildAccounts.GetGuildAccount(kek.Guild.Id);
 
                     var log = await kek.Guild.GetAuditLogAsync(1);
                     var audit = log.ToList();
@@ -602,18 +591,14 @@ namespace CommunityBot.ServerActivityLogger
                         embedDel.AddField("Content", $"{messageBefore.Value.Content}");
                     }
 
-                    //Attachment Handling
-
-                    /*
                     if (messageBefore.Value.Attachments.Any())
                     {
 
                         var temp = messageBefore.Value.Attachments.FirstOrDefault()?.Url;
-                        var output = "";
                         var check2 = $"{temp?.Substring(temp.Length - 8, 8)}";
-                        output = check2.Substring(check2.IndexOf('.') + 1);
-                        //OctoAttachments/{ll?.GuildId}
-                        var ll = arg3 as IGuildChannel;
+                        var output = check2.Substring(check2.IndexOf('.') + 1);
+                       
+                        var currentIGuildChannel = arg3 as IGuildChannel;
 
 
                         if (messageBefore.Value.Attachments.Count == 1)
@@ -621,35 +606,32 @@ namespace CommunityBot.ServerActivityLogger
                             if (output == "png" || output == "jpg" || output == "gif")
                             {
                                 embedDel.WithImageUrl(
-                                    $"attachment://{Path.GetFileName($"OctoDataBase/OctoAttachments/{ll?.GuildId}/{messageBefore.Id}.{output}")}");
+                                    $"attachment://{Path.GetFileName($"Attachments/{currentIGuildChannel?.GuildId}/{messageBefore.Id}.{output}")}");
 
 
-                                var currentIGuildChannel = arg3 as IGuildChannel;
-                                var guild = ServerAccounts.GetServerAccount(currentIGuildChannel);
+                               
+                             
                                 if (guild.ServerActivityLog == 1)
                                 {
 
-                                    await Global.Client.GetGuild(guild.ServerId).GetTextChannel(guild.LogChannelId)
+                                    await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                         .SendFileAsync(
-                                            $"OctoDataBase/OctoAttachments/{ll?.GuildId}/{messageBefore.Id}.{output}",
+                                            $"Attachments/{currentIGuildChannel?.GuildId}/{messageBefore.Id}.{output}",
                                             "",
                                             embed: embedDel.Build());
                                 }
                             }
                             else
                             {
-
-
-                                var currentIGuildChannel = arg3 as IGuildChannel;
-                                var guild = ServerAccounts.GetServerAccount(currentIGuildChannel);
+ 
                                 if (guild.ServerActivityLog == 1)
                                 {
 
-                                    await Global.Client.GetGuild(guild.ServerId).GetTextChannel(guild.LogChannelId)
+                                    await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                         .SendMessageAsync("", false, embedDel.Build());
-                                    await Global.Client.GetGuild(guild.ServerId).GetTextChannel(guild.LogChannelId)
+                                    await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                         .SendFileAsync(
-                                            $@"OctoDataBase/OctoAttachments/{ll?.GuildId}/{messageBefore.Id}.{output}",
+                                            $@"Attachments/{currentIGuildChannel?.GuildId}/{messageBefore.Id}.{output}",
                                             $"");
                                 }
                             }
@@ -667,34 +649,31 @@ namespace CommunityBot.ServerActivityLogger
                                 {
                                     sent = 1;
                                     embedDel.WithImageUrl(
-                                        $"attachment://{Path.GetFileName($"OctoDataBase/OctoAttachments/{ll?.GuildId}/{messageBefore.Id}-{i + 1}.{outputMylty}")}");
+                                        $"attachment://{Path.GetFileName($"Attachments/{currentIGuildChannel?.GuildId}/{messageBefore.Id}-{i + 1}.{outputMylty}")}");
 
-
-                                    var currentIGuildChannel = arg3 as IGuildChannel;
-                                    var guild = ServerAccounts.GetServerAccount(currentIGuildChannel);
+                           
                                     if (guild.ServerActivityLog == 1)
                                     {
 
-                                        await Global.Client.GetGuild(guild.ServerId).GetTextChannel(guild.LogChannelId)
+                                        await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                             .SendFileAsync(
-                                                $"OctoDataBase/OctoAttachments/{ll?.GuildId}/{messageBefore.Id}-{i + 1}.{outputMylty}",
+                                                $"Attachments/{currentIGuildChannel?.GuildId}/{messageBefore.Id}-{i + 1}.{outputMylty}",
                                                 "",
                                                 embed: embedDel.Build());
                                     }
                                 }
                                 else
                                 {
-                                    var currentIGuildChannel = arg3 as IGuildChannel;
-                                    var guild = ServerAccounts.GetServerAccount(currentIGuildChannel);
+
                                     if (guild.ServerActivityLog == 1)
                                     {
                                         if (sent != 1)
-                                            await Global.Client.GetGuild(guild.ServerId)
+                                            await Global.Client.GetGuild(guild.Id)
                                                 .GetTextChannel(guild.LogChannelId)
                                                 .SendMessageAsync("", false, embedDel.Build());
-                                        await Global.Client.GetGuild(guild.ServerId).GetTextChannel(guild.LogChannelId)
+                                        await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                             .SendFileAsync(
-                                                $@"OctoDataBase/OctoAttachments/{ll?.GuildId}/{
+                                                $@"Attachments/{currentIGuildChannel?.GuildId}/{
                                                         messageBefore.Id
                                                     }-{i + 1}.{outputMylty}",
                                                 $"");
@@ -706,17 +685,14 @@ namespace CommunityBot.ServerActivityLogger
                             }
                         }
                     }
-                    */
-                    if (arg3 is IGuildChannel currentIGuildChannel)
-                    {
-                        var guild = GlobalGuildAccounts.GetGuildAccount(currentIGuildChannel.Guild.Id);
+
                         if (guild.ServerActivityLog == 1)
                         {
 
                             await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                 .SendMessageAsync("", false, embedDel.Build());
                         }
-                    }
+                    
                 }
             }
             catch (Exception e)

@@ -1,6 +1,5 @@
 ﻿using Discord.WebSocket;
 using System;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Discord;
@@ -15,13 +14,16 @@ namespace CommunityBot
     {
         private DiscordSocketClient _client;
         private IServiceProvider _serviceProvider;
+        private ApplicationSettings _appSettings;
 
         static void Main(string[] args)
         => new Program().StartAsync(args).GetAwaiter().GetResult();
 
         public async Task StartAsync(string[] args)
         {
-            var discordSocketConfig = HandleCommandlineArguments(args);
+            _appSettings = new ApplicationSettings(args);
+
+            var discordSocketConfig = GetDiscordSocketConfig();
             if (discordSocketConfig == null) return;
 
             _client = new DiscordSocketClient(discordSocketConfig);
@@ -38,52 +40,12 @@ namespace CommunityBot
             await Task.Delay(-1);
         }
 
-        private DiscordSocketConfig HandleCommandlineArguments(string[] args)
+        private DiscordSocketConfig GetDiscordSocketConfig()
         {
-            if (args.Length > 0) args = args[0].Split(" ");
-
-            // Help argument handling -help / -h / -info / -i
-            if (args.Any(arg => new string[]{"-help", "-h", "-info", "-i"}.Contains(arg)))
-            {
-                Console.WriteLine(
-                    "Possible arguments you can provide are:\n" +
-                    "-help | -h | -info -i  : shows this help\n" +
-                    "-hl                    : run in headless mode (no output to console)\n" +
-                    "-vb                    : run with verbose discord logging\n" +
-                    "-token=<token>         : run with specific token instead of the saved one in bot configs\n" +
-                    "-cs=<number>           : message cache size per channel (defaults to 0)"
-                );
-                return null;
-            }
-
-            // Headless argument handling -hl
-            if (args.Contains("-hl")) Global.Headless = true;
-
-            // Verbose argument handling -vb
-            var logLevel = LogSeverity.Info;
-            if (args.Contains("-vb"))
-                logLevel = LogSeverity.Verbose;
-
-            // Cachesize argument handling -cs=<cacheSize>
-            var chacheSize = 500;
-          
-            if (args.Any(arg => arg.StartsWith("-cs=")))
-            {
-                var numberString = args.FirstOrDefault(arg => arg.StartsWith("-cs=")).Replace("-cs=", "");
-                int.TryParse(numberString, out chacheSize);
-            }
-
-             // Token argument handling -token=YOUR.TOKEN.HERE
-            var tokenString = args.FirstOrDefault(arg => arg.StartsWith("-token="));
-            if (string.IsNullOrWhiteSpace(tokenString) == false)
-            {
-                BotSettings.config.Token = tokenString.Replace("-token=", "");
-            }
-
             return new DiscordSocketConfig()
             {
-                LogLevel = logLevel,
-                MessageCacheSize = chacheSize,
+                LogLevel = _appSettings.Verbose ? LogSeverity.Verbose : LogSeverity.Info,
+                MessageCacheSize = _appSettings.ChacheSize,
                 AlwaysDownloadUsers = true
             };
         }
@@ -136,10 +98,11 @@ namespace CommunityBot
         {
             return new ServiceCollection()
                 .AddSingleton(_client)
+                .AddSingleton<ApplicationSettings>()
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandler>()
                 .AddSingleton<DiscordEventHandler>()
-                .BuildServiceProvider();
+                .BuildServiceProvider();     
         }
     }
 }
