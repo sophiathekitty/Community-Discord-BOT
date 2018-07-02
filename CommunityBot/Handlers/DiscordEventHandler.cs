@@ -174,7 +174,7 @@ namespace CommunityBot.Handlers
 
         private async Task MessageUpdated(Cacheable<IMessage, ulong> cacheMessageBefore, SocketMessage messageAfter, ISocketMessageChannel channel)
         {
-            ServerActivityLogger.ServerActivityLogger.MessageUpdated(cacheMessageBefore, messageAfter, channel);
+            ServerActivityLogger.ServerActivityLogger.Client_MessageUpdated(cacheMessageBefore, messageAfter, channel);
         }
 
         private async Task ReactionAdded(Cacheable<IUserMessage, ulong> cacheMessage, ISocketMessageChannel channel, SocketReaction reaction)
