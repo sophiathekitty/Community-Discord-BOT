@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 
-
 namespace CommunityBot.Configuration
 {
     public class ApplicationSettings
@@ -16,7 +15,7 @@ namespace CommunityBot.Configuration
            if (args.Length > 0) args = args[0].Split(" ");
 
             // Help argument handling -help / -h / -info / -i
-            if (args.Any(arg => new string[]{"-help", "-h", "-info", "-i"}.Contains(arg)))
+            if (args.Any(arg => new[]{"-help", "-h", "-info", "-i"}.Contains(arg)))
             {
                 Console.WriteLine(
                     "Possible arguments you can provide are:\n" +
@@ -43,7 +42,7 @@ namespace CommunityBot.Configuration
  
             if (args.Any(arg => arg.StartsWith("-cs=")))
             {
-                var numberString = args.FirstOrDefault(arg => arg.StartsWith("-cs=")).Replace("-cs=", "");
+                var numberString = args.FirstOrDefault(arg => arg.StartsWith("-cs="))?.Replace("-cs=", "");
                 int.TryParse(numberString, out chacheSize);
             }
 

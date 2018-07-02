@@ -18,7 +18,7 @@ namespace CommunityBot.Modules
             guild.ServerActivityLog = 0;
             GlobalGuildAccounts.SaveAccounts(Context.Guild.Id);
 
-            await ReplyAsync($"No more Logging");
+            await ReplyAsync("No more Logging");
 
         }
 
@@ -53,7 +53,6 @@ namespace CommunityBot.Modules
 
                 return;
             }
-
             switch (guild.ServerActivityLog)
             {
                 case 1:
@@ -62,7 +61,7 @@ namespace CommunityBot.Modules
                     GlobalGuildAccounts.SaveAccounts(Context.Guild.Id);
 
 
-                        await ReplyAsync($"No more logging any activity now\n");
+                        await ReplyAsync("No more logging any activity now");
 
                     return;
                 case 0:
@@ -92,16 +91,13 @@ namespace CommunityBot.Modules
                             await ReplyAsync(
                                 $"Now we log everything to {channel.Result.Mention}, you may rename and move it.");
                         }
-
                     }
                     catch
                     {
-//
+                     //ignored
                     }
-
                     break;
             }
-
         }
 
 

@@ -98,7 +98,7 @@ namespace CommunityBot
         {
             return new ServiceCollection()
                 .AddSingleton(_client)
-                .AddSingleton<ApplicationSettings>()
+                .AddSingleton(_appSettings)
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandler>()
                 .AddSingleton<DiscordEventHandler>()
