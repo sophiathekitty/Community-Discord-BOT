@@ -99,6 +99,7 @@ namespace CommunityBot
             return new ServiceCollection()
                 .AddSingleton(_client)
                 .AddSingleton(_appSettings)
+                .AddSingleton<ServerActivityLogger.ServerActivityLogger>()
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandler>()
                 .AddSingleton<DiscordEventHandler>()

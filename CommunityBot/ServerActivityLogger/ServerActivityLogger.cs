@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using CommunityBot.Configuration;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
@@ -15,8 +16,17 @@ namespace CommunityBot.ServerActivityLogger
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 #pragma warning disable CS1998 // This async method lacks 'await' operators and will run synchronously. Consider using the 'await' operator to await non-blocking API calls, or 'await Task.Run(...)' to do CPU-bound work on a background thread.
 
+        private readonly DiscordSocketClient _client;
+        private readonly ApplicationSettings _applicationSettings;
 
-        public static async Task ChannelDestroyed(IChannel arg)
+        public ServerActivityLogger(DiscordSocketClient client, ApplicationSettings applicationSettings)
+        {
+            _client = client;
+            _applicationSettings = applicationSettings;
+        }
+
+
+        public  async Task ChannelDestroyed(IChannel arg)
         {
             try
             {
@@ -47,7 +57,7 @@ namespace CommunityBot.ServerActivityLogger
                     var guild = GlobalGuildAccounts.GetGuildAccount(currentIguildChannel.Guild.Id);
                     if (guild.ServerActivityLog == 1)
                     {
-                        await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                        await _client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                             .SendMessageAsync("", false, embed.Build());
                     }
                 }
@@ -58,13 +68,13 @@ namespace CommunityBot.ServerActivityLogger
             }
         }
 
-        public static async Task Client_ChannelDestroyed(IChannel arg)
+        public  async Task Client_ChannelDestroyed(IChannel arg)
         {
             ChannelDestroyed(arg);
             await Task.CompletedTask;
         }
 
-        public static async Task ChannelCreated(IChannel arg)
+        public  async Task ChannelCreated(IChannel arg)
         {
             try
             {
@@ -92,7 +102,7 @@ namespace CommunityBot.ServerActivityLogger
                 var guild = GlobalGuildAccounts.GetGuildAccount(currentIGuildChannel.Guild.Id);
                 if (guild.ServerActivityLog == 1)
                 {
-                    await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                    await _client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                         .SendMessageAsync("", false, embed.Build());
                 }
             }
@@ -103,14 +113,14 @@ namespace CommunityBot.ServerActivityLogger
 
         }
 
-        public static async Task Client_ChannelCreated(IChannel arg)
+        public  async Task Client_ChannelCreated(IChannel arg)
         {
             ChannelCreated(arg);
             await Task.CompletedTask;
 
         }
 
-        public static async Task GuildMemberUpdated(SocketGuildUser before, SocketGuildUser after)
+        public  async Task GuildMemberUpdated(SocketGuildUser before, SocketGuildUser after)
         {
             try
             {
@@ -143,7 +153,7 @@ namespace CommunityBot.ServerActivityLogger
 
                     if (guild.ServerActivityLog == 1)
                     {
-                        await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                        await _client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                             .SendMessageAsync("", false, embed.Build());
                     }
                 }
@@ -165,7 +175,7 @@ namespace CommunityBot.ServerActivityLogger
 
                     if (guild.ServerActivityLog == 1)
                     {
-                        await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                        await _client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                             .SendMessageAsync("", false, embed.Build());
                     }
                 }
@@ -187,7 +197,7 @@ namespace CommunityBot.ServerActivityLogger
 
                     if (guild.ServerActivityLog == 1)
                     {
-                        await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                        await _client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                             .SendMessageAsync("", false, embed.Build());
                     }
                 }
@@ -233,7 +243,7 @@ namespace CommunityBot.ServerActivityLogger
 
                     if (guild.ServerActivityLog == 1)
                     {
-                        await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                        await _client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                             .SendMessageAsync("", false, embed.Build());
                     }
                 }
@@ -246,13 +256,13 @@ namespace CommunityBot.ServerActivityLogger
 
         }
 
-        public static async Task Client_GuildMemberUpdated(SocketGuildUser before, SocketGuildUser after)
+        public  async Task Client_GuildMemberUpdated(SocketGuildUser before, SocketGuildUser after)
         {
             GuildMemberUpdated(before, after);
             await Task.CompletedTask;
         }
 
-        public static async Task MessageUpdated(Cacheable<IMessage, ulong> messageBefore,
+        public  async Task MessageUpdated(Cacheable<IMessage, ulong> messageBefore,
             SocketMessage messageAfter, ISocketMessageChannel arg3)
         {
             try
@@ -331,6 +341,7 @@ namespace CommunityBot.ServerActivityLogger
                     {
                         embed.AddField("After:", $"{messageAfter.Content}");
                     }
+                    if(_applicationSettings.LoggerDownloadingAttachment)
                 if (messageBefore.Value.Attachments.Any())
                 {
 
@@ -350,7 +361,7 @@ namespace CommunityBot.ServerActivityLogger
                             if (guild.ServerActivityLog == 1)
                             {
 
-                                await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                                await _client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                     .SendFileAsync(
                                         $"Attachments/{currentIGuildChannel.GuildId}/{messageBefore.Id}.{output}",
                                         "",
@@ -362,9 +373,9 @@ namespace CommunityBot.ServerActivityLogger
                             if (guild.ServerActivityLog == 1)
                             {
 
-                                await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                                await _client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                     .SendMessageAsync("", false, embed.Build());
-                                await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                                await _client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                     .SendFileAsync(
                                         $@"Attachments/{currentIGuildChannel.GuildId}/{messageBefore.Id}.{output}",
                                         $"");
@@ -389,7 +400,7 @@ namespace CommunityBot.ServerActivityLogger
                                 if (guild.ServerActivityLog == 1)
                                 {
 
-                                    await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                                    await _client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                         .SendFileAsync(
                                             $"Attachments/{currentIGuildChannel.GuildId}/{messageBefore.Id}-{i + 1}.{outputMylty}",
                                             "",
@@ -401,10 +412,10 @@ namespace CommunityBot.ServerActivityLogger
                                 if (guild.ServerActivityLog == 1)
                                 {
                                     if (sent != 1)
-                                        await Global.Client.GetGuild(guild.Id)
+                                        await _client.GetGuild(guild.Id)
                                             .GetTextChannel(guild.LogChannelId)
                                             .SendMessageAsync("", false, embed.Build());
-                                    await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                                    await _client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                         .SendFileAsync(
                                             $@"Attachments/{currentIGuildChannel.GuildId}/{messageBefore.Id}-{i + 1}.{
                                                     outputMylty
@@ -421,7 +432,7 @@ namespace CommunityBot.ServerActivityLogger
                     if (guild.ServerActivityLog == 1)
                     {
 
-                        await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                        await _client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                             .SendMessageAsync("", false, embed.Build());
                     }
                 }
@@ -434,7 +445,7 @@ namespace CommunityBot.ServerActivityLogger
         }
 
 
-        public static async Task Client_MessageUpdated(Cacheable<IMessage, ulong> messageBefore,
+        public  async Task Client_MessageUpdated(Cacheable<IMessage, ulong> messageBefore,
             SocketMessage messageAfter, ISocketMessageChannel arg3)
         {
             MessageUpdated(messageBefore, messageAfter, arg3);
@@ -445,7 +456,7 @@ namespace CommunityBot.ServerActivityLogger
         // This Function, downloads all the attachments it saw, saves it as "Mess_ID" and if anyone edits message or delete it, the bot will pull the file from the drive with that name
         // to post it as well. multiple files handled as well.
 
-       public static async Task MessageReceivedDownloadAttachment(SocketMessage arg)
+       public  async Task MessageReceivedDownloadAttachment(SocketMessage arg)
       {
           try
           {
@@ -526,18 +537,18 @@ namespace CommunityBot.ServerActivityLogger
       }
      
 
-       public static async Task Client_MessageReceived(SocketMessage arg)
+       public  async Task Client_MessageReceived(SocketMessage arg)
       {
 
-          if (arg.Author.Id == Global.Client.CurrentUser.Id)
+          if (arg.Author.Id == _client.CurrentUser.Id)
               return;
 
            MessageReceivedDownloadAttachment(arg);
           await Task.CompletedTask;
       }
        
-
-        public static async Task DeleteLogg(Cacheable<IMessage, ulong> messageBefore,
+      
+        public  async Task DeleteLogg(Cacheable<IMessage, ulong> messageBefore,
             ISocketMessageChannel arg3)
         {
             try
@@ -591,6 +602,7 @@ namespace CommunityBot.ServerActivityLogger
                         embedDel.AddField("Content", $"{messageBefore.Value.Content}");
                     }
 
+                    if(_applicationSettings.LoggerDownloadingAttachment)
                     if (messageBefore.Value.Attachments.Any())
                     {
 
@@ -600,7 +612,7 @@ namespace CommunityBot.ServerActivityLogger
                        
                         var currentIGuildChannel = arg3 as IGuildChannel;
 
-
+                      
                         if (messageBefore.Value.Attachments.Count == 1)
                         {
                             if (output == "png" || output == "jpg" || output == "gif")
@@ -614,7 +626,7 @@ namespace CommunityBot.ServerActivityLogger
                                 if (guild.ServerActivityLog == 1)
                                 {
 
-                                    await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                                    await _client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                         .SendFileAsync(
                                             $"Attachments/{currentIGuildChannel?.GuildId}/{messageBefore.Id}.{output}",
                                             "",
@@ -627,9 +639,9 @@ namespace CommunityBot.ServerActivityLogger
                                 if (guild.ServerActivityLog == 1)
                                 {
 
-                                    await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                                    await _client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                         .SendMessageAsync("", false, embedDel.Build());
-                                    await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                                    await _client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                         .SendFileAsync(
                                             $@"Attachments/{currentIGuildChannel?.GuildId}/{messageBefore.Id}.{output}",
                                             $"");
@@ -655,7 +667,7 @@ namespace CommunityBot.ServerActivityLogger
                                     if (guild.ServerActivityLog == 1)
                                     {
 
-                                        await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                                        await _client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                             .SendFileAsync(
                                                 $"Attachments/{currentIGuildChannel?.GuildId}/{messageBefore.Id}-{i + 1}.{outputMylty}",
                                                 "",
@@ -668,10 +680,10 @@ namespace CommunityBot.ServerActivityLogger
                                     if (guild.ServerActivityLog == 1)
                                     {
                                         if (sent != 1)
-                                            await Global.Client.GetGuild(guild.Id)
+                                            await _client.GetGuild(guild.Id)
                                                 .GetTextChannel(guild.LogChannelId)
                                                 .SendMessageAsync("", false, embedDel.Build());
-                                        await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                                        await _client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                             .SendFileAsync(
                                                 $@"Attachments/{currentIGuildChannel?.GuildId}/{
                                                         messageBefore.Id
@@ -689,7 +701,7 @@ namespace CommunityBot.ServerActivityLogger
                         if (guild.ServerActivityLog == 1)
                         {
 
-                            await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                            await _client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                                 .SendMessageAsync("", false, embedDel.Build());
                         }
                     
@@ -703,15 +715,14 @@ namespace CommunityBot.ServerActivityLogger
 
         }
 
-        public static async Task Client_MessageDeleted(Cacheable<IMessage, ulong> messageBefore,
+        public  async Task Client_MessageDeleted(Cacheable<IMessage, ulong> messageBefore,
             ISocketMessageChannel arg3)
         {
             DeleteLogg(messageBefore, arg3);
             await Task.CompletedTask;
         }
 
-
-        public static async Task RoleDeleted(SocketRole arg)
+        public  async Task RoleDeleted(SocketRole arg)
         {
             try
             {
@@ -742,7 +753,7 @@ namespace CommunityBot.ServerActivityLogger
 
                 if (guild.ServerActivityLog == 1)
                 {
-                    await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                    await _client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                         .SendMessageAsync("", false, embed.Build());
                 }
             }
@@ -753,14 +764,14 @@ namespace CommunityBot.ServerActivityLogger
 
         }
 
-        public static async Task Client_RoleDeleted(SocketRole arg)
+        public  async Task Client_RoleDeleted(SocketRole arg)
         {
             RoleDeleted(arg);
             await Task.CompletedTask;
         }
 
         // Does not work fully correctly, PM me if you can fix it
-        public static async Task RoleUpdated(SocketRole arg1, SocketRole arg2)
+        public  async Task RoleUpdated(SocketRole arg1, SocketRole arg2)
         {
             try
             {
@@ -853,7 +864,7 @@ namespace CommunityBot.ServerActivityLogger
 
                 if (guild.ServerActivityLog == 1)
                 {
-                    await Global.Client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
+                    await _client.GetGuild(guild.Id).GetTextChannel(guild.LogChannelId)
                         .SendMessageAsync("", false, embed.Build());
                 }
             }
@@ -863,14 +874,14 @@ namespace CommunityBot.ServerActivityLogger
             }
         }
 
-        public static async Task Client_RoleUpdated(SocketRole arg1, SocketRole arg2)
+        public  async Task Client_RoleUpdated(SocketRole arg1, SocketRole arg2)
         {
             RoleUpdated(arg1, arg2);
             await Task.CompletedTask;
 
         }
 
-        public static async Task Client_UserJoined_ForRoleOnJoin(SocketGuildUser arg)
+        public  async Task Client_UserJoined_ForRoleOnJoin(SocketGuildUser arg)
         {
             var guid = GlobalGuildAccounts.GetGuildAccount(arg.Guild.Id);
 

@@ -47,8 +47,9 @@ namespace CommunityBot.Configuration
             }
 
             ChacheSize = chacheSize;
-
+         
              // Token argument handling -token=YOUR.TOKEN.HERE
+            
             var tokenString = args.FirstOrDefault(arg => arg.StartsWith("-token="));
             if (string.IsNullOrWhiteSpace(tokenString) == false)
             {
