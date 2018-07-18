@@ -1,9 +1,9 @@
-﻿using Discord;
+﻿
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
 using System.Threading.Tasks;
+using Discord;
 
 namespace CommunityBot
 {
@@ -11,11 +11,34 @@ namespace CommunityBot
     {
         internal static Task Log(LogMessage logMessage)
         {
-            Console.ForegroundColor = SeverityToConsoleColor(logMessage.Severity);
             string message = String.Concat(DateTime.Now.ToShortTimeString(), " [", logMessage.Source, "] ", logMessage.Message);
+            LogConsole(message, logMessage.Severity);
+            LogFile(message);
+            return Task.CompletedTask;
+        }
+
+        private static void LogFile(string message)
+        {
+            if (!Global.LogIntoFile) return;
+
+            var fileName = $"{DateTime.Today.Day}-{DateTime.Today.Month}-{DateTime.Today.Year}.log";
+            var folder = Constants.LogFolder;
+
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            StreamWriter sw = File.AppendText($"{folder}/{fileName}");
+            sw.WriteLine(message);
+            sw.Close();
+        }
+
+        private static void LogConsole(string message, LogSeverity severity)
+        {
+            if (!Global.LogIntoConsole) return;
+
+            Console.ForegroundColor = SeverityToConsoleColor(severity);
             Console.WriteLine(message);
             Console.ResetColor();
-            return Task.CompletedTask;
         }
 
         private static ConsoleColor SeverityToConsoleColor(LogSeverity severity)
