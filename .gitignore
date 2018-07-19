@@ -267,3 +267,4 @@ Properties/
 
 # Miunie runtime directories
 resources/
+logs/
