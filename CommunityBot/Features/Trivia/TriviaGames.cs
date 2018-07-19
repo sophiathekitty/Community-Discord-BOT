@@ -72,7 +72,7 @@ namespace CommunityBot.Features.Trivia
                     catch (Exception e)
 
                     {
-                        await Logger.Log(new LogMessage(LogSeverity.Warning, $"Discord | Missing Permissions to remove reaction in {msg.Channel}", e.Message, e.InnerException));
+                        //await Logger.Log(new LogMessage(LogSeverity.Warning, $"Discord | Missing Permissions to remove reaction in {msg.Channel}", e.Message, e.InnerException));
                     }
                 }
                 await triviaGame.HandleReaction(msg, reaction);

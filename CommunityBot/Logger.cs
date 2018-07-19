@@ -1,26 +1,36 @@
-﻿
-
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using CommunityBot.Configuration;
 using Discord;
 
 namespace CommunityBot
 {
-    internal class Logger
+    public class Logger
     {
-        internal static Task Log(LogMessage logMessage)
+        private readonly ApplicationSettings _appSettings;
+
+        public Logger(ApplicationSettings appSettings)
         {
-            string message = String.Concat(DateTime.Now.ToShortTimeString(), " [", logMessage.Source, "] ", logMessage.Message);
-            LogConsole(message, logMessage.Severity);
-            LogFile(message);
+            _appSettings = appSettings;
+        }
+
+        internal Task Log(LogSeverity severity, string source, string message, Exception exception = null)
+        {
+            Log(new LogMessage(severity, source, message, exception));
             return Task.CompletedTask;
         }
 
-        private static void LogFile(string message)
+        internal Task Log(LogMessage logMessage)
         {
-            if (!Global.LogIntoFile) return;
+            string message = String.Concat(DateTime.Now.ToShortTimeString(), " [", logMessage.Source, "] ", logMessage.Message);
+            if(_appSettings.LogIntoConsole) LogConsole(message, logMessage.Severity);
+            if(_appSettings.LogIntoFile) LogFile(message);
+            return Task.CompletedTask;
+        }
 
+        private void LogFile(string message)
+        {
             var fileName = $"{DateTime.Today.Day}-{DateTime.Today.Month}-{DateTime.Today.Year}.log";
             var folder = Constants.LogFolder;
 
@@ -32,16 +42,14 @@ namespace CommunityBot
             sw.Close();
         }
 
-        private static void LogConsole(string message, LogSeverity severity)
+        private void LogConsole(string message, LogSeverity severity)
         {
-            if (!Global.LogIntoConsole) return;
-
             Console.ForegroundColor = SeverityToConsoleColor(severity);
             Console.WriteLine(message);
             Console.ResetColor();
         }
 
-        private static ConsoleColor SeverityToConsoleColor(LogSeverity severity)
+        private ConsoleColor SeverityToConsoleColor(LogSeverity severity)
         {
             switch (severity)
             {
