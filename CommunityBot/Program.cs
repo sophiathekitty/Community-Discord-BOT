@@ -12,14 +12,11 @@ namespace CommunityBot
 {
     class Program
     {
-        private DiscordSocketClient _client;
-        private IServiceProvider _serviceProvider;
-        private ApplicationSettings _appSettings;
+        private static DiscordSocketClient _client;
+        private static IServiceProvider _serviceProvider;
+        private static ApplicationSettings _appSettings;
 
-        static void Main(string[] args)
-        => new Program().StartAsync(args).GetAwaiter().GetResult();
-
-        public async Task StartAsync(string[] args)
+        private static async Task Main(string[] args)
         {
             _appSettings = new ApplicationSettings(args);
 
@@ -40,17 +37,17 @@ namespace CommunityBot
             await Task.Delay(-1);
         }
 
-        private DiscordSocketConfig GetDiscordSocketConfig()
+        private static DiscordSocketConfig GetDiscordSocketConfig()
         {
             return new DiscordSocketConfig()
             {
                 LogLevel = _appSettings.Verbose ? LogSeverity.Verbose : LogSeverity.Info,
-                MessageCacheSize = _appSettings.ChacheSize,
+                MessageCacheSize = _appSettings.CacheSize,
                 AlwaysDownloadUsers = true
             };
         }
 
-        private async Task<bool> AttemptLogin()
+        private static async Task<bool> AttemptLogin()
         {
             try
             {
@@ -94,7 +91,7 @@ namespace CommunityBot
             return Console.ReadKey().Key == ConsoleKey.Y;
         }
 
-        private IServiceProvider ConfigureServices()
+        private static IServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
                 .AddSingleton(_client)
@@ -103,6 +100,7 @@ namespace CommunityBot
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandler>()
                 .AddSingleton<DiscordEventHandler>()
+                .AddSingleton<Logger>()
                 .BuildServiceProvider();     
         }
     }

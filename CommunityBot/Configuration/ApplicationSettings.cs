@@ -7,17 +7,22 @@ namespace CommunityBot.Configuration
     {
         public readonly bool Headless;
         public readonly bool Verbose;
-        public readonly int ChacheSize;
+        public readonly int CacheSize;
         public readonly bool LoggerDownloadingAttachment;
         public readonly bool LogIntoFile;
         public readonly bool LogIntoConsole;
 
+        private readonly static string[] helpKeywords = new []{ "-help", "-h", "-info", "-i" };
+        private const string HeadlessArg = "-hl";
+        private const string VerboseArg = "-vb";
+        private const string AttachementsArg = "-att";
+        private const string CacheSizeArg = "-cs=";
+        private const string LogDestinationArg = "-log=";
+        private const string TokenArg = "-token=";
+
         public ApplicationSettings(string [] args)
         {
-           if (args.Length > 0) args = args[0].Split(" ");
-
-            // Help argument handling -help / -h / -info / -i
-            if (args.Any(arg => new[]{"-help", "-h", "-info", "-i"}.Contains(arg)))
+            if (args.Any(arg => helpKeywords.Contains(arg)))
             {
                 Console.WriteLine(
                     "Possible arguments you can provide are:\n" +
@@ -28,63 +33,59 @@ namespace CommunityBot.Configuration
                     "-cs=<number>           : message cache size per channel (defaults to 0)" +
                     "-log=<f | c>           : log into a (f)ile, (c)onsole  or both. Default is console"
                 );
-                return;
+                
+                // Makes sure the help notice stays up even when
+                // running an .exe with this argument.
+                Console.WriteLine("Press any key to exit...");
+                Console.ReadKey();
+                Environment.Exit(0);
             }
 
-            // Headless argument handling -hl
-            if (args.Contains("-hl")) Headless = true;
+            if (args.Contains(HeadlessArg)) Headless = true;
 
-            // Verbose argument handling -vb
-         
-            if (args.Contains("-vb"))
-                Verbose = true;
-
+            if (args.Contains(VerboseArg)) Verbose = true;
 
             // Cachesize argument handling -cs=<cacheSize>
-            var chacheSize = 500;
- 
-            if (args.Any(arg => arg.StartsWith("-cs=")))
+            if (args.Any(arg => arg.StartsWith(CacheSizeArg)))
             {
-                var numberString = args.FirstOrDefault(arg => arg.StartsWith("-cs="))?.Replace("-cs=", "");
-                int.TryParse(numberString, out chacheSize);
+                var numberString = GetArgumentContent(args, CacheSizeArg);
+                int.TryParse(numberString, out CacheSize);
+            }
+            else
+            {
+                CacheSize = 500;
             }
 
-            ChacheSize = chacheSize;
-         
-             // Token argument handling -token=YOUR.TOKEN.HERE
-            
-            var tokenString = args.FirstOrDefault(arg => arg.StartsWith("-token="));
+            // Token argument handling -token=YOUR.TOKEN.HERE
+            var tokenString = args.FirstOrDefault(arg => arg.StartsWith(TokenArg));
             if (string.IsNullOrWhiteSpace(tokenString) == false)
             {
-                BotSettings.config.Token = tokenString.Replace("-token=", "");
+                BotSettings.config.Token = GetArgumentContent(args, TokenArg);
             }
 
             // Downloading Attachemnts for Activity Logger -att
-            if (args.Contains("-att"))
-            LoggerDownloadingAttachment = true;
+            if (args.Contains(AttachementsArg)) LoggerDownloadingAttachment = true;
 
             // Log output handling -log=<f | c>
-            //f = file c = console
+            // f = file c = console
             // Default is (c)onsole
-            LogIntoConsole = true;
-            LogIntoFile = false;
-            if (args.Any(arg => arg.StartsWith("-log=")))
+            if (args.Any(arg => arg.StartsWith(LogDestinationArg)))
             {
-                var options = args.FirstOrDefault(arg => arg.StartsWith("-log="))?.Replace("-log=", "");
-                if (options.Contains("f") && options.Contains("c"))
-                {
-                    LogIntoFile = true;
-                    LogIntoConsole = true;
-                }
-                else if (options.Contains("f"))
-                {
-                    LogIntoConsole = false;
-                    LogIntoFile = true;
-                }
+                var options = GetArgumentContent(args, LogDestinationArg);
+                
+                LogIntoConsole = options.Contains("c");
+                LogIntoFile = options.Contains("f");
             }
-            Global.LogIntoConsole = LogIntoConsole;
-            Global.LogIntoFile = LogIntoFile;
+            else
+            {
+                LogIntoConsole = true;
+            }
         }
 
+        ///<summary>Finds the first matching argument, removes the prefix and returns the rest.</summary>
+        private static string GetArgumentContent(string[] args, string prefix)
+        {
+            return args.FirstOrDefault(arg => arg.StartsWith(prefix))?.Replace(prefix, "");
+        }
     }
 }

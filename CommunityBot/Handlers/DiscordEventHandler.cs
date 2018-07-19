@@ -22,9 +22,11 @@ namespace CommunityBot.Handlers
         private readonly CommandHandler _commandHandler;
         private readonly ApplicationSettings _applicationSettings;
         private readonly ServerActivityLogger.ServerActivityLogger _serverActivityLogger;
+        private readonly Logger _logger;
 
-        public DiscordEventHandler(DiscordSocketClient client, CommandHandler commandHandler, ApplicationSettings applicationSettings,  ServerActivityLogger.ServerActivityLogger serverActivityLogger)
+        public DiscordEventHandler(Logger logger, DiscordSocketClient client, CommandHandler commandHandler, ApplicationSettings applicationSettings,  ServerActivityLogger.ServerActivityLogger serverActivityLogger)
         {
+            _logger = logger;
             _client = client;
             _commandHandler = commandHandler;
             _applicationSettings = applicationSettings;
@@ -75,7 +77,7 @@ namespace CommunityBot.Handlers
             // subscription to an event otherwise...
             if (!Global.Headless)
             {
-                _client.Log += Logger.Log;
+                _client.Log += _logger.Log;
             }
         }
 
