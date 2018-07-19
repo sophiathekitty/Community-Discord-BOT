@@ -27,6 +27,8 @@ namespace CommunityBot
         internal static RepeatedTaskHandler TaskHander = new RepeatedTaskHandler();
         internal static readonly String version = Assembly.GetExecutingAssembly().GetName().Version.ToString().TrimEnd('0').TrimEnd('.');
 
+        internal static bool LogIntoFile;
+        internal static bool LogIntoConsole;
         internal static bool Headless = false;
         // Global Helper methods
 

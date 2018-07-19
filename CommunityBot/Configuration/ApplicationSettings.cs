@@ -9,6 +9,8 @@ namespace CommunityBot.Configuration
         public readonly bool Verbose;
         public readonly int ChacheSize;
         public readonly bool LoggerDownloadingAttachment;
+        public readonly bool LogIntoFile;
+        public readonly bool LogIntoConsole;
 
         public ApplicationSettings(string [] args)
         {
@@ -23,7 +25,8 @@ namespace CommunityBot.Configuration
                     "-hl                    : run in headless mode (no output to console)\n" +
                     "-vb                    : run with verbose discord logging\n" +
                     "-token=<token>         : run with specific token instead of the saved one in bot configs\n" +
-                    "-cs=<number>           : message cache size per channel (defaults to 0)"
+                    "-cs=<number>           : message cache size per channel (defaults to 0)" +
+                    "-log=<f | c>           : log into a (f)ile, (c)onsole  or both. Default is console"
                 );
                 return;
             }
@@ -59,6 +62,28 @@ namespace CommunityBot.Configuration
             // Downloading Attachemnts for Activity Logger -att
             if (args.Contains("-att"))
             LoggerDownloadingAttachment = true;
+
+            // Log output handling -log=<f | c>
+            //f = file c = console
+            // Default is (c)onsole
+            LogIntoConsole = true;
+            LogIntoFile = false;
+            if (args.Any(arg => arg.StartsWith("-log=")))
+            {
+                var options = args.FirstOrDefault(arg => arg.StartsWith("-log="))?.Replace("-log=", "");
+                if (options.Contains("f") && options.Contains("c"))
+                {
+                    LogIntoFile = true;
+                    LogIntoConsole = true;
+                }
+                else if (options.Contains("f"))
+                {
+                    LogIntoConsole = false;
+                    LogIntoFile = true;
+                }
+            }
+            Global.LogIntoConsole = LogIntoConsole;
+            Global.LogIntoFile = LogIntoFile;
         }
 
     }
