@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Discord;
 using CommunityBot.Configuration;
+using CommunityBot.Features.Trivia;
 using CommunityBot.Handlers;
 using Microsoft.Extensions.DependencyInjection;
 using Discord.Commands;
@@ -101,6 +102,7 @@ namespace CommunityBot
                 .AddSingleton<CommandHandler>()
                 .AddSingleton<DiscordEventHandler>()
                 .AddSingleton<Logger>()
+                .AddSingleton<TriviaGames>()
                 .BuildServiceProvider();     
         }
     }

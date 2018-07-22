@@ -25,29 +25,29 @@ namespace CommunityBot.Modules
         [RequireUserPermission(GuildPermission.ManageMessages)]
         public async Task Clear(int amountOfMessagesToDelete)
         {
-            // TODO: Port to Discord .NET 2.0
-            //await Context.Message.Channel.DeleteMessagesAsync(await Context.Message.Channel.GetMessagesAsync(amountOfMessagesToDelete).Flatten());
+            await (Context.Message.Channel as SocketTextChannel).DeleteMessagesAsync(await Context.Message.Channel.GetMessagesAsync(amountOfMessagesToDelete+1).FlattenAsync());
         }
 
         [Command("purge")]
-        [Remarks("Purges A User's Last 100 Messages")]
+        [Remarks("Purges A User's Last Messages. Default Amount To Purge Is 100")]
         [RequireUserPermission(GuildPermission.ManageMessages)]
-        public async Task Clear(SocketGuildUser user)
+        public async Task Clear(SocketGuildUser user, int amountOfMessagesToDelete = 100)
         {
-            // TODO: Port to Discord .NET 2.0
+            if (user == Context.User)
+                amountOfMessagesToDelete++; //Because it will count the purge command as a message
 
-            //var messages = await Context.Message.Channel.GetMessagesAsync(100).Flatten();
+            var messages = await Context.Message.Channel.GetMessagesAsync(amountOfMessagesToDelete).FlattenAsync();
 
-            //var result = messages.Where(x => x.Author.Id == user.Id && x.CreatedAt >= DateTimeOffset.UtcNow.Subtract(TimeSpan.FromDays(14)));
-
-            //await Context.Message.Channel.DeleteMessagesAsync(result);
+            var result = messages.Where(x => x.Author.Id == user.Id && x.CreatedAt >= DateTimeOffset.UtcNow.Subtract(TimeSpan.FromDays(14)));
+            
+            await (Context.Message.Channel as SocketTextChannel).DeleteMessagesAsync(result);
 
         }
 
         [Command("kick")]
         [Remarks("Kick A User")]
         [RequireUserPermission(GuildPermission.KickMembers)]
-        public async Task Kick([NoSelf] SocketGuildUser user)
+        public async Task Kick([NoSelf][RequireBotHigherHirachy] SocketGuildUser user)
         {
             await user.KickAsync();
         }
@@ -78,7 +78,7 @@ namespace CommunityBot.Modules
         [Command("ban")]
         [Remarks("Ban A User")]
         [RequireUserPermission(GuildPermission.BanMembers)]
-        public async Task Ban([NoSelf] SocketGuildUser user)
+        public async Task Ban([NoSelf][RequireBotHigherHirachy] SocketGuildUser user)
         {
             await Context.Guild.AddBanAsync(user);
         }

@@ -4,12 +4,13 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Rest;
 using Discord.WebSocket;
 using Newtonsoft.Json;
 
 namespace CommunityBot.Features.Trivia
 {
-    internal static class TriviaGames
+    public class TriviaGames
     {
         private const string UBase = "https://opentdb.com/";
         private const string UApi = "api.php";
@@ -19,17 +20,26 @@ namespace CommunityBot.Features.Trivia
         private const string UCategory = "&category=";
         private const string UType = "&type=";
         private const string UDiff = "&difficulty=";
+
+        
         private const string UToken = "&token=";
         /// Maps the question types the API understands with their values to be displayed
-        public static readonly Dictionary<string, string> QuestionTypes;
+        internal readonly Dictionary<string, string> QuestionTypes;
         /// Maps the difficulties the API understands with the values to be displayed
-        public static readonly Dictionary<string, string> Difficulties;
+        internal readonly Dictionary<string, string> Difficulties;
         /// Maps simple strings to Discord Emojis for easier usage
-        public static readonly Dictionary<string, Emoji> ReactOptions;
-        public static readonly List<Category> Categories;
+        internal readonly Dictionary<string, Emoji> ReactOptions;
+        internal readonly List<Category> Categories;
+        private readonly List<TriviaGame> _activeTriviaGames;
 
-        static TriviaGames()
+        private readonly Logger _logger;
+
+        public TriviaGames(Logger logger)
         {
+            _logger = logger;
+
+            _activeTriviaGames = new List<TriviaGame>();
+
             Difficulties =  new Dictionary<string, string>
             {
                 {"easy", "Easy"}, {"medium", "Medium"}, {"hard", "Hard"}, {"", "Any"}
@@ -47,14 +57,28 @@ namespace CommunityBot.Features.Trivia
         }
 
         /// <summary>
+        /// Adds a new TriviaGame to the active Trivia Games
+        /// </summary>
+        internal async Task NewTrivia(IUserMessage msg, IUser user)
+        {
+            _activeTriviaGames.Add(new TriviaGame(msg.Id, user.Id, this));
+            await msg.AddReactionAsync(ReactOptions["1"]);
+            await msg.AddReactionAsync(ReactOptions["2"]);
+            await msg.AddReactionAsync(ReactOptions["3"]);
+            await msg.AddReactionAsync(ReactOptions["4"]);
+            await msg.AddReactionAsync(ReactOptions["ok"]);
+        }
+
+
+        /// <summary>
         /// Checks if given reaction associated to a running game and if the person who game 
         /// the reaction is the same who created this game - if so initiates handling the game mechanics
         /// </summary>
-        internal static async Task HandleReactionAdded(Cacheable<IUserMessage, ulong> cache, SocketReaction reaction)
+        internal async Task HandleReactionAdded(Cacheable<IUserMessage, ulong> cache, SocketReaction reaction)
         {
             // Only trigger if we listed this messsage and only act on 
             // reactions from the user who triggerd the command
-            var triviaGame = Global.TriviaGames.FirstOrDefault(game =>
+            var triviaGame = _activeTriviaGames.FirstOrDefault(game =>
                 game.GameMessageId == reaction.MessageId &&
                 game.PlayerId == reaction.UserId);
             if (triviaGame != null)
@@ -72,17 +96,17 @@ namespace CommunityBot.Features.Trivia
                     catch (Exception e)
 
                     {
-                        //await Logger.Log(new LogMessage(LogSeverity.Warning, $"Discord | Missing Permissions to remove reaction in {msg.Channel}", e.Message, e.InnerException));
+                        await _logger.Log(new LogMessage(LogSeverity.Warning, $"Discord | Missing Permissions to remove reaction in {msg.Channel}", e.Message, e.InnerException));
                     }
                 }
                 await triviaGame.HandleReaction(msg, reaction);
             }
         }
-
+    
         /// <summary>
         /// Receives all the available categories (and adds the "Any" category)
         /// </summary>
-        private static List<Category> GetCategories()
+        private List<Category> GetCategories()
         {
             var responseString = Global.SendWebRequest(UBase + UGetCategories).Result;
             var response = JsonConvert.DeserializeObject<Response>(responseString);
@@ -96,7 +120,7 @@ namespace CommunityBot.Features.Trivia
         /// Creates a new token for use of GetQuestions so questions won't get repeated
         /// in one game session.
         /// </summary>
-        internal static async Task<string> NewToken()
+        internal async Task<string> NewToken()
         {
             var response = JsonConvert.DeserializeObject<Response>(
                 await Global.SendWebRequest(UBase + UGetToken));
@@ -112,7 +136,7 @@ namespace CommunityBot.Features.Trivia
         /// <param name="type">The type the questions should be any, multiple or boolean | defaults to any</param>
         /// <param name="token">The token - used to not get the same questions when repeating this fuction | defaults to an empty string which means no token</param>
         /// <returns>The awaitable List of questions or an empty list if the request was not successfull</returns>
-        internal static async Task<List<Question>> GetQuestions(int count = 1, string categoryId = "", string difficulty = "", string type = "", string token = "")
+        internal async Task<List<Question>> GetQuestions(int count = 1, string categoryId = "", string difficulty = "", string type = "", string token = "")
         {
             // Creating the actual request link
             var request = UBase + UApi + UCount + count + UCategory + categoryId + UDiff + difficulty + UType + type + UToken + token;
@@ -152,10 +176,10 @@ namespace CommunityBot.Features.Trivia
         /// Returns an EmbedBuilder with all the information set to send out the start menu embed
         /// </summary>
         /// <param name="game">Optional | If provied takes the settings of that game (Difficulty, QuestionType, Category)</param>
-        internal static EmbedBuilder TrivaStartingEmbed(TriviaGame game = null)
+        internal EmbedBuilder TrivaStartingEmbed(TriviaGame game = null)
         {
-            var difficulty = game == null ? "Any" : TriviaGames.Difficulties[game.Difficulty];
-            var questionType = game == null ? "Any" : TriviaGames.QuestionTypes[game.QuestionType];
+            var difficulty = game == null ? "Any" : Difficulties[game.Difficulty];
+            var questionType = game == null ? "Any" : QuestionTypes[game.QuestionType];
             var category = game == null ? "Any" : game.Category.name;
             return new EmbedBuilder()
                 .WithAuthor("Welcome to Trivia!")
@@ -173,7 +197,7 @@ namespace CommunityBot.Features.Trivia
         /// </summary>
         /// <param name="q">The question to display</param>
         /// <param name="emb">The embedbuilder from which to inherit some properties (Title, Author, Footer)</param>
-        internal static EmbedBuilder QuestionToEmbed(Question q, EmbedBuilder emb)
+        internal EmbedBuilder QuestionToEmbed(Question q, EmbedBuilder emb)
         {
             // Inherit information of the given embed
             var embB = new EmbedBuilder()
@@ -189,7 +213,7 @@ namespace CommunityBot.Features.Trivia
             }
             // Set Color and Description
             embB.WithColor(emb.Color.GetValueOrDefault(Color.Blue))
-                .WithDescription($"[{TriviaGames.Difficulties[q.difficulty]} | {q.category}]\n" +
+                .WithDescription($"[{Difficulties[q.difficulty]} | {q.category}]\n" +
                                  $"**{WebUtility.HtmlDecode(q.question)}**");
 
             // Merge correct with incorrect answers and shuffle them
@@ -215,7 +239,7 @@ namespace CommunityBot.Features.Trivia
         /// <param name="page">Page to acces (one-based!)</param>
         /// <param name="pagesize">Amount of categories per page</param>
         /// <returns>A list of Categories with size of pagesize (or lower if it is the last page)</returns>
-        internal static List<Category> CategoriesPaged(int page, int pagesize)
+        internal List<Category> CategoriesPaged(int page, int pagesize)
         {
             // one-based input so for easier internal handling make it zero-based again
             page--;
@@ -264,7 +288,7 @@ namespace CommunityBot.Features.Trivia
     /// <summary>
     /// Struct for parsing AIP respons into Categories - see Response struct
     /// </summary>
-    internal struct Category
+    public struct Category
     {
         public string name;
         public string id;
