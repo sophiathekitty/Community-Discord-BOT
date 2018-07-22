@@ -21,7 +21,7 @@ namespace CommunityBot.Modules
         {
             var guildAcc = GlobalGuildAccounts.GetGuildAccount(Context.Guild.Id);
             var response = $"Failed to add the Prefix... Was `{prefix}` already a prefix?";
-            if (guildAcc.Prefixes.Contains(prefix) == false)
+            if (!guildAcc.Prefixes.Contains(prefix))
             {
                 var prefixes = guildAcc.Prefixes.ToList();
                 guildAcc.Modify(g => g.SetPrefixes(prefixes.Append(prefix).ToList()));

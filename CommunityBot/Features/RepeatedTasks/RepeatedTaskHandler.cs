@@ -28,7 +28,7 @@ namespace CommunityBot.Features.RepeatedTasks
 
         public bool ChangeInterval(string name, int interval)
         {
-            if (Timers.ContainsKey(name) == false) return false;
+            if (!Timers.ContainsKey(name)) return false;
             if (interval < Constants.MinTimerIntervall) return false;
             Timers[name].Interval = interval;
             return true;
@@ -36,14 +36,14 @@ namespace CommunityBot.Features.RepeatedTasks
 
         public bool StartTimer(string name)
         {
-            if (Timers.ContainsKey(name) == false) return false;
+            if (!Timers.ContainsKey(name)) return false;
             Timers[name].Start();
             return true;
         }
 
         public bool StopTimer(string name)
         {
-            if (Timers.ContainsKey(name) == false) return false;
+            if (!Timers.ContainsKey(name)) return false;
             Timers[name].Stop();
             return true;
         }
