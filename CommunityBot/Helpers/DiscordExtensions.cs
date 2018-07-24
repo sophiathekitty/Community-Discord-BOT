@@ -80,7 +80,7 @@ namespace CommunityBot.Helpers
             {
                 if (message.Channel != channel)
                     return Task.CompletedTask;
-                if (filter != null && !filter(message))
+                if (filter != null && filter(message) == false)
                     return Task.CompletedTask;
                 responseMessage = message;
                 cancler.Cancel();
