@@ -120,7 +120,7 @@ namespace CommunityBot.Features.Trivia
                          $"**{(int)(overallCorrect / (Math.Max(overallCorrect + overallWrong, 1)) * 100)}%**" +
                          $" correct ({overallCorrect}/{overallCorrect + overallWrong})\n";
             // Only add a field if there is actually something to show
-            if (string.IsNullOrEmpty(stats) == false) _emb.AddField("Your Stats: ", stats);
+            if (!string.IsNullOrEmpty(stats)) _emb.AddField("Your Stats: ", stats);
             _gamestate = GameStates.StartPage;
         }
 
