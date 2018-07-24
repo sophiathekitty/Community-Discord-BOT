@@ -1,9 +1,7 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityBot.Features.GlobalAccounts;
-using CommunityBot.Handlers;
 using CommunityBot.Helpers;
 using Discord;
 using Discord.Commands;
@@ -92,6 +90,6 @@ namespace CommunityBot.Modules.Account
         }
 
         private bool EvaluateResponse(SocketMessage arg, params String[] options)
-            => options.Any(option => arg.Content.ToLower().Contains(option.ToLower()));
+            => options.Any(option => arg.Content.ToLower().Contains(option.ToLower()) && arg.Author == Context.User);
     }
 }
