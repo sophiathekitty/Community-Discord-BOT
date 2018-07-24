@@ -12,11 +12,15 @@ namespace CommunityBot.Features.GlobalAccounts
     internal static class GlobalUserAccounts
     {
         private static readonly ConcurrentDictionary<ulong, GlobalUserAccount> userAccounts = new ConcurrentDictionary<ulong, GlobalUserAccount>();
+        private static readonly DirectoryInfo _directoryInfo;
+
+        private static readonly string _directoryPath =
+            Path.Combine(Constants.ResourceFolder, Constants.UserAccountsFolder);
 
         static GlobalUserAccounts()
         {
-            var info = System.IO.Directory.CreateDirectory(Path.Combine(Constants.ResourceFolder,Constants.UserAccountsFolder));
-            var files = info.GetFiles("*.json");
+            _directoryInfo = Directory.CreateDirectory(_directoryPath);
+            var files = _directoryInfo.GetFiles("*.json");
             if (files.Length > 0)
             {
                 foreach (var file in files)
@@ -31,6 +35,22 @@ namespace CommunityBot.Features.GlobalAccounts
             }
         }
 
+        
+        internal static string GetAccountFilePath(ulong id)
+        {
+            var filePath = Path.Combine(Path.Combine(_directoryPath, $"{id}.json"));
+            return File.Exists(filePath) ? filePath : String.Empty;
+        }
+
+        internal static bool DeleteAccountFile(ulong accountId)
+        {
+            if (!userAccounts.TryRemove(accountId, out var account)) return false;
+            var file = GetAccountFilePath(accountId);
+            if (String.IsNullOrEmpty(file)) return false;
+            File.Delete(file);
+            return true;
+        }
+        
         internal static GlobalUserAccount GetUserAccount(ulong id)
         {
             return userAccounts.GetOrAdd(id, (key) =>
