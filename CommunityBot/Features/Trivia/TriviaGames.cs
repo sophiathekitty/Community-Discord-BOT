@@ -34,10 +34,12 @@ namespace CommunityBot.Features.Trivia
 
         private readonly Logger _logger;
 
-        public TriviaGames(Logger logger)
+        private DiscordSocketClient _client;
+
+        public TriviaGames(Logger logger, DiscordSocketClient client)
         {
             _logger = logger;
-
+            _client = client;
             _activeTriviaGames = new List<TriviaGame>();
 
             Difficulties =  new Dictionary<string, string>
@@ -88,7 +90,7 @@ namespace CommunityBot.Features.Trivia
                 // Check permissions first
                 if (reaction.UserId != msg.Author.Id)
                 {
-                    var user = reaction.User.GetValueOrDefault(null) ?? Global.Client.GetUser(reaction.UserId);
+                    var user = reaction.User.GetValueOrDefault(null) ?? _client.GetUser(reaction.UserId);
                     try
                     {
                         await msg.RemoveReactionAsync(reaction.Emote, user);

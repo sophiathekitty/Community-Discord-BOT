@@ -20,7 +20,7 @@ namespace CommunityBot.Modules
             embed.WithTitle("Hello!");
             embed.WithDescription("My name is Miuni, the Community BOT!");
             embed.WithColor(240, 98, 146);
-            embed.WithImageUrl(Global.Client.CurrentUser.GetAvatarUrl());
+            embed.WithImageUrl(Context.Client.CurrentUser.GetAvatarUrl());
 
             await Context.Channel.SendMessageAsync("", embed: embed.Build());
         }
