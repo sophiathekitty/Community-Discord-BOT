@@ -158,7 +158,7 @@ namespace CommunityBot.Modules
 
         internal static string RemoveTag(string tagName, IGlobalAccount account)
         {
-            if (!account.Tags.ContainsKey(tagName))
+            if (account.Tags.ContainsKey(tagName) == false)
                 return "You can't remove a tag that doesn't exist...";
 
             account.Tags.Remove(tagName);
@@ -171,7 +171,7 @@ namespace CommunityBot.Modules
 
         internal static string UpdateTag(string tagName, string tagContent, IGlobalAccount account)
         {
-            if (!account.Tags.ContainsKey(tagName))
+            if (account.Tags.ContainsKey(tagName) == false)
                 return "You can't update a tag that doesn't exist...";
 
             account.Tags[tagName] = tagContent;

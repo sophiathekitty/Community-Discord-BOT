@@ -137,9 +137,9 @@ namespace CommunityBot.Modules
                 if (!result.IsSuccess || duplicateChecker.Contains(cmd.Aliases.First())) continue;
                 duplicateChecker.Add(cmd.Aliases.First());
                 var cmdDescription = $"`{cmd.Aliases.First()}`";
-                if (!string.IsNullOrEmpty(cmd.Summary))
+                if (string.IsNullOrEmpty(cmd.Summary) == false)
                     cmdDescription += $" | {cmd.Summary}";
-                if (!string.IsNullOrEmpty(cmd.Remarks))
+                if (string.IsNullOrEmpty(cmd.Remarks) == false)
                     cmdDescription += $" | {cmd.Remarks}";
                 if (cmdDescription != "``")
                     descriptionBuilder.Add(cmdDescription);
@@ -148,13 +148,13 @@ namespace CommunityBot.Modules
             if (descriptionBuilder.Count <= 0) return;
 
             var moduleNotes = "";
-            if (!string.IsNullOrEmpty(module.Summary))
+            if (string.IsNullOrEmpty(module.Summary) == false)
                 moduleNotes += $" {module.Summary}";
-            if (!string.IsNullOrEmpty(module.Remarks))
+            if (string.IsNullOrEmpty(module.Remarks) == false)
                 moduleNotes += $" {module.Remarks}";
-            if (!string.IsNullOrEmpty(moduleNotes))
+            if (string.IsNullOrEmpty(moduleNotes) == false)
                 moduleNotes += "\n";
-            if (!string.IsNullOrEmpty(module.Name))
+            if (string.IsNullOrEmpty(module.Name) == false)
             {
                 builder.AddField($"__**{module.Name}:**__",
                     $"{moduleNotes}" + string.Join("\n", descriptionBuilder) + $"\n{Constants.InvisibleString}");
