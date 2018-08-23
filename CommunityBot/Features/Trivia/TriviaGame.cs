@@ -8,7 +8,7 @@ using Discord.WebSocket;
 
 namespace CommunityBot.Features.Trivia
 {
-    internal class TriviaGame
+    public class TriviaGame
     {
         // Used to identify which reactions to actually react to
         internal ulong PlayerId;
@@ -26,21 +26,24 @@ namespace CommunityBot.Features.Trivia
         private EmbedBuilder _emb;
         private int _currentCategoryPage;
 
+        private readonly TriviaGames _triviaGames;
+
         private const int CategoriesPerPage = 4;
 
-        internal TriviaGame(ulong gameMessageId, ulong playerId, string category = "any",
+        internal TriviaGame(ulong gameMessageId, ulong playerId, TriviaGames triviaGames, string category = "any",
             string difficulty = "", string questionType = "")
         {
+            _triviaGames = triviaGames;
             PlayerId = playerId;
             GameMessageId = gameMessageId;
             Difficulty = difficulty;
             QuestionType = questionType;
             previousQuestions = new List<Question>();
-            Category = TriviaGames.Categories.Find(cat => cat.name.ToLower() == category);
-            _token = TriviaGames.NewToken().Result;
+            Category = _triviaGames.Categories.Find(cat => cat.name.ToLower() == category);
+            _token = _triviaGames.NewToken().Result;
             _currentCategoryPage = 1;
             _gamestate = GameStates.StartPage;
-            _emb = TriviaGames.TrivaStartingEmbed(this);
+            _emb = _triviaGames.TrivaStartingEmbed(this);
         }
 
         // Main function that gets triggered when a player reacts to their gamemessage
@@ -87,7 +90,7 @@ namespace CommunityBot.Features.Trivia
         private void PrepareStartMenue(IUserMessage socketMsg)
         {
             // Get the startmenu embedbuilder that has all the settings of this game set up
-            _emb = TriviaGames.TrivaStartingEmbed(this);
+            _emb = _triviaGames.TrivaStartingEmbed(this);
             // String to build up the stats
             var stats = "";
             // Group the questions by difficulty for stats
@@ -108,7 +111,7 @@ namespace CommunityBot.Features.Trivia
 
                 overallCorrect += correct;
                 overallWrong += wrong;
-                stats += $"{TriviaGames.Difficulties[difficulty.Key]}: " +
+                stats += $"{_triviaGames.Difficulties[difficulty.Key]}: " +
                          $"**{(int)(correct / (correct + wrong) * 100)}%** correct ({correct}/{correct + wrong})\n";
             }
             // Only show the overall stat if the player had questions with different difficulties
@@ -117,7 +120,7 @@ namespace CommunityBot.Features.Trivia
                          $"**{(int)(overallCorrect / (Math.Max(overallCorrect + overallWrong, 1)) * 100)}%**" +
                          $" correct ({overallCorrect}/{overallCorrect + overallWrong})\n";
             // Only add a field if there is actually something to show
-            if (string.IsNullOrEmpty(stats) == false) _emb.AddField("Your Stats: ", stats);
+            if (!string.IsNullOrEmpty(stats)) _emb.AddField("Your Stats: ", stats);
             _gamestate = GameStates.StartPage;
         }
 
@@ -128,21 +131,21 @@ namespace CommunityBot.Features.Trivia
         /// <param name="reaction"></param>
         private void HandleSelectCategoryInput(IUserMessage socketMsg, IReaction reaction)
         {
-            if (reaction.Emote.Equals(TriviaGames.ReactOptions["ok"]))
+            if (reaction.Emote.Equals(_triviaGames.ReactOptions["ok"]))
             {
                 _gamestate = GameStates.StartPage;
                 PrepareStartMenue(socketMsg);
                 return;
             }
-            if (reaction.Emote.Equals(TriviaGames.ReactOptions["left"]))
+            if (reaction.Emote.Equals(_triviaGames.ReactOptions["left"]))
             {
                 _currentCategoryPage = Math.Max(_currentCategoryPage - 1, 1);
                 PrepareCategoryEmb();
                 return;
             }
-            if (reaction.Emote.Equals(TriviaGames.ReactOptions["right"]))
+            if (reaction.Emote.Equals(_triviaGames.ReactOptions["right"]))
             {
-                _currentCategoryPage = Math.Min(_currentCategoryPage + 1, 1 + TriviaGames.Categories.Count / CategoriesPerPage);
+                _currentCategoryPage = Math.Min(_currentCategoryPage + 1, 1 + _triviaGames.Categories.Count / CategoriesPerPage);
                 PrepareCategoryEmb();
                 return;
             }
@@ -168,7 +171,7 @@ namespace CommunityBot.Features.Trivia
                 // If no reaction fits use the "Any" category
                 ? new Category{name = "Any", id = "" }
                 // Else slice out the reaction and trailing / leading whitespaces off the fields value to get the category
-                : TriviaGames.Categories.FirstOrDefault(value => 
+                : _triviaGames.Categories.FirstOrDefault(value => 
                         value.name == enumerable.ToArray()[0].Replace(reaction.Emote.Name, ""
                     ).Trim());
         }
@@ -180,32 +183,32 @@ namespace CommunityBot.Features.Trivia
         {
             var reactionName = reaction.Emote.Name;
             // If the player wants to change the category
-            if (reactionName == TriviaGames.ReactOptions["1"].Name)
+            if (reactionName == _triviaGames.ReactOptions["1"].Name)
             { 
-                socketMsg.AddReactionAsync(TriviaGames.ReactOptions["left"]);
-                socketMsg.AddReactionAsync(TriviaGames.ReactOptions["right"]);
+                socketMsg.AddReactionAsync(_triviaGames.ReactOptions["left"]);
+                socketMsg.AddReactionAsync(_triviaGames.ReactOptions["right"]);
                 PrepareCategoryEmb();
                 _gamestate = GameStates.ChangingCategory;
                 return;
             }
             // If the player wants to change the questiontype
-            if (reactionName == TriviaGames.ReactOptions["2"].Name)
+            if (reactionName == _triviaGames.ReactOptions["2"].Name)
             {
                 // Take the current type and use set it to the next one
-                var index = TriviaGames.QuestionTypes.ToList().FindIndex(q => QuestionType == q.Key);
-                QuestionType = TriviaGames.QuestionTypes.ToList()[(index + 1) % TriviaGames.QuestionTypes.Count].Key;
+                var index = _triviaGames.QuestionTypes.ToList().FindIndex(q => QuestionType == q.Key);
+                QuestionType = _triviaGames.QuestionTypes.ToList()[(index + 1) % _triviaGames.QuestionTypes.Count].Key;
                 PrepareStartMenue(socketMsg);
             }
             // If the player wants to change the difficulty
-            else if (reactionName == TriviaGames.ReactOptions["3"].Name)
+            else if (reactionName == _triviaGames.ReactOptions["3"].Name)
             {
                 // Take the current difficulty and use set it to the next one
-                var index = TriviaGames.Difficulties.ToList().FindIndex(q => Difficulty == q.Key);
-                Difficulty = TriviaGames.Difficulties.ToList()[(index + 1) % TriviaGames.Difficulties.Count].Key;
+                var index = _triviaGames.Difficulties.ToList().FindIndex(q => Difficulty == q.Key);
+                Difficulty = _triviaGames.Difficulties.ToList()[(index + 1) % _triviaGames.Difficulties.Count].Key;
                 PrepareStartMenue(socketMsg);
             }
             // If the player wants to start the game
-            if (reactionName == TriviaGames.ReactOptions["ok"].Name)
+            if (reactionName == _triviaGames.ReactOptions["ok"].Name)
                 await PreparePlayEmb(socketMsg, reaction);
         }
 
@@ -217,12 +220,12 @@ namespace CommunityBot.Features.Trivia
             _emb.Fields.Clear();
             _emb.WithDescription(
                 "Choose the category the questions should be in with the corresponding reaction.\n" +
-                $"You can navigate the pages with {TriviaGames.ReactOptions["left"]} and {TriviaGames.ReactOptions["right"]} "+
-                $"or {TriviaGames.ReactOptions["ok"]} to go back without changing the category.");
-            var categories = TriviaGames.CategoriesPaged(_currentCategoryPage, CategoriesPerPage);
+                $"You can navigate the pages with {_triviaGames.ReactOptions["left"]} and {_triviaGames.ReactOptions["right"]} "+
+                $"or {_triviaGames.ReactOptions["ok"]} to go back without changing the category.");
+            var categories = _triviaGames.CategoriesPaged(_currentCategoryPage, CategoriesPerPage);
             for (var i = 1; i <= categories.Count; i++)
             {
-                _emb.AddField(TriviaGames.ReactOptions[i.ToString()].Name + "  " + categories[i-1].name, Constants.InvisibleString);
+                _emb.AddField(_triviaGames.ReactOptions[i.ToString()].Name + "  " + categories[i-1].name, Constants.InvisibleString);
             }
         }
 
@@ -231,7 +234,7 @@ namespace CommunityBot.Features.Trivia
         /// </summary>
         private async Task HandlePlayingInput(IUserMessage socketMsg, IReaction reaction)
         {
-            if (reaction.Emote.Equals(TriviaGames.ReactOptions["ok"]) && _gamestate == GameStates.Playing)
+            if (reaction.Emote.Equals(_triviaGames.ReactOptions["ok"]) && _gamestate == GameStates.Playing)
             {
                 PrepareStartMenue(socketMsg);
                 _gamestate = GameStates.StartPage;
@@ -254,10 +257,10 @@ namespace CommunityBot.Features.Trivia
             await NewQuestion();
             // Set the gamestate in case we are came from the main menue
             _gamestate = GameStates.Playing;
-            _emb = TriviaGames.QuestionToEmbed(_currentQuestion, _emb);
+            _emb = _triviaGames.QuestionToEmbed(_currentQuestion, _emb);
             // Add empty field for cosmetics and one that tells how to get back to the main menue
             _emb.AddField(Constants.InvisibleString, $"{wrongRightMessage}{Constants.InvisibleString}");
-            _emb.AddField(Constants.InvisibleString, $"{TriviaGames.ReactOptions["ok"]} to get back to the main menue");
+            _emb.AddField(Constants.InvisibleString, $"{_triviaGames.ReactOptions["ok"]} to get back to the main menue");
         }
 
         /// <summary>
@@ -268,7 +271,7 @@ namespace CommunityBot.Features.Trivia
             if (_gamestate == GameStates.Playing)
                 previousQuestions.Add(_currentQuestion);
             _currentQuestion = 
-               (await TriviaGames.GetQuestions(
+               (await _triviaGames.GetQuestions(
                     categoryId: Category.id, difficulty: Difficulty, token: _token, type: QuestionType))
                 .FirstOrDefault();
         }

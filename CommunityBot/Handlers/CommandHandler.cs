@@ -46,7 +46,7 @@ namespace CommunityBot.Handlers
             if (msg.HasMentionPrefix(_client.CurrentUser, ref argPos) || CheckPrefix(ref argPos, context))
             {
                 var cmdSearchResult = _cmdService.Search(context, argPos);
-                if (cmdSearchResult.IsSuccess == false) return;
+                if (!cmdSearchResult.IsSuccess) return;
 
                 var executionTask = _cmdService.ExecuteAsync(context, argPos, _serviceProvider);
 

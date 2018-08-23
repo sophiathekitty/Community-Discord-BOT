@@ -41,7 +41,7 @@ namespace CommunityBot.Modules
         {
             var guildAcc = GlobalGuildAccounts.GetGuildAccount(Context.Guild.Id);
             var response = $"Failed to add this Welcome Message...";
-            if (guildAcc.WelcomeMessages.Contains(message) == false)
+            if (!guildAcc.WelcomeMessages.Contains(message))
             {
                 var messages = guildAcc.WelcomeMessages.ToList();
                 messages.Add(message);
@@ -99,7 +99,7 @@ namespace CommunityBot.Modules
         {
             var guildAcc = GlobalGuildAccounts.GetGuildAccount(Context.Guild.Id);
             var response = $"Failed to add this Leave Message...";
-            if (guildAcc.LeaveMessages.Contains(message) == false)
+            if (!guildAcc.LeaveMessages.Contains(message))
             {
                 var messages = guildAcc.WelcomeMessages.ToList();
                 messages.Add(message);

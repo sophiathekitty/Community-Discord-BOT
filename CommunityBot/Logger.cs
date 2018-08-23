@@ -1,24 +1,55 @@
-﻿using Discord;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
+using CommunityBot.Configuration;
+using Discord;
 
 namespace CommunityBot
 {
-    internal class Logger
+    public class Logger
     {
-        internal static Task Log(LogMessage logMessage)
+        private readonly ApplicationSettings _appSettings;
+
+        public Logger(ApplicationSettings appSettings)
         {
-            Console.ForegroundColor = SeverityToConsoleColor(logMessage.Severity);
-            string message = String.Concat(DateTime.Now.ToShortTimeString(), " [", logMessage.Source, "] ", logMessage.Message);
-            Console.WriteLine(message);
-            Console.ResetColor();
+            _appSettings = appSettings;
+        }
+
+        internal Task Log(LogSeverity severity, string source, string message, Exception exception = null)
+        {
+            Log(new LogMessage(severity, source, message, exception));
             return Task.CompletedTask;
         }
 
-        private static ConsoleColor SeverityToConsoleColor(LogSeverity severity)
+        internal Task Log(LogMessage logMessage)
+        {
+            string message = String.Concat(DateTime.Now.ToShortTimeString(), " [", logMessage.Source, "] ", logMessage.Message);
+            if(_appSettings.LogIntoConsole) LogConsole(message, logMessage.Severity);
+            if(_appSettings.LogIntoFile) LogFile(message);
+            return Task.CompletedTask;
+        }
+
+        private void LogFile(string message)
+        {
+            var fileName = $"{DateTime.Today.Day}-{DateTime.Today.Month}-{DateTime.Today.Year}.log";
+            var folder = Constants.LogFolder;
+
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            StreamWriter sw = File.AppendText($"{folder}/{fileName}");
+            sw.WriteLine(message);
+            sw.Close();
+        }
+
+        private void LogConsole(string message, LogSeverity severity)
+        {
+            Console.ForegroundColor = SeverityToConsoleColor(severity);
+            Console.WriteLine(message);
+            Console.ResetColor();
+        }
+
+        private ConsoleColor SeverityToConsoleColor(LogSeverity severity)
         {
             switch (severity)
             {

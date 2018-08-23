@@ -29,7 +29,7 @@ namespace CommunityBot.Helpers
                 {
                     Alerts.Add(error);
                 }
-                if (r.Success == false)
+                if (!r.Success)
                 {
                     Success = false;
                 }

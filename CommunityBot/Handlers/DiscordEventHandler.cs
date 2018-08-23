@@ -22,13 +22,17 @@ namespace CommunityBot.Handlers
         private readonly CommandHandler _commandHandler;
         private readonly ApplicationSettings _applicationSettings;
         private readonly ServerActivityLogger.ServerActivityLogger _serverActivityLogger;
+        private readonly Logger _logger;
+        private readonly TriviaGames _triviaGames;
 
-        public DiscordEventHandler(DiscordSocketClient client, CommandHandler commandHandler, ApplicationSettings applicationSettings,  ServerActivityLogger.ServerActivityLogger serverActivityLogger)
+        public DiscordEventHandler(Logger logger, TriviaGames triviaGames, DiscordSocketClient client, CommandHandler commandHandler, ApplicationSettings applicationSettings,  ServerActivityLogger.ServerActivityLogger serverActivityLogger)
         {
+            _logger = logger;
             _client = client;
             _commandHandler = commandHandler;
             _applicationSettings = applicationSettings;
             _serverActivityLogger = serverActivityLogger;
+            _triviaGames = triviaGames;
         }
 
         public void InitDiscordEvents()
@@ -75,7 +79,7 @@ namespace CommunityBot.Handlers
             // subscription to an event otherwise...
             if (!Global.Headless)
             {
-                _client.Log += Logger.Log;
+                _client.Log += _logger.Log;
             }
         }
 
@@ -187,7 +191,7 @@ namespace CommunityBot.Handlers
         private async Task ReactionAdded(Cacheable<IUserMessage, ulong> cacheMessage, ISocketMessageChannel channel, SocketReaction reaction)
         {
             if (reaction.User.Value.IsBot) return;
-            TriviaGames.HandleReactionAdded(cacheMessage, reaction);
+            _triviaGames.HandleReactionAdded(cacheMessage, reaction);
             BlogHandler.ReactionAdded(reaction);
         }
 

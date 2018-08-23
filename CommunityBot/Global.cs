@@ -21,12 +21,10 @@ namespace CommunityBot
     {
         internal static DiscordSocketClient Client { get; set; }
         internal static Dictionary<ulong, string> MessagesIdToTrack { get; set; }
-        internal static List<TriviaGame> TriviaGames { get; set; } = new List<TriviaGame>();
         internal static Random Rng { get; set; } = new Random();
         internal static Slot Slot = new Slot();
         internal static RepeatedTaskHandler TaskHander = new RepeatedTaskHandler();
         internal static readonly String version = Assembly.GetExecutingAssembly().GetName().Version.ToString().TrimEnd('0').TrimEnd('.');
-
         internal static bool Headless = false;
         // Global Helper methods
 

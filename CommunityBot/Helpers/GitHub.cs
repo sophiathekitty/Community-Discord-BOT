@@ -24,7 +24,7 @@ namespace CommunityBot.Helpers
             {
                 var msg = new LogMessage(LogSeverity.Error, $"HTTP / JSON Error  | Deserialization of response failed",
                     e.Message, e.InnerException);
-                await Logger.Log(msg);
+                //await Logger.Log(msg);
             }
             return contributions;
         }
