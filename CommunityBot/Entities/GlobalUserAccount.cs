@@ -21,6 +21,8 @@ namespace CommunityBot.Entities
         public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
         public List<ReminderEntry> Reminders { get; internal set; } = new List<ReminderEntry>();
+
+        public string TimeZone { get; set; } // Please note, TimeZone ID works for LINUX, but for windows we need TimeZone NAME
         /* Add more values to store */
 
         // override object.Equals
