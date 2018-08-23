@@ -264,3 +264,7 @@ Properties/
 
 # Visual Studio Code configurations
 .vscode/
+
+# Miunie runtime directories
+resources/
+logs/
