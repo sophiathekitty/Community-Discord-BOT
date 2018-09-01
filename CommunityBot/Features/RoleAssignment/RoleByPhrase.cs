@@ -16,8 +16,15 @@ namespace CommunityBot.Features.RoleAssignment
         /// <exception cref="InvalidPhraseException"></exception>
         public static void AddPhrase(this RoleByPhraseSettings settings, string phrase)
         {
-            if (settings.Phrases.Contains(phrase)) throw new PhraseAlreadyAddedException($"Phrase '{phrase}' is already added.");
-            if (phrase == string.Empty || phrase.Length > Constants.MaxMessageLength - 50) throw new InvalidPhraseException();
+            if (settings.Phrases.Contains(phrase)) 
+            {
+                throw new PhraseAlreadyAddedException($"Phrase '{phrase}' is already added.");
+            }
+
+            if (phrase == string.Empty || phrase.Length > Constants.MaxMessageLength - 50)
+            {
+                throw new InvalidPhraseException();
+            }
 
             settings.Phrases.Add(phrase);
         }
@@ -30,7 +37,10 @@ namespace CommunityBot.Features.RoleAssignment
         /// <exception cref="RoleIdAlreadyAddedException"></exception>
         public static void AddRole(this RoleByPhraseSettings settings, ulong roleId)
         {
-            if(settings.RolesIds.Contains(roleId)) throw new RoleIdAlreadyAddedException($"The role with ID '{roleId}' is already added.");
+            if(settings.RolesIds.Contains(roleId))
+            {
+                throw new RoleIdAlreadyAddedException($"The role with ID '{roleId}' is already added.");
+            }
 
             settings.RolesIds.Add(roleId);
         }
@@ -44,13 +54,23 @@ namespace CommunityBot.Features.RoleAssignment
         /// <exception cref="RelationAlreadyExistsException"></exception>
         public static void ForceCreateRelation(this RoleByPhraseSettings settings, string phrase, ulong roleId)
         {
-            if(!settings.Phrases.Contains(phrase)) settings.Phrases.Add(phrase);
-            if(!settings.RolesIds.Contains(roleId)) settings.RolesIds.Add(roleId);
+            if(!settings.Phrases.Contains(phrase))
+            {
+                settings.Phrases.Add(phrase);
+            }
+
+            if(!settings.RolesIds.Contains(roleId))
+            {
+                settings.RolesIds.Add(roleId);
+            }
 
             var phraseIndex = settings.Phrases.IndexOf(phrase);
             var roleIdIndex = settings.RolesIds.IndexOf(roleId);
 
-            if(settings.Relations.Any(r => r.PhraseIndex == phraseIndex && r.RoleIdIndex == roleIdIndex)) throw new RelationAlreadyExistsException();
+            if(settings.Relations.Any(r => r.PhraseIndex == phraseIndex && r.RoleIdIndex == roleIdIndex))
+            {
+                throw new RelationAlreadyExistsException();
+            }
 
             settings.Relations.Add(new RoleByPhraseRelation{PhraseIndex = phraseIndex, RoleIdIndex = roleIdIndex});
         }
@@ -68,7 +88,10 @@ namespace CommunityBot.Features.RoleAssignment
             settings.Phrases.ValidateIndex(phraseIndex);
             settings.RolesIds.ValidateIndex(roleIdIndex);
 
-            if (settings.Relations.Any(r => r.PhraseIndex == phraseIndex && r.RoleIdIndex == roleIdIndex)) throw new RelationAlreadyExistsException();
+            if (settings.Relations.Any(r => r.PhraseIndex == phraseIndex && r.RoleIdIndex == roleIdIndex))
+            {
+                throw new RelationAlreadyExistsException();
+            }
 
             settings.Relations.Add(new RoleByPhraseRelation { PhraseIndex = phraseIndex, RoleIdIndex = roleIdIndex });
         }
@@ -84,13 +107,19 @@ namespace CommunityBot.Features.RoleAssignment
 
             var affectedElementsOldIds = new List<int>();
 
-            for(var i = phraseIndex; i < settings.Phrases.Count; i++) affectedElementsOldIds.Add(i);
+            for(var i = phraseIndex; i < settings.Phrases.Count; i++)
+            {
+                affectedElementsOldIds.Add(i);
+            }
 
             settings.Phrases.RemoveAt(phraseIndex);
 
             settings.Relations = settings.Relations.Where(r => r.PhraseIndex != phraseIndex).ToList();
 
-            if (affectedElementsOldIds.Count == 1) return;
+            if (affectedElementsOldIds.Count == 1)
+            {
+                return;
+            }
 
             foreach (var oldIndex in affectedElementsOldIds)
             {
@@ -112,13 +141,19 @@ namespace CommunityBot.Features.RoleAssignment
 
             var affectedElementsOldIds = new List<int>();
 
-            for (var i = roleIdIndex; i < settings.RolesIds.Count; i++) affectedElementsOldIds.Add(i);
+            for (var i = roleIdIndex; i < settings.RolesIds.Count; i++)
+            {
+                affectedElementsOldIds.Add(i);
+            }
 
             settings.RolesIds.RemoveAt(roleIdIndex);
 
             settings.Relations = settings.Relations.Where(r => r.RoleIdIndex != roleIdIndex).ToList();
 
-            if (affectedElementsOldIds.Count == 1) return;
+            if (affectedElementsOldIds.Count == 1)
+            {
+                return;
+            }
 
             foreach (var oldIndex in affectedElementsOldIds)
             {
@@ -142,15 +177,22 @@ namespace CommunityBot.Features.RoleAssignment
             settings.Phrases.ValidateIndex(phraseIndex);
             settings.RolesIds.ValidateIndex(roleIdIndex);
 
-            if (!settings.Relations.Any(r => r.PhraseIndex == phraseIndex && r.RoleIdIndex == roleIdIndex)) throw new RelationNotFoundException();
+            if (!settings.Relations.Any(r => r.PhraseIndex == phraseIndex && r.RoleIdIndex == roleIdIndex))
+            {
+                throw new RelationNotFoundException();
+            }
 
             settings.Relations = settings.Relations
-                .Where(r => r.PhraseIndex != phraseIndex || r.RoleIdIndex != roleIdIndex).ToList();
+                .Where(r => r.PhraseIndex != phraseIndex || r.RoleIdIndex != roleIdIndex)
+                .ToList();
         }
 
         private static void ValidateIndex<T>(this IEnumerable<T> collection, int index)
         {
-            if (index < 0 || index > collection.Count() - 1) throw new ArgumentException($"Index {index} is outside of the scope of {nameof(collection)}.");
+            if (index < 0 || index > collection.Count() - 1)
+            {
+                throw new ArgumentException($"Index {index} is outside of the scope of {nameof(collection)}.");
+            }
         }
     }
 }
