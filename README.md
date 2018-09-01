@@ -3,6 +3,7 @@
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/petrspelos/Community-Discord-BOT/blob/master/LICENSE)
 [![AppVeyor](https://img.shields.io/appveyor/ci/petrspelos/community-discord-bot.svg)](https://ci.appveyor.com/project/petrspelos/community-discord-bot)
 [![Coverage Status](https://coveralls.io/repos/github/petrspelos/Community-Discord-BOT/badge.svg?branch=master)](https://coveralls.io/github/petrspelos/Community-Discord-BOT?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e2e9006c5c894abb8886a64f2cd08d62)](https://www.codacy.com/app/petrspelos/Community-Discord-BOT?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=petrspelos/Community-Discord-BOT&amp;utm_campaign=Badge_Grade)
 
 Hello, I'm Miunie the com**MIUNIE**ty bot. :wave:
 
