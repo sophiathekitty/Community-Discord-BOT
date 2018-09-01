@@ -1,13 +1,13 @@
 using Castle.Core.Resource;
 using Discord;
 using Moq;
-using NUnit.Framework;
+using Xunit;
 
 namespace CommunityBot.Tests
 {
     public class GlobalTests
     {
-        [Test]
+        [Fact]
         public void ReplacePlaceholderString_NoNicknameTest()
         {
             const string expected = "Username";
@@ -15,7 +15,7 @@ namespace CommunityBot.Tests
             TestReplacePlaceholderString("<username>", expected, guildUser);
         }
 
-        [Test]
+        [Fact]
         public void ReplacePlaceholderString_ValidUsernameTest()
         {
             const string expected = "Nickname";
@@ -23,7 +23,7 @@ namespace CommunityBot.Tests
             TestReplacePlaceholderString("<username>", expected, guildUser);
         }
 
-        [Test]
+        [Fact]
         public void ReplacePlaceholderString_GuildNameTest()
         {
             const string expected = "TestGuildName";
@@ -31,7 +31,7 @@ namespace CommunityBot.Tests
             TestReplacePlaceholderString("<guildname>", expected, guildUser);
         }
 
-        [Test]
+        [Fact]
         public void ReplacePlaceholderString_UserMentionTest()
         {
             const string expected = "@JonDoe";
@@ -39,7 +39,7 @@ namespace CommunityBot.Tests
             TestReplacePlaceholderString("<usermention>", expected, guildUser);
         }
 
-        [Test]
+        [Fact]
         public void ReplacePlaceholderString_Multiple()
         {
             const string expected = "Hello, Peter! Welcome to MyCoolGuild!";
@@ -47,7 +47,7 @@ namespace CommunityBot.Tests
             TestReplacePlaceholderString("Hello, <username>! Welcome to <guildname>!", expected, guildUser);
         }
 
-        [Test]
+        [Fact]
         public void ReplacePlaceholderString_MultipleNoNickname()
         {
             const string expected = "Hello, spelos! Welcome to MyCoolGuild!";
@@ -58,7 +58,7 @@ namespace CommunityBot.Tests
         private static void TestReplacePlaceholderString(string input, string expected, IMock<IGuildUser> user)
         {
             var actual = input.ReplacePlacehoderStrings(user.Object);
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
         private static Mock<IGuildUser> CreateMockGuildUser(string nickname, string username, string guildName = "MyGuild", string userMention = "@User")
