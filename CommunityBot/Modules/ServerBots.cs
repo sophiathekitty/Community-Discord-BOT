@@ -288,7 +288,7 @@ namespace CommunityBot.Modules
 
                             if (index < list.Count)
                             builder.Description += $"{index + 1}. [{list[index].name}]({LINK_TEMPLATE_FIRST + list[index].botId + LINK_TEMPLATE_LAST})" +
-                                $"by **{Global.Client.GetUser(list[index].userId).Username}**:\n{list[index].description}\n" +
+                                $"by **{Context.Client.GetUser(list[index].userId).Username}**:\n{list[index].description}\n" +
                                 $"*Client ID: {list[index].botId}*\n{list[index].timeSent} {TimeZone.CurrentTimeZone.StandardName}\n\n";
                         }
                         catch (IndexOutOfRangeException)

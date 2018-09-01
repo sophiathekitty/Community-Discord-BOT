@@ -84,7 +84,7 @@ namespace CommunityBot.Modules
             {
                 // -1 because we take the users non zero based input
                 var account = ordered[i - 1 + usersPerPage * page];
-                var user = Client.GetUser(account.Id);
+                var user = Context.Client.GetUser(account.Id);
                 embB.AddField($"#{i + usersPerPage * page} {user.Username}", $"{account.Miunies} Miunies", true);
             }
 
