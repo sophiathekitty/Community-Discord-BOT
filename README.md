@@ -1,6 +1,7 @@
 # Discord Community bot
-[![Build Status](https://travis-ci.org/petrspelos/Community-Discord-BOT.svg?branch=master)](https://travis-ci.org/petrspelos/Community-Discord-BOT)
+
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/petrspelos/Community-Discord-BOT/blob/master/LICENSE)
+[![AppVeyor](https://img.shields.io/appveyor/ci/petrspelos/community-discord-bot.svg)](https://ci.appveyor.com/project/petrspelos/community-discord-bot)
 
 Hello, I'm Miunie the com**MIUNIE**ty bot. :wave:
 
