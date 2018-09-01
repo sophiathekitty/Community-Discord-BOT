@@ -2,64 +2,64 @@ using Castle.Core.Resource;
 using CommunityBot.Configuration;
 using Discord;
 using Moq;
-using NUnit.Framework;
+using Xunit;
 
 namespace CommunityBot.Tests
 {
     public class ApplicationSettingsTests
     {
-        [Test]
+        [Fact]
         public void HeadlessArgumentTest()
         {
             var settings = new ApplicationSettings(new []{ "-hl" });
-            Assert.IsTrue(settings.Headless);
+            Assert.True(settings.Headless);
         }
 
-        [Test]
+        [Fact]
         public void VerboseArgumentTest()
         {
             var settings = new ApplicationSettings(new []{ "-vb" });
-            Assert.IsTrue(settings.Verbose);
+            Assert.True(settings.Verbose);
         }
 
-        [Test]
+        [Fact]
         public void CacheSizeArgumentTest()
         {
             const int expected = 999;
             var settings = new ApplicationSettings(new []{ $"-cs={expected}" });
-            Assert.AreEqual(expected, settings.CacheSize);
+            Assert.Equal(expected, settings.CacheSize);
         }
 
-        [Test]
+        [Fact]
         public void LogDestinationArgument_FileTest()
         {
             var settings = new ApplicationSettings(new []{ "-log=f" });
-            Assert.IsTrue(settings.LogIntoFile);
-            Assert.IsFalse(settings.LogIntoConsole);
+            Assert.True(settings.LogIntoFile);
+            Assert.False(settings.LogIntoConsole);
         }
 
-        [Test]
+        [Fact]
         public void LogDestinationArgument_ConsoleTest()
         {
             var settings = new ApplicationSettings(new []{ "-log=c" });
-            Assert.IsTrue(settings.LogIntoConsole);
-            Assert.IsFalse(settings.LogIntoFile);
+            Assert.True(settings.LogIntoConsole);
+            Assert.False(settings.LogIntoFile);
         }
 
-        [Test]
+        [Fact]
         public void LogDestinationArgument_ConsoleDefaultTest()
         {
             var settings = new ApplicationSettings(new []{ "" });
-            Assert.IsTrue(settings.LogIntoConsole);
-            Assert.IsFalse(settings.LogIntoFile);
+            Assert.True(settings.LogIntoConsole);
+            Assert.False(settings.LogIntoFile);
         }
 
-        [Test]
+        [Fact]
         public void LogDestinationArgument_BothTest()
         {
             var settings = new ApplicationSettings(new []{ "-log=cf" });
-            Assert.IsTrue(settings.LogIntoConsole);
-            Assert.IsTrue(settings.LogIntoFile);
+            Assert.True(settings.LogIntoConsole);
+            Assert.True(settings.LogIntoFile);
         }
     }
 }
