@@ -6,7 +6,7 @@ namespace CommunityBot.Tests
     public class ImmutableConstantsTests
     {
         [Fact]
-        public void ConstantArrayIsImmutableTest()
+        public static void ConstantArrayIsImmutableTest()
         {
             Assert.Throws<NotSupportedException>(() => Constants.DidYouKnows.Add("Hello, World!"));
             Assert.Throws<NotSupportedException>(() => Constants.DidYouKnows.RemoveAt(0));
