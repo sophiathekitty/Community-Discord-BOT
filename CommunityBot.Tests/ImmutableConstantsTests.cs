@@ -3,7 +3,7 @@ using Xunit;
 
 namespace CommunityBot.Tests
 {
-    public class ImmutableConstantsTests
+    public static class ImmutableConstantsTests
     {
         [Fact]
         public static void ConstantArrayIsImmutableTest()
