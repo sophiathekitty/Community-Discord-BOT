@@ -88,21 +88,28 @@ namespace CommunityBot.Modules
 
 				//try to give it a medal in cases 1 - 3, if it is not possible just send it with out change
 	            var contentName = string.Empty;
-	            switch (i)
+	            if (page == 1)
 	            {
-					case 1:
-						contentName = $"🥇 #{i + usersPerPage * page} {user.Username}";
-						break;
-					case 2:
-						contentName = $"🥈 #{i + usersPerPage * page} {user.Username}";
-						break;
-					case 3:
-						contentName = $"🥉 #{i + usersPerPage * page} {user.Username}";
-						break;
-					default:
-						contentName = $"#{i + usersPerPage * page} {user.Username}";
-						break;
-	            }
+		            switch (i)
+		            {
+			            case 1:
+				            contentName = $"🥇 #{i + usersPerPage * page} {user.Username}";
+				            break;
+			            case 2:
+				            contentName = $"🥈 #{i + usersPerPage * page} {user.Username}";
+				            break;
+			            case 3:
+				            contentName = $"🥉 #{i + usersPerPage * page} {user.Username}";
+				            break;
+			            default:
+				            contentName = $"#{i + usersPerPage * page} {user.Username}";
+				            break;
+		            }
+				}
+	            else
+	            {
+					contentName = $"#{i + usersPerPage * page} {user.Username}";
+				}
                 embB.AddField(contentName, $"{account.Miunies} Miunies", true);
             }
 
