@@ -88,7 +88,7 @@ namespace CommunityBot.Modules
 
 				//try to give it a medal in cases 1 - 3, if it is not possible just send it with out change
 	            var contentName = string.Empty;
-	            if (page == 1)
+	            if (page == 0)
 	            {
 		            switch (i)
 		            {
