@@ -85,7 +85,25 @@ namespace CommunityBot.Modules
                 // -1 because we take the users non zero based input
                 var account = ordered[i - 1 + usersPerPage * page];
                 var user = Context.Client.GetUser(account.Id);
-                embB.AddField($"#{i + usersPerPage * page} {user.Username}", $"{account.Miunies} Miunies", true);
+
+				//try to give it a medal in cases 1 - 3, if it is not possible just send it with out change
+	            var contentName = string.Empty;
+	            switch (i)
+	            {
+					case 1:
+						contentName = $"🥇 #{i + usersPerPage * page} {user.Username}";
+						break;
+					case 2:
+						contentName = $"🥈 #{i + usersPerPage * page} {user.Username}";
+						break;
+					case 3:
+						contentName = $"🥉 #{i + usersPerPage * page} {user.Username}";
+						break;
+					default:
+						contentName = $"#{i + usersPerPage * page} {user.Username}";
+						break;
+	            }
+                embB.AddField(contentName, $"{account.Miunies} Miunies", true);
             }
 
             await ReplyAsync("", false, embB.Build());
