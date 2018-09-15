@@ -12,7 +12,7 @@ test_script:
 - ps: >-
     dotnet test       
     
-    &('dotnet') ('test', './CommunityBot.NUnit.Tests/Justine.NUnit.Tests.csproj', '/p:CollectCoverage=true', '/p:"Include=[CommunityBot]*"', '/p:"Exclude=[NUnit3.TestAdapter]*"', '/p:CoverletOutputFormat=opencover')
+    &('dotnet') ('test', 'CommunityBot.NUnit.Tests', '/p:CollectCoverage=true', '/p:"Include=[CommunityBot]*"', '/p:"Exclude=[NUnit3.TestAdapter]*"', '/p:CoverletOutputFormat=opencover')
 
     nuget install OpenCover -OutputDirectory packages -Version 4.6.519
     
