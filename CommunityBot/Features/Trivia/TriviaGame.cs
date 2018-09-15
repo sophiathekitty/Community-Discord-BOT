@@ -79,7 +79,7 @@ namespace CommunityBot.Features.Trivia
                 message.Embed = _emb.Build();
                 // This somehow can't be empty or it won't update the 
                 // embed propperly sometimes... I don't know why
-                // message.Content =  Constants.InvisibleString;
+               
             });
         }
 

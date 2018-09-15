@@ -31,7 +31,7 @@ namespace CommunityBot.Modules
             TimeZoneResponse response = new TimeZoneResponse();
             var plusName = location.Replace(" ", "+");
             var address = "http://maps.google.com/maps/api/geocode/json?address=" + plusName + "&sensor=false";
-            var result =  await Global.SendWebRequest(address); //new System.Net.WebClient().DownloadString(address);
+            var result =  await Global.SendWebRequest(address);
             var latLongResult = JsonConvert.DeserializeObject<dynamic>(result);
 
             if (latLongResult.status == "OK")

@@ -19,7 +19,6 @@ namespace CommunityBot.Features.Economy
         // This is really something that shouldn't be hardcoded :D but oh well... works for now :P has to be tweaked for balance of win/loss ration tho
         public static readonly List<SlotPiece> PossibleSlotPieces = new List<SlotPiece>
         {
-          // new SlotPiece("emojiString", minSpawnCount, spawnRate, payoutRate); 
              new SlotPiece(":100:",         1, 1, 50  ),
              new SlotPiece(":candy:",       1, 2, 10  ),
              new SlotPiece(":strawberry:",  2, 2, 5   ),

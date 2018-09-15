@@ -439,7 +439,7 @@ namespace CommunityBot.ServerActivityLogger
             }
             catch
             {
-                //  Console.WriteLine("Cath messupd");
+                //do something?
             }
 
         }
@@ -484,7 +484,6 @@ namespace CommunityBot.ServerActivityLogger
                   }
                   else
                   {
-                      // Console.WriteLine(output);
                       using (var client = new WebClient())
                       {
                           client.DownloadFileAsync(new Uri(arg.Attachments.FirstOrDefault()?.Url),
