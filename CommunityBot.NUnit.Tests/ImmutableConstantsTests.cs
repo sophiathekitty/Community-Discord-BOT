@@ -1,11 +1,11 @@
 using System;
-using Xunit;
+using NUnit.Framework;
 
 namespace CommunityBot.Tests
 {
     public static class ImmutableConstantsTests
     {
-        [Fact]
+        [Test]
         public static void ConstantArrayIsImmutableTest()
         {
             Assert.Throws<NotSupportedException>(() => Constants.DidYouKnows.Add("Hello, World!"));

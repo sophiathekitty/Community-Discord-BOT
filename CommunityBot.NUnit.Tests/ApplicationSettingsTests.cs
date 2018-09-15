@@ -2,35 +2,35 @@ using Castle.Core.Resource;
 using CommunityBot.Configuration;
 using Discord;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace CommunityBot.Tests
 {
     public class ApplicationSettingsTests
     {
-        [Fact]
+        [Test]
         public void HeadlessArgumentTest()
         {
             var settings = new ApplicationSettings(new []{ "-hl" });
             Assert.True(settings.Headless);
         }
 
-        [Fact]
+        [Test]
         public void VerboseArgumentTest()
         {
             var settings = new ApplicationSettings(new []{ "-vb" });
             Assert.True(settings.Verbose);
         }
 
-        [Fact]
+        [Test]
         public void CacheSizeArgumentTest()
         {
             const int expected = 999;
             var settings = new ApplicationSettings(new []{ $"-cs={expected}" });
-            Assert.Equal(expected, settings.CacheSize);
+            Assert.AreEqual(expected, settings.CacheSize);
         }
 
-        [Fact]
+        [Test]
         public void LogDestinationArgument_FileTest()
         {
             var settings = new ApplicationSettings(new []{ "-log=f" });
@@ -38,7 +38,7 @@ namespace CommunityBot.Tests
             Assert.False(settings.LogIntoConsole);
         }
 
-        [Fact]
+        [Test]
         public void LogDestinationArgument_ConsoleTest()
         {
             var settings = new ApplicationSettings(new []{ "-log=c" });
@@ -46,7 +46,7 @@ namespace CommunityBot.Tests
             Assert.False(settings.LogIntoFile);
         }
 
-        [Fact]
+        [Test]
         public void LogDestinationArgument_ConsoleDefaultTest()
         {
             var settings = new ApplicationSettings(new []{ "" });
@@ -54,7 +54,7 @@ namespace CommunityBot.Tests
             Assert.False(settings.LogIntoFile);
         }
 
-        [Fact]
+        [Test]
         public void LogDestinationArgument_BothTest()
         {
             var settings = new ApplicationSettings(new []{ "-log=cf" });

@@ -1,6 +1,6 @@
 ﻿using System;
 using CommunityBot.Features.RoleAssignment;
-using Xunit;
+using NUnit.Framework;
 
 namespace CommunityBot.Tests.FeatureTests
 {
@@ -47,7 +47,7 @@ namespace CommunityBot.Tests.FeatureTests
             };
         }
 
-        [Fact]
+        [Test]
         public void Rbp_RemoveRelationTest()
         {
             const int expectedRelCount = 3;
@@ -56,10 +56,10 @@ namespace CommunityBot.Tests.FeatureTests
             rbps.RemoveRelation(0, 0);
             var actual = rbps.Relations.Count;
 
-            Assert.Equal(expectedRelCount, actual);
+            Assert.AreEqual(expectedRelCount, actual);
         }
 
-        [Fact]
+        [Test]
         public void Rbp_RemoveRelationTest_ArgEx()
         {
             var rbps = GetFilledSettings();
@@ -72,14 +72,14 @@ namespace CommunityBot.Tests.FeatureTests
             Assert.Throws<ArgumentException>(() => rbps.RemoveRelation(invalidIndex, invalidIndex));
         }
 
-        [Fact]
+        [Test]
         public void Rbp_RemoveRelationTest_RelNotFoundEx()
         {
             var rbps = GetFilledSettings();
             Assert.Throws<RelationNotFoundException>(() => rbps.RemoveRelation(1,1));
         }
 
-        [Fact]
+        [Test]
         public void Rbp_AddRelationTest()
         {
             const int expectedRelCount = 5;
@@ -88,10 +88,10 @@ namespace CommunityBot.Tests.FeatureTests
             rbps.CreateRelation(0, 2);
             var acutal = rbps.Relations.Count;
 
-            Assert.Equal(expectedRelCount, acutal);
+            Assert.AreEqual(expectedRelCount, acutal);
         }
 
-        [Fact]
+        [Test]
         public void Rbp_AddRelationTest_ArgEx()
         {
             var rbps = GetFilledSettings();
@@ -104,14 +104,14 @@ namespace CommunityBot.Tests.FeatureTests
             Assert.Throws<ArgumentException>(() => rbps.CreateRelation(invalidIndex, invalidIndex));
         }
 
-        [Fact]
+        [Test]
         public void Rbp_AddRelationTest_RelExists()
         {
             var rbps = GetFilledSettings();
             Assert.Throws<RelationAlreadyExistsException>(() => rbps.CreateRelation(1, 0));
         }
 
-        [Fact]
+        [Test]
         public void Rbp_AddPhraseTest()
         {
             const int expected = 3;
@@ -120,24 +120,24 @@ namespace CommunityBot.Tests.FeatureTests
             rbps.AddPhrase("CC");
             var actual = rbps.Phrases.Count;
 
-            Assert.Equal(expected, actual);
+            Assert.AreEqual(expected, actual);
         }
 
-        [Fact]
+        [Test]
         public void Rbp_AddPhraseTest_InvalidPhraseEx()
         {
             var rbps = GetFilledSettings();
             Assert.Throws<InvalidPhraseException>(() => rbps.AddPhrase(string.Empty));
         }
 
-        [Fact]
+        [Test]
         public void Rbp_AddPhraseTest_InvalidPhraseEx_TooLong()
         {
             var rbps = GetFilledSettings();
             Assert.Throws<InvalidPhraseException>(() => rbps.AddPhrase(new string('A', Constants.MaxMessageLength)));
         }
 
-        [Fact]
+        [Test]
         public void Rbp_RemovePhraseTest()
         {
             const int expected = 1;
@@ -146,10 +146,10 @@ namespace CommunityBot.Tests.FeatureTests
             rbps.RemovePhraseByIndex(1);
             var actual = rbps.Phrases.Count;
 
-            Assert.Equal(expected, actual);
+            Assert.AreEqual(expected, actual);
         }
 
-        [Fact]
+        [Test]
         public void Rbp_AddRoleTest()
         {
             const int expected = 4;
@@ -158,17 +158,17 @@ namespace CommunityBot.Tests.FeatureTests
             rbps.AddRole(123);
             var actual = rbps.RolesIds.Count;
 
-            Assert.Equal(expected, actual);
+            Assert.AreEqual(expected, actual);
         }
 
-        [Fact]
+        [Test]
         public void Rbp_AddRoleTest_AlreadyAddedEx()
         {
             var rbps = GetFilledSettings();
             Assert.Throws<RoleIdAlreadyAddedException>(() => rbps.AddRole(111));
         }
 
-        [Fact]
+        [Test]
         public void Rbp_RemoveRoleTest()
         {
             const int expected = 2;
@@ -177,7 +177,7 @@ namespace CommunityBot.Tests.FeatureTests
             rbps.RemoveRoleIdByIndex(0);
             var actual = rbps.RolesIds.Count;
 
-            Assert.Equal(expected, actual);
+            Assert.AreEqual(expected, actual);
         }
     }
 }
