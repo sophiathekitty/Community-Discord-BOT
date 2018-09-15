@@ -146,7 +146,12 @@ namespace CommunityBot.Modules
             }
 
             if (descriptionBuilder.Count <= 0) return;
-
+            var builtString = string.Join("\n", descriptionBuilder); // put it in this variable so i can catch it below and cleaner line in the embed
+            var testLength = builtString.Length;
+            if (testLength >= 1024)
+            {
+                //not sure what to do if it is
+            }
             var moduleNotes = "";
             if (!string.IsNullOrEmpty(module.Summary))
                 moduleNotes += $" {module.Summary}";
@@ -157,7 +162,7 @@ namespace CommunityBot.Modules
             if (!string.IsNullOrEmpty(module.Name))
             {
                 builder.AddField($"__**{module.Name}:**__",
-                    $"{moduleNotes}" + string.Join("\n", descriptionBuilder) + $"\n{Constants.InvisibleString}");
+                    $"{moduleNotes} {builtString}\n{Constants.InvisibleString}");
             }
         }
 
