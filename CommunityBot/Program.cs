@@ -21,12 +21,11 @@ namespace CommunityBot
         {
             _appSettings = new ApplicationSettings(args);
 
-            var discordSocketConfig = GetDiscordSocketConfig();
-            if (discordSocketConfig == null) return;
+            InversionOfControl.InitializeContainer(_appSettings);
 
-            _client = new DiscordSocketClient(discordSocketConfig);
+            _client = InversionOfControl.Container.GetInstance<DiscordSocketClient>();
 
-            _serviceProvider = ConfigureServices();
+            _serviceProvider = InversionOfControl.Container;
 
             _serviceProvider.GetRequiredService<DiscordEventHandler>().InitDiscordEvents();
             await _serviceProvider.GetRequiredService<CommandHandler>().InitializeAsync();
@@ -36,16 +35,6 @@ namespace CommunityBot
             await _client.StartAsync();
 
             await Task.Delay(-1);
-        }
-
-        private static DiscordSocketConfig GetDiscordSocketConfig()
-        {
-            return new DiscordSocketConfig()
-            {
-                LogLevel = _appSettings.Verbose ? LogSeverity.Verbose : LogSeverity.Info,
-                MessageCacheSize = _appSettings.CacheSize,
-                AlwaysDownloadUsers = true
-            };
         }
 
         private static async Task<bool> AttemptLogin()
@@ -90,20 +79,6 @@ namespace CommunityBot
             Global.WriteColoredLine("(not trying again closes the application)\n", ConsoleColor.Yellow);
 
             return Console.ReadKey().Key == ConsoleKey.Y;
-        }
-
-        private static IServiceProvider ConfigureServices()
-        {
-            return new ServiceCollection()
-                .AddSingleton(_client)
-                .AddSingleton(_appSettings)
-                .AddSingleton<ServerActivityLogger.ServerActivityLogger>()
-                .AddSingleton<CommandService>()
-                .AddSingleton<CommandHandler>()
-                .AddSingleton<DiscordEventHandler>()
-                .AddSingleton<Logger>()
-                .AddSingleton<TriviaGames>()
-                .BuildServiceProvider();     
         }
     }
 }
