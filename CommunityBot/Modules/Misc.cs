@@ -4,12 +4,8 @@ using Discord.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
-using CommunityBot.Entities;
 using CommunityBot.Helpers;
-using Newtonsoft.Json;
 
 namespace CommunityBot.Modules
 {
@@ -146,12 +142,7 @@ namespace CommunityBot.Modules
             }
 
             if (descriptionBuilder.Count <= 0) return;
-            var builtString = string.Join("\n", descriptionBuilder); // put it in this variable so i can catch it below and cleaner line in the embed
-            var testLength = builtString.Length;
-            if (testLength >= 1024)
-            {
-                //not sure what to do if it is
-            }
+            var builtString = string.Join("\n", descriptionBuilder); 
             var moduleNotes = "";
             if (!string.IsNullOrEmpty(module.Summary))
                 moduleNotes += $" {module.Summary}";
