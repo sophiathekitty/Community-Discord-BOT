@@ -439,7 +439,7 @@ namespace CommunityBot.ServerActivityLogger
             }
             catch
             {
-                //do something?
+                
             }
 
         }
@@ -517,7 +517,6 @@ namespace CommunityBot.ServerActivityLogger
                       }
                       else
                       {
-                          // Console.WriteLine(output);
                           using (var client = new WebClient())
                           {
                               client.DownloadFileAsync(new Uri(temp[i].Url),
