@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using CommunityBot.Features.GlobalAccounts;
 using CommunityBot.Features.RoleAssignment;
 using Discord;

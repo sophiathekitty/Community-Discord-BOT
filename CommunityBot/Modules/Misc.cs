@@ -4,12 +4,8 @@ using Discord.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
-using CommunityBot.Entities;
 using CommunityBot.Helpers;
-using Newtonsoft.Json;
 
 namespace CommunityBot.Modules
 {
@@ -146,7 +142,12 @@ namespace CommunityBot.Modules
             }
 
             if (descriptionBuilder.Count <= 0) return;
-
+            var builtString = string.Join("\n", descriptionBuilder); 
+            var testLength = builtString.Length;
+            if (testLength >= 1024)
+            {
+                throw  new ArgumentException("Value cannot exceed 1024 characters");
+            }
             var moduleNotes = "";
             if (!string.IsNullOrEmpty(module.Summary))
                 moduleNotes += $" {module.Summary}";
@@ -157,7 +158,7 @@ namespace CommunityBot.Modules
             if (!string.IsNullOrEmpty(module.Name))
             {
                 builder.AddField($"__**{module.Name}:**__",
-                    $"{moduleNotes}" + string.Join("\n", descriptionBuilder) + $"\n{Constants.InvisibleString}");
+                    $"{moduleNotes} {builtString}\n{Constants.InvisibleString}");
             }
         }
 

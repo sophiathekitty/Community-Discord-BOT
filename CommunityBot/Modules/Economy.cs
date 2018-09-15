@@ -4,7 +4,6 @@ using Discord;
 using Discord.Commands;
 using System.Linq;
 using System.Threading.Tasks;
-using static CommunityBot.Features.Economy.Daily;
 using static CommunityBot.Global;
 using static CommunityBot.Features.Economy.Transfer;
 // ReSharper disable ConvertIfStatementToSwitchStatement
