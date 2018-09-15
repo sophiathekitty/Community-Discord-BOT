@@ -1,11 +1,6 @@
 ﻿using CommunityBot.Entities;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CommunityBot.Helpers;
-using Newtonsoft.Json;
 
 namespace CommunityBot.Configuration
 {

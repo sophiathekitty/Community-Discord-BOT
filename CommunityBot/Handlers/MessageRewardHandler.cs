@@ -1,9 +1,6 @@
 ﻿using CommunityBot.Features.GlobalAccounts;
 using Discord.WebSocket;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CommunityBot.Handlers
