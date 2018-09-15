@@ -143,6 +143,11 @@ namespace CommunityBot.Modules
 
             if (descriptionBuilder.Count <= 0) return;
             var builtString = string.Join("\n", descriptionBuilder); 
+            var testLength = builtString.Length;
+            if (testLength >= 1024)
+            {
+                throw  new ArgumentException("Value cannot exceed 1024 characters");
+            }
             var moduleNotes = "";
             if (!string.IsNullOrEmpty(module.Summary))
                 moduleNotes += $" {module.Summary}";
