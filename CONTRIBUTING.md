@@ -1,4 +1,4 @@
-![Thank you for contributing!](https://i.imgur.com/o1uInnv.png)
+![Thank you for contributing!](https://i.imgur.com/E5jgNX1.png)
 
 ## Important resources
 
