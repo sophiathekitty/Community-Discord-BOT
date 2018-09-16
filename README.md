@@ -8,6 +8,8 @@
 
 Hello, I'm Miunie the com**MIUNIE**ty bot. :wave:
 
+![Miunie Example](https://media.giphy.com/media/4WFhEh2CtJoo3k5yfF/giphy.gif)
+
 I'm a community bot for Discord written in C# using the [Discord .NET library](https://github.com/RogueException/Discord.Net).
 
 The goal of this project is to create a solid general-purpose bot that can be easily extended and used in new and interesting ways.
