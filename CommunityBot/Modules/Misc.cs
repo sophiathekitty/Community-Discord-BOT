@@ -194,7 +194,26 @@ namespace CommunityBot.Modules
             await ReplyAsync("", false, embB.Build());
         }
 
-    [Command("Addition")]
+	    [Command("bug")]
+	    [Alias("bug-report","issue","feedback")]
+	    [Summary("It sends users where to report bugs.")]
+	    public async Task Bug()
+	    {
+			var embed = new EmbedBuilder();
+		    embed.WithColor(99, 193, 50);
+		    embed.WithTitle("Bug reporting");
+		    embed.WithDescription(@"Thank you for your interest, how about you let us know by creating an Issue on our **GitHub** "+ "\n\n\n" +
+			"**[ 🢂 🐞 HERE 🐞 🢀 ](https://github.com/discord-bot-tutorial/Community-Discord-BOT/issues/new/choose)**" + "\n\n\n" +
+		    "(*If button doesnt work: https://github.com/discord-bot-tutorial/Community-Discord-BOT/issues/new/choose*)");
+		    embed.WithFooter("Your help is more than welcome!");
+		    embed.WithAuthor(Global.Client.CurrentUser);
+		    embed.WithCurrentTimestamp();
+
+			await ReplyAsync("",false,embed.Build());
+
+		}
+
+		[Command("Addition")]
         [Summary("Adds 2 numbers together.")]
         public async Task AddAsync(float num1, float num2)
         {
