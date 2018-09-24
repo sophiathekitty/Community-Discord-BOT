@@ -243,7 +243,7 @@ namespace CommunityBot.Modules
         }
 
         [Command("Math")]
-        [Summary("Computates mathematical operations.")]
+        [Summary("Computes mathematical operations.")]
         public async Task Computate(params String[] input)
         {
             StringBuilder word = new StringBuilder();

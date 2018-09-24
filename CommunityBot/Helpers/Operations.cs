@@ -18,11 +18,13 @@ namespace CommunityBot.Helpers
 
         public static double PerformComputation(String sentence)
         {
-            if (sentence == null || sentence.Length == 0 || sentence.Length < 3) return 0;
+            if (!string.IsNullOrEmpty(sentence) || sentence.Length < 3) return 0;
 
-            List<String> seperatedValues = new List<string>();
+            var seperatedValues = new List<string>();
             SeperateValues(seperatedValues, sentence);
 
+            // Initial check, because multiplication and division have a higher priority 
+            // than addition and subtraction. 
             if (seperatedValues.Count > 3)
             {
                 int i = 0;
