@@ -18,7 +18,7 @@ namespace CommunityBot.Helpers
 
         public static double PerformComputation(String sentence)
         {
-            if (!string.IsNullOrEmpty(sentence) || sentence.Length < 3) return 0;
+            if (string.IsNullOrEmpty(sentence) || sentence.Length < 3) { return 0; }
 
             var seperatedValues = new List<string>();
             SeperateValues(seperatedValues, sentence);
@@ -44,8 +44,16 @@ namespace CommunityBot.Helpers
                     ReplaceSegment(seperatedValues, 0);
                 }
             }
-            double x = double.Parse(seperatedValues[0]);
-            double y = double.Parse(seperatedValues[2]);
+            double x, y;
+            try
+            {
+                x = double.Parse(seperatedValues[0]);
+                y = double.Parse(seperatedValues[2]);
+            }
+            catch (FormatException e)
+            {
+                return 0;
+            }
             return validOperations[seperatedValues[1]](x, y);
         }
 
@@ -56,6 +64,7 @@ namespace CommunityBot.Helpers
             {
                 if (validOperations.ContainsKey(sentence[i].ToString()))
                 {
+                    if (i==0) { buffer.Append("0"); }
                     list.Add(buffer.ToString());
                     list.Add(sentence[i].ToString());
                     buffer = new StringBuilder();
