@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text;
 using CommunityBot.Helpers;
 
 namespace CommunityBot.Modules
@@ -245,17 +246,17 @@ namespace CommunityBot.Modules
         [Summary("Computates mathematical operations.")]
         public async Task Computate(params String[] input)
         {
-            String word = "";
+            StringBuilder word = new StringBuilder();
             for (int i = 0; i < input.Length; i++)
             {
                 char[] inputWithoutSpaces = input.ElementAt(i).Where(c => !Char.IsWhiteSpace(c)).ToArray();
                 for (int j = 0; j < inputWithoutSpaces.Count(); j++)
                 {
-                    word += inputWithoutSpaces[j];
+                    word.Append(inputWithoutSpaces[j]);
                 }
 
-                input[i] = word;
-                word = "";
+                input[i] = word.ToString();
+                word = new StringBuilder();
                 if (input.ElementAt(i).Length > 2)
                 {
                     input[i] = ((double)Operations.PerformComputation(input[i])).ToString();

@@ -7,7 +7,7 @@ namespace CommunityBot.Helpers
     public static class Operations
     {
 
-        public static Dictionary<String, Func<double, double, double>> validOperations = new Dictionary<String, Func<double, double, double>>()
+        private static Dictionary<String, Func<double, double, double>> validOperations = new Dictionary<String, Func<double, double, double>>
         {
             { "+", Add },
             { "-", Sub },
@@ -21,57 +21,61 @@ namespace CommunityBot.Helpers
             if (sentence == null || sentence.Length == 0 || sentence.Length < 3) return 0;
 
             List<String> seperatedValues = new List<string>();
-            String buffer = "";
-            for (int i=0; i<sentence.Length; i++)
-            {
-                if (validOperations.ContainsKey(sentence[i].ToString()))
-                {
-                    seperatedValues.Add(buffer);
-                    seperatedValues.Add(sentence[i].ToString());
-                    buffer = "";
-                }
-                else
-                {
-                    buffer += sentence[i];
-                }
-            }
-            seperatedValues.Add(buffer);
+            SeperateValues(seperatedValues, sentence);
 
             if (seperatedValues.Count > 3)
             {
-                int pos = 0;
-                while (seperatedValues.Contains("*") || seperatedValues.Contains("/"))
+                int i = 0;
+                while (i < seperatedValues.Count-1)
                 {
-                    for (int i = pos; i < seperatedValues.Count; i++)
+                    if (seperatedValues[i + 1].Equals("*") || seperatedValues[i + 1].Equals("/"))
                     {
-                        if (seperatedValues[i].Equals("*") || seperatedValues[i].Equals("/"))
-                        {
-                            String s = "";
-                            s += seperatedValues[i - 1];
-                            s += seperatedValues[i + 0];
-                            s += seperatedValues[i + 1];
-                            seperatedValues.RemoveAt(i - 1);
-                            seperatedValues.RemoveAt(i - 1);
-                            seperatedValues[i - 1] = ((double)Operations.PerformComputation(s)).ToString();
-                            break;
-                        }
-                        pos++;
+                        ReplaceSegment(seperatedValues, i);
+                    }
+                    else
+                    {
+                        i++;
                     }
                 }
                 while (seperatedValues.Count > 3)
                 {
-                    String s = "";
-                    s += seperatedValues[0];
-                    s += seperatedValues[1];
-                    s += seperatedValues[2];
-                    seperatedValues.RemoveAt(0);
-                    seperatedValues.RemoveAt(0);
-                    seperatedValues[0] = ((double)Operations.PerformComputation(s)).ToString();
+                    ReplaceSegment(seperatedValues, 0);
                 }
             }
             double x = double.Parse(seperatedValues[0]);
             double y = double.Parse(seperatedValues[2]);
             return validOperations[seperatedValues[1]](x, y);
+        }
+
+        private static void SeperateValues(List<String> list, String sentence)
+        {
+            StringBuilder buffer = new StringBuilder();
+            for (int i = 0; i < sentence.Length; i++)
+            {
+                if (validOperations.ContainsKey(sentence[i].ToString()))
+                {
+                    list.Add(buffer.ToString());
+                    list.Add(sentence[i].ToString());
+                    buffer = new StringBuilder();
+                }
+                else
+                {
+                    buffer.Append(sentence[i]);
+                }
+            }
+            list.Add(buffer.ToString());
+        }
+
+        private static void ReplaceSegment(List<String> list, int startIdx)
+        {
+            if (list.Count < 3) return;
+            String s = "";
+            s += list[startIdx+0];
+            s += list[startIdx+1];
+            s += list[startIdx+2];
+            list.RemoveAt(startIdx);
+            list.RemoveAt(startIdx);
+            list[startIdx] = Operations.PerformComputation(s).ToString();
         }
 
         private static double Add(double x, double y)
