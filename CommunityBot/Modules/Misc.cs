@@ -142,11 +142,11 @@ namespace CommunityBot.Modules
             }
 
             if (descriptionBuilder.Count <= 0) return;
-            var builtString = string.Join("\n", descriptionBuilder); 
+            var builtString = string.Join("\n", descriptionBuilder);
             var testLength = builtString.Length;
             if (testLength >= 1024)
             {
-                throw  new ArgumentException("Value cannot exceed 1024 characters");
+                throw new ArgumentException("Value cannot exceed 1024 characters");
             }
             var moduleNotes = "";
             if (!string.IsNullOrEmpty(module.Summary))
@@ -190,36 +190,36 @@ namespace CommunityBot.Modules
                 );
                 return emb.AddField(GitHub.ContributionStat(cont, stats));
             });
-            
+
             await ReplyAsync("", false, embB.Build());
         }
 
-	    [Command("bug")]
-	    [Alias("bug-report","issue","feedback")]
-	    [Summary("It sends users where to report bugs.")]
-	    public async Task Bug()
-	    {
-			var embed = new EmbedBuilder();
-		    embed.WithColor(99, 193, 50);
-		    embed.WithTitle("Bug reporting");
-		    embed.WithDescription(@"Thank you for your interest, how about you let us know by creating an Issue on our **GitHub** "+ "\n\n\n" +
-			"**[ 🢂 🐞 HERE 🐞 🢀 ](https://github.com/discord-bot-tutorial/Community-Discord-BOT/issues/new/choose)**" + "\n\n\n" +
-		    "(*If button doesnt work: https://github.com/discord-bot-tutorial/Community-Discord-BOT/issues/new/choose*)");
-		    embed.WithFooter("Your help is more than welcome!");
-		    embed.WithAuthor(Global.Client.CurrentUser);
-		    embed.WithCurrentTimestamp();
+        [Command("bug")]
+        [Alias("bug-report", "issue", "feedback")]
+        [Summary("It sends users where to report bugs.")]
+        public async Task Bug()
+        {
+            var embed = new EmbedBuilder();
+            embed.WithColor(99, 193, 50);
+            embed.WithTitle("Bug reporting");
+            embed.WithDescription(@"Thank you for your interest, how about you let us know by creating an Issue on our **GitHub** " + "\n\n\n" +
+            "**[ 🢂 🐞 HERE 🐞 🢀 ](https://github.com/discord-bot-tutorial/Community-Discord-BOT/issues/new/choose)**" + "\n\n\n" +
+            "(*If button doesnt work: https://github.com/discord-bot-tutorial/Community-Discord-BOT/issues/new/choose*)");
+            embed.WithFooter("Your help is more than welcome!");
+            embed.WithAuthor(Global.Client.CurrentUser);
+            embed.WithCurrentTimestamp();
 
-			await ReplyAsync("",false,embed.Build());
+            await ReplyAsync("", false, embed.Build());
 
-		}
+        }
 
-		[Command("Addition")]
+        [Command("Addition")]
         [Summary("Adds 2 numbers together.")]
         public async Task AddAsync(float num1, float num2)
         {
             await ReplyAsync($"The Answer To That Is: {num1 + num2}");
         }
-        
+
         [Command("Subtract")]
         [Summary("Subtracts 2 numbers.")]
         public async Task SubstractAsync(float num1, float num2)
@@ -239,6 +239,35 @@ namespace CommunityBot.Modules
         public async Task DivideAsync(float num1, float num2)
         {
             await ReplyAsync($"The Answer To That Is: {num1 / num2}");
+        }
+
+        [Command("Math")]
+        [Summary("Computates mathematical operations.")]
+        public async Task Computate(params String[] input)
+        {
+            String word = "";
+            for (int i = 0; i < input.Length; i++)
+            {
+                char[] inputWithoutSpaces = input.ElementAt(i).Where(c => !Char.IsWhiteSpace(c)).ToArray();
+                for (int j = 0; j < inputWithoutSpaces.Count(); j++)
+                {
+                    word += inputWithoutSpaces[j];
+                }
+
+                input[i] = word;
+                word = "";
+                if (input.ElementAt(i).Length > 2)
+                {
+                    input[i] = ((double)Operations.PerformComputation(input[i])).ToString();
+                }
+            }
+            String sentence = "";
+            for (int i=0; i<input.Length; i++)
+            {
+                sentence += input[i];
+            }
+            
+            await ReplyAsync($"{Operations.PerformComputation(sentence)}");
         }
     }
 }
