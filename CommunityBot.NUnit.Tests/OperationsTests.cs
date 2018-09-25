@@ -6,7 +6,7 @@ using CommunityBot.Helpers;
 
 namespace CommunityBot.NUnit.Tests
 {
-    class OperationsTests
+    public static class OperationsTests
     {
         [Test]
         public static void OperationsMultBeforAdd()
