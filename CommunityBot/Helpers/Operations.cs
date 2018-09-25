@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Globalization;
 
 namespace CommunityBot.Helpers
 {
@@ -79,14 +80,14 @@ namespace CommunityBot.Helpers
 
         private static void ReplaceSegment(List<String> list, int startIdx)
         {
-            if (list.Count < 3) return;
+            if (list.Count < 3) { return; }
             String s = "";
             s += list[startIdx+0];
             s += list[startIdx+1];
             s += list[startIdx+2];
             list.RemoveAt(startIdx);
             list.RemoveAt(startIdx);
-            list[startIdx] = Operations.PerformComputation(s).ToString();
+            list[startIdx] = Operations.PerformComputation(s).ToString(CultureInfo.CurrentCulture);
         }
 
         private static double Add(double x, double y)

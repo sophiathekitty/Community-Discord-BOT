@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Text;
 using CommunityBot.Helpers;
+using System.Globalization;
 
 namespace CommunityBot.Modules
 {
@@ -259,16 +260,16 @@ namespace CommunityBot.Modules
                 word = new StringBuilder();
                 if (input.ElementAt(i).Length > 2)
                 {
-                    input[i] = ((double)Operations.PerformComputation(input[i])).ToString();
+                    input[i] = Operations.PerformComputation(input[i]).ToString(CultureInfo.CurrentCulture);
                 }
             }
-            String sentence = "";
+            StringBuilder sentence = new StringBuilder();
             for (int i=0; i<input.Length; i++)
             {
-                sentence += input[i];
+                sentence.Append(input[i]);
             }
             
-            await ReplyAsync($"{Operations.PerformComputation(sentence)}");
+            await ReplyAsync($"{Operations.PerformComputation(sentence.ToString())}");
         }
     }
 }

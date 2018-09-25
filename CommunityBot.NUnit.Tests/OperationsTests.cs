@@ -9,7 +9,7 @@ namespace CommunityBot.NUnit.Tests
     class OperationsTests
     {
         [Test]
-        public void OperationsMultBeforAdd()
+        public static void OperationsMultBeforAdd()
         {
             double expected = 10 + 5 * 2;
 
@@ -19,7 +19,7 @@ namespace CommunityBot.NUnit.Tests
         }
 
         [Test]
-        public void OperationsWrongInput_Returns0()
+        public static void OperationsWrongInput_Returns0()
         {
             double expected = 0;
 
@@ -29,7 +29,7 @@ namespace CommunityBot.NUnit.Tests
         }
 
         [Test]
-        public void OperationsMultipleOperationsAttached()
+        public static void OperationsMultipleOperationsAttached()
         {
             double expected = 0;
 
@@ -39,7 +39,7 @@ namespace CommunityBot.NUnit.Tests
         }
 
         [Test]
-        public void OperationsInputTooShort_Returns0()
+        public static void OperationsInputTooShort_Returns0()
         {
             double expected = 0;
 
@@ -49,7 +49,7 @@ namespace CommunityBot.NUnit.Tests
         }
 
         [Test]
-        public void OperationsInputLeadingOperationAddSub()
+        public static void OperationsInputLeadingOperationAddSub()
         {
             double expected = -4+5;
 
@@ -59,7 +59,7 @@ namespace CommunityBot.NUnit.Tests
         }
 
         [Test]
-        public void OperationsInputLeadingOperationMultDiv()
+        public static void OperationsInputLeadingOperationMultDiv()
         {
             double expected = 0 + 5;
 
