@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityBot.Helpers;
+using CommunityBot.Features.Lists;
 
 namespace CommunityBot.Modules
 {
@@ -239,6 +240,14 @@ namespace CommunityBot.Modules
         public async Task DivideAsync(float num1, float num2)
         {
             await ReplyAsync($"The Answer To That Is: {num1 / num2}");
+        }
+
+        [Command("List")]
+        [Summary("Manage List")]
+        public async Task ManageList(params String[] input)
+        {
+            String output = ListManager.Manage(input);
+            await ReplyAsync(output);
         }
     }
 }
