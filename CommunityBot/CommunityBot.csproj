@@ -14,8 +14,9 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Discord.Net" Version="2.0.0-beta2-00970"/>
-    <PackageReference Include="Ofl.Google.Maps" Version="3.0.22"/>
-    <PackageReference Include="Lamar" Version="*"/>
+    <PackageReference Include="Discord.Net" Version="2.0.0-beta2-00970" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Ofl.Google.Maps" Version="3.0.22" />
+    <PackageReference Include="Lamar" Version="*" />
   </ItemGroup>
 </Project>
