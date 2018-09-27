@@ -26,18 +26,18 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
 
             ListManager.Manage(new[] { "-c", name });
             CustomList actual = ListManager.GetList(name);
-            
-            Assert.IsNotNull(actual);
-            Assert.AreEqual(expected, actual);
 
             ListManager.RemoveList(name);
+
+            Assert.IsNotNull(actual);
+            Assert.AreEqual(expected, actual);
         }
 
         [Test]
         public static void RemoveListTest()
         {
             ListManager.Manage(new[] { "-c", name });
-            ListManager.Manage(new[] { "-r", name });
+            ListManager.Manage(new[] { "-rl", name });
             CustomList actual = ListManager.GetList(name);
             
             Assert.IsNull(actual);
@@ -54,10 +54,31 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
             ListManager.Manage(new[] { "-a", item, name });
             CustomList actual = ListManager.GetList(name);
 
+            ListManager.RemoveList(name);
+
             Assert.IsNotNull(actual);
             Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public static void InsertItemTest()
+        {
+            String item = "New item";
+            CustomList expected = new CustomList(name);
+            expected.Add(item + " 1");
+            expected.Add(item + " 2");
+            expected.Add(item + " 3");
+
+            ListManager.Manage(new[] { "-c", name });
+            ListManager.Manage(new[] { "-i", "0", item + " 3", name });
+            ListManager.Manage(new[] { "-i", "0", item + " 2", name });
+            ListManager.Manage(new[] { "-i", "0", item + " 1", name });
+            CustomList actual = ListManager.GetList(name);
 
             ListManager.RemoveList(name);
+
+            Assert.IsNotNull(actual);
+            Assert.AreEqual(expected, actual);
         }
 
         [Test]
@@ -75,10 +96,10 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
             ListManager.Manage(new[] { "-r", item + " 1", name });
             CustomList actual = ListManager.GetList(name);
 
+            ListManager.RemoveList(name);
+
             Assert.IsNotNull(actual);
             Assert.AreEqual(expected, actual);
-
-            ListManager.RemoveList(name);
         }
 
         [Test]
@@ -103,10 +124,10 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
             ListManager.Manage(new[] { "-cl", name });
             CustomList actual = ListManager.GetList(name);
 
+            ListManager.RemoveList(name);
+
             Assert.IsNotNull(actual);
             Assert.AreEqual(expected, actual);
-
-            ListManager.RemoveList(name);
         }
     }
 }

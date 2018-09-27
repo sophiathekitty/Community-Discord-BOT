@@ -17,6 +17,7 @@ namespace CommunityBot.Features.Lists
         {
             { "-c", CreateList },
             { "-a", Add },
+            { "-i", Insert },
             { "-l", OutputList },
             { "-r", Remove },
             { "-rl", RemoveList },
@@ -66,6 +67,36 @@ namespace CommunityBot.Features.Lists
             return lists.Find(l => l.name.Equals(input[0]));
         }
 
+        public static String Add(String[] input)
+        {
+            if (input.Length < 2) { return stdErrorMsg; }
+
+            SplitArray(input, out String name, out String[] values);
+
+            GetList(name).AddRange(values);
+
+            return "Added item" + (input.Length > 2 ? " s" : "");
+        }
+
+        public static String Insert(String[] input)
+        {
+            if (input.Length < 3) { return stdErrorMsg; }
+
+            SplitArray(input, out String name, out String[] values);
+            SplitArray(values, 0, out String indexString, out values);
+            int index = 0;
+            try
+            {
+                index = int.Parse(indexString);
+            }
+            catch (FormatException e)
+            {
+                return stdErrorMsg;
+            }
+            GetList(name).InsertRange(index, values);
+            return "Inserted value" + (input.Length > 3 ? "s" : "");
+        }
+
         public static String RemoveList(params String[] input)
         {
             if (input.Length != 1) { return stdErrorMsg; }
@@ -77,17 +108,6 @@ namespace CommunityBot.Features.Lists
             WriteContents();
 
             return $"Removed list '{input[0]}'";
-        }
-
-        public static String Add(String[] input)
-        {
-            if ( input.Length < 2 ) { return stdErrorMsg; }
-
-            SplitArray(input, out String name, out String[] values);
-
-            GetList(name).AddRange(values);
-
-            return "Added item" + (input.Length > 2 ? " s" : "");
         }
 
         public static String Remove(String[] input)
@@ -156,11 +176,7 @@ namespace CommunityBot.Features.Lists
 
         public static void WriteContents()
         {
-            var listNames = lists.Select(l => l.name).ToList<String>();
-            foreach (CustomList l in lists)
-            {
-                listNames.Add(l.name);
-            }
+            List<String> listNames = lists.Select(l => l.name).ToList<String>();
             DataStorage.StoreObject(listNames, listManagerLookup, false);
         }
 
