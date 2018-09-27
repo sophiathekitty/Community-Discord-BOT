@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Text;
 using CommunityBot.Helpers;
 using System.Globalization;
+using CommunityBot.Features.Lists;
 
 namespace CommunityBot.Modules
 {
@@ -242,7 +243,7 @@ namespace CommunityBot.Modules
         {
             await ReplyAsync($"The Answer To That Is: {num1 / num2}");
         }
-
+        
         [Command("Math")]
         [Summary("Computes mathematical operations.")]
         public async Task Computate(params String[] input)
@@ -264,12 +265,20 @@ namespace CommunityBot.Modules
                 }
             }
             StringBuilder sentence = new StringBuilder();
-            for (int i=0; i<input.Length; i++)
+            for (int i = 0; i < input.Length; i++)
             {
                 sentence.Append(input[i]);
             }
-            
+
             await ReplyAsync($"{Operations.PerformComputation(sentence.ToString())}");
+        }
+
+        [Command("List")]
+        [Summary("Manage List")]
+        public async Task ManageList(params String[] input)
+        {
+            String output = ListManager.Manage(input);
+            await ReplyAsync(output);
         }
     }
 }
