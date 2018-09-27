@@ -8,8 +8,11 @@ namespace CommunityBot.Features.Lists
 {
     public class ListManager
     {
-        private static readonly String listManagerLookup = "list_manager_lookup.txt";
-        private static readonly String errorMsg = "Sorry, something went wrong";
+        private static readonly String listManagerLookup = "list_manager_lookup.json";
+        public static readonly String wrongInputErrorMsg = "Wrong input";
+        public static readonly String stdErrorMsg = "Oops, something went wrong";
+        public static readonly String unknownCommandErrorMsg = "Unknown command";
+
         public static Dictionary<String, Func<String[], String>> validOperations = new Dictionary<String, Func<String[], String>>()
         {
             { "-c", CreateList },
@@ -21,22 +24,39 @@ namespace CommunityBot.Features.Lists
 
         private static List<CustomList> lists = new List<CustomList>();
 
-        public static ListManager()
+        static ListManager()
         {
-            lists = ReadContents();
+            ReadContents();
+            if (lists == null)
+            {
+                lists = new List<CustomList>();
+            }
         }
 
         public static String Manage(params String[] input)
         {
             SplitArray(input, 0, out String command, out String[] values);
-            return validOperations[command](values);
+            var result = "";
+            try
+            {
+                result = validOperations[command](values);
+            }
+            catch (KeyNotFoundException e)
+            {
+                return unknownCommandErrorMsg;
+            }
+            return result;
         }
 
         public static String CreateList(params String[] input)
         {
-            if (input.Length != 1) { return errorMsg; }
+            if (input.Length != 1) { return stdErrorMsg; }
+            if (GetList(input[0]) != null) { return $"List {input[0]} already exists"; }
+
             lists.Add(new CustomList(input[0]));
+
             WriteContents();
+
             return $"Created list '{input[0]}'";
         }
 
@@ -47,32 +67,45 @@ namespace CommunityBot.Features.Lists
 
         public static String RemoveList(params String[] input)
         {
-            if (input.Length != 1) { return errorMsg; }
+            if (input.Length != 1) { return stdErrorMsg; }
+
             lists.Remove(GetList(input[0]));
+
+            WriteContents();
+
             return $"Removed list '{input[0]}'";
         }
 
         public static String Add(String[] input)
         {
-            if ( input.Length < 2 ) { return errorMsg; }
+            if ( input.Length < 2 ) { return stdErrorMsg; }
+
             SplitArray(input, out String name, out String[] values);
+
             GetList(name).AddRange(values);
+
             return "Added item" + (input.Length > 2 ? " s" : "");
         }
 
         public static String Remove(String[] input)
         {
-            if (input.Length != 2) { return errorMsg; }
+            if (input.Length != 2) { return stdErrorMsg; }
+
             SplitArray(input, out String name, out String[] values);
+
             GetList(name).Remove(values[0]);
+
             return $"Removed '{values[0]}' from the list";
         }
 
         public static String OutputList(String[] input)
         {
-            if (input.Length != 1) { return errorMsg; }
+            if (input.Length != 1) { return stdErrorMsg; }
+
             CustomList list = GetList(input[0]);
-            if (list == null) { return errorMsg; }
+
+            if (list == null) { return $"List {input[0]} doesn't exist"; }
+
             StringBuilder output = new StringBuilder();
             output.Append("+--------------------\n");
             for (int i=0; i<list.contents.Count; i++)
@@ -89,8 +122,10 @@ namespace CommunityBot.Features.Lists
 
         public static String Clear(String[] input)
         {
-            if (input.Length != 1) { return errorMsg; }
+            if (input.Length != 1) { return stdErrorMsg; }
+
             GetList(input[0]).Clear();
+
             return $"Cleared list '{input[0]}'";
         }
 
@@ -118,11 +153,7 @@ namespace CommunityBot.Features.Lists
 
         public static void WriteContents()
         {
-            if (lists.Count == 0) { return; }
-
-            List<String> listNames = (List<String>)ReadContents().Select(l => l.name);
-            if (listNames == null) { listNames = new List<string>(); }
-
+            var listNames = lists.Select(l => l.name).ToList<String>();
             foreach (CustomList l in lists)
             {
                 listNames.Add(l.name);

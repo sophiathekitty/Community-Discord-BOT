@@ -53,12 +53,13 @@ namespace CommunityBot.Features.Lists
 
         public void WriteContents()
         {
-            DataStorage.StoreObject(contents, this.name + ".txt", false);
+            DataStorage.StoreObject(contents, this.name + ".json", false);
         }
 
         public List<String> ReadContents()
         {
-            var list = DataStorage.RestoreObject<List<String>>(this.name + ".txt");
+            var list = DataStorage.RestoreObject<List<String>>(this.name + ".json");
+            if (list == null) { return null; }
             foreach(String s in list)
             {
                 Console.WriteLine(s);
