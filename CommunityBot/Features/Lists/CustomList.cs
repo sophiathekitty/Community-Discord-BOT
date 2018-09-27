@@ -60,10 +60,7 @@ namespace CommunityBot.Features.Lists
         {
             var list = DataStorage.RestoreObject<List<String>>(this.name + ".json");
             if (list == null) { return null; }
-            foreach(String s in list)
-            {
-                Console.WriteLine(s);
-            }
+
             this.contents = list;
             return this.contents;
         }

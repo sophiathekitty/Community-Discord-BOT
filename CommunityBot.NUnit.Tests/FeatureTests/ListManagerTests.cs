@@ -6,7 +6,7 @@ using CommunityBot.Features.Lists;
 
 namespace CommunityBot.NUnit.Tests.FeatureTests
 {
-    public class ListManagerTests
+    public static class ListManagerTests
     {
         private static readonly String name = "testname";
 
@@ -14,7 +14,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         public static void UnknownCommandTest()
         {
             var expected = ListManager.unknownCommandErrorMsg;
-            var actual = ListManager.Manage(new String[] { "-aabadf", "123" });
+            var actual = ListManager.Manage(new[] { "-aabadf", "123" });
 
             Assert.AreEqual(expected, actual);
         }
@@ -24,7 +24,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         {
             CustomList expected = new CustomList(name);
 
-            ListManager.Manage(new String[] { "-c", name });
+            ListManager.Manage(new[] { "-c", name });
             CustomList actual = ListManager.GetList(name);
             
             Assert.IsNotNull(actual);
@@ -36,8 +36,8 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         [Test]
         public static void RemoveListTest()
         {
-            ListManager.Manage(new String[] { "-c", name });
-            ListManager.Manage(new string[] { "-r", name });
+            ListManager.Manage(new[] { "-c", name });
+            ListManager.Manage(new[] { "-r", name });
             CustomList actual = ListManager.GetList(name);
             
             Assert.IsNull(actual);
@@ -50,8 +50,8 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
             CustomList expected = new CustomList(name);
             expected.Add(item);
 
-            ListManager.Manage(new String[] { "-c", name });
-            ListManager.Manage(new String[] { "-a", item, name });
+            ListManager.Manage(new[] { "-c", name });
+            ListManager.Manage(new[] { "-a", item, name });
             CustomList actual = ListManager.GetList(name);
 
             Assert.IsNotNull(actual);
@@ -68,11 +68,11 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
             expected.Add(item + " 0");
             expected.Add(item + " 2");
 
-            ListManager.Manage(new String[] { "-c", name });
-            ListManager.Manage(new String[] { "-a", item + " 0", name });
-            ListManager.Manage(new String[] { "-a", item + " 1", name });
-            ListManager.Manage(new String[] { "-a", item + " 2", name });
-            ListManager.Manage(new String[] { "-r", item + " 1", name });
+            ListManager.Manage(new[] { "-c", name });
+            ListManager.Manage(new[] { "-a", item + " 0", name });
+            ListManager.Manage(new[] { "-a", item + " 1", name });
+            ListManager.Manage(new[] { "-a", item + " 2", name });
+            ListManager.Manage(new[] { "-r", item + " 1", name });
             CustomList actual = ListManager.GetList(name);
 
             Assert.IsNotNull(actual);
@@ -96,11 +96,11 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
             String item = "New item";
             CustomList expected = new CustomList(name);
 
-            ListManager.Manage(new String[] { "-c", name });
-            ListManager.Manage(new String[] { "-a", item + " 0", name });
-            ListManager.Manage(new String[] { "-a", item + " 1", name });
-            ListManager.Manage(new String[] { "-a", item + " 2", name });
-            ListManager.Manage(new String[] { "-cl", name });
+            ListManager.Manage(new[] { "-c", name });
+            ListManager.Manage(new[] { "-a", item + " 0", name });
+            ListManager.Manage(new[] { "-a", item + " 1", name });
+            ListManager.Manage(new[] { "-a", item + " 2", name });
+            ListManager.Manage(new[] { "-cl", name });
             CustomList actual = ListManager.GetList(name);
 
             Assert.IsNotNull(actual);

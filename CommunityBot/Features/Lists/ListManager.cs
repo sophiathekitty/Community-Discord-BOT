@@ -6,14 +6,14 @@ using System.Linq;
 
 namespace CommunityBot.Features.Lists
 {
-    public class ListManager
+    public static class ListManager
     {
         private static readonly String listManagerLookup = "list_manager_lookup.json";
         public static readonly String wrongInputErrorMsg = "Wrong input";
         public static readonly String stdErrorMsg = "Oops, something went wrong";
         public static readonly String unknownCommandErrorMsg = "Unknown command";
 
-        public static Dictionary<String, Func<String[], String>> validOperations = new Dictionary<String, Func<String[], String>>()
+        private static readonly Dictionary<String, Func<String[], String>> validOperations = new Dictionary<String, Func<String[], String>>
         {
             { "-c", CreateList },
             { "-a", Add },
