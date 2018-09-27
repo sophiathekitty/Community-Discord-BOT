@@ -15,6 +15,7 @@ namespace CommunityBot.Features.Lists
 
         private static readonly Dictionary<String, Func<String[], String>> validOperations = new Dictionary<String, Func<String[], String>>
         {
+            { "-g", GetAll },
             { "-c", CreateList },
             { "-a", Add },
             { "-i", Insert },
@@ -50,6 +51,23 @@ namespace CommunityBot.Features.Lists
             return result;
         }
 
+        public static String GetAll(params String[] input)
+        {
+            var output = new StringBuilder();
+            output.Append("+--------------------\n");
+            foreach (CustomList l in lists)
+            {
+                output.Append(" |\t");
+                output.Append(l.name);
+                output.Append("\t|\t");
+                int count = l.Count();
+                output.Append(count);
+                output.Append(String.Format(" item{0}\n", count == 1 ? "" : "s"));
+            }
+            output.Append("+--------------------");
+            return output.ToString();
+        }
+
         public static String CreateList(params String[] input)
         {
             if (input.Length != 1) { return stdErrorMsg; }
@@ -75,7 +93,7 @@ namespace CommunityBot.Features.Lists
 
             GetList(name).AddRange(values);
 
-            return "Added item" + (input.Length > 2 ? " s" : "");
+            return "Added item" + (input.Length > 2 ? "s" : "");
         }
 
         public static String Insert(String[] input)
@@ -128,6 +146,11 @@ namespace CommunityBot.Features.Lists
             CustomList list = GetList(input[0]);
 
             if (list == null) { return $"List {input[0]} doesn't exist"; }
+
+            if (list.Count() == 0)
+            {
+                return $"The list '{input[0]}' is empty";
+            }
 
             StringBuilder output = new StringBuilder();
             output.Append("+--------------------\n");
