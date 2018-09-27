@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using CommunityBot.Configuration;
+using System.IO;
 
 namespace CommunityBot.Features.Lists
 {
@@ -19,36 +20,50 @@ namespace CommunityBot.Features.Lists
         public void Add(String item)
         {
             contents.Add(item);
+            WriteContents();
         }
 
         public void AddRange(String[] collection)
         {
             contents.AddRange(collection);
+            WriteContents();
         }
 
         public void Insert(int index, String item)
         {
             contents.Insert(index, item);
+            WriteContents();
         }
 
         public void InsertRange(int index, String[] collection)
         {
             contents.InsertRange(index, collection);
+            WriteContents();
         }
 
         public void Remove(String item)
         {
             contents.Remove(item);
+            WriteContents();
         }
 
         public void Clear()
         {
             contents.Clear();
+            WriteContents();
         }
 
         public int Count()
         {
             return contents.Count;
+        }
+
+        public void Delete()
+        {
+            String resourceFolder = Constants.ResourceFolder;
+            String path = String.Concat(resourceFolder, "/", this.name, ".json");
+            if (!File.Exists(path)) { return; }
+            File.Delete(path);
         }
 
         public void WriteContents()

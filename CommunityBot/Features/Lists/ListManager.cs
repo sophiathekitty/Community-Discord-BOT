@@ -19,6 +19,7 @@ namespace CommunityBot.Features.Lists
             { "-a", Add },
             { "-l", OutputList },
             { "-r", Remove },
+            { "-rl", RemoveList },
             { "-cl", Clear }
         };
 
@@ -69,7 +70,9 @@ namespace CommunityBot.Features.Lists
         {
             if (input.Length != 1) { return stdErrorMsg; }
 
-            lists.Remove(GetList(input[0]));
+            CustomList l = GetList(input[0]);
+            l.Delete();
+            lists.Remove(l);
 
             WriteContents();
 
