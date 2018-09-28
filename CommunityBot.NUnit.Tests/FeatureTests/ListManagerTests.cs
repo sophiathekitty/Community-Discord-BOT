@@ -13,8 +13,6 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         [Test]
         public static void UnknownCommandTest()
         {
-            Func<String[], String> func = ListManager.Manage;
-
             Assert.Throws<ListManagerException>(() => ListManager.Manage(new[] { "-aabadf", "123" }));
         }
 
@@ -137,10 +135,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
             {
                 ListManager.RemoveList(Name);
             }
-            catch (ListManagerException)
-            {
-
-            }
+            catch (ListManagerException) { }
         }
     }
 }

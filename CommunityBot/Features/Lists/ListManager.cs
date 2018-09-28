@@ -91,8 +91,6 @@ namespace CommunityBot.Features.Lists
                 return $"Created list '{input[0]}'";
             }
             throw GetListManagerException(ListErrorMessage.ListAlreadyExists_list, input[0]);
-            //return "";
-            //throw new ListManagerException(ListErrorMessage.ListAlreadyExists_list);
         }
 
         public static CustomList GetList(params string[] input)
@@ -283,8 +281,8 @@ namespace CommunityBot.Features.Lists
 
         public static ListManagerException GetListManagerException(string message, params string[] parameters)
         {
-            message = String.Format(message, parameters);
-            return new ListManagerException(message);
+            var formattedMessage = String.Format(message, parameters);
+            return new ListManagerException(formattedMessage);
         }
     }
 }
