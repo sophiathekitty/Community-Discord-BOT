@@ -8,12 +8,12 @@ namespace CommunityBot.Features.Lists
 {
     public static class ListManager
     {
-        private static readonly String listManagerLookup = "list_manager_lookup.json";
-        public static readonly String wrongInputErrorMsg = "Wrong input";
-        public static readonly String stdErrorMsg = "Oops, something went wrong";
-        public static readonly String unknownCommandErrorMsg = "Unknown command";
+        private static readonly string ListManagerLookup = "list_manager_lookup.json";
+        public static readonly string WrongInputErrorMsg = "Wrong input";
+        public static readonly string StdErrorMsg = "Oops, something went wrong";
+        public static readonly string UnknownCommandErrorMsg = "Unknown command";
 
-        private static readonly Dictionary<String, Func<String[], String>> validOperations = new Dictionary<String, Func<String[], String>>
+        private static readonly Dictionary<string, Func<string[], string>> validOperations = new Dictionary<string, Func<string[], string>>
         {
             { "-g", GetAll },
             { "-c", CreateList },
@@ -36,23 +36,27 @@ namespace CommunityBot.Features.Lists
             }
         }
 
-        public static String Manage(params String[] input)
+        public static string Manage(params string[] input)
         {
-            SplitArray(input, 0, out String command, out String[] values);
+            var sa = SeperateArray(input, 0);
+            string command = sa.seperated;
+            string[] values = sa.array;
+
             var result = "";
             try
             {
                 result = validOperations[command](values);
             }
-            catch (KeyNotFoundException e)
+            catch (KeyNotFoundException)
             {
-                return unknownCommandErrorMsg;
+                throw GetListManagerException(ListErrorMessage.UnknownCommand_command, command);
             }
             return result;
         }
 
-        public static String GetAll(params String[] input)
+        public static string GetAll(params string[] input)
         {
+            if (lists.Count == 0) { throw GetListManagerException(ListErrorMessage.NoLists); }
             var output = new StringBuilder();
             output.Append("+--------------------\n");
             foreach (CustomList l in lists)
@@ -62,62 +66,83 @@ namespace CommunityBot.Features.Lists
                 output.Append("\t|\t");
                 int count = l.Count();
                 output.Append(count);
-                output.Append(String.Format(" item{0}\n", count == 1 ? "" : "s"));
+                output.Append(string.Format(" item{0}\n", count == 1 ? "" : "s"));
             }
             output.Append("+--------------------");
             return output.ToString();
         }
 
-        public static String CreateList(params String[] input)
+        public static string CreateList(params string[] input)
         {
-            if (input.Length != 1) { return stdErrorMsg; }
-            if (GetList(input[0]) != null) { return $"List {input[0]} already exists"; }
+            if (input.Length != 1) { throw GetListManagerException(); }
+            try
+            {
+                GetList(input[0]);
+            }
+            catch (ListManagerException)
+            {
+                lists.Add(new CustomList(input[0]));
 
-            lists.Add(new CustomList(input[0]));
+                WriteContents();
 
-            WriteContents();
-
-            return $"Created list '{input[0]}'";
+                return $"Created list '{input[0]}'";
+            }
+            throw GetListManagerException(ListErrorMessage.ListAlreadyExists_list, input[0]);
+            //return "";
+            //throw new ListManagerException(ListErrorMessage.ListAlreadyExists_list);
         }
 
-        public static CustomList GetList(params String[] input)
+        public static CustomList GetList(params string[] input)
         {
-            return lists.Find(l => l.name.Equals(input[0]));
+            CustomList list = lists.Find(l => l.name.Equals(input[0]));
+            if (list == null)
+            {
+                throw GetListManagerException(ListErrorMessage.ListDoesNotExist_list, input[0]);
+            }
+            return list;
         }
 
-        public static String Add(String[] input)
+        public static string Add(string[] input)
         {
-            if (input.Length < 2) { return stdErrorMsg; }
+            if (input.Length < 2) { throw GetListManagerException(); }
 
-            SplitArray(input, out String name, out String[] values);
+            var sa = SeperateArray(input);
+            string name = sa.seperated;
+            string[] values = sa.array;
 
             GetList(name).AddRange(values);
-
-            return "Added item" + (input.Length > 2 ? "s" : "");
+            
+            return $"Added {GetNounPlural("item", (values.Length))}";
         }
 
-        public static String Insert(String[] input)
+        public static string Insert(string[] input)
         {
-            if (input.Length < 3) { return stdErrorMsg; }
+            if (input.Length < 3) { throw GetListManagerException(); }
 
-            SplitArray(input, out String name, out String[] values);
-            SplitArray(values, 0, out String indexString, out values);
+            var sa = SeperateArray(input);
+            string name = sa.seperated;
+            string[] values = sa.array;
+
+            sa = SeperateArray(values, 0);
+            string indexstring = sa.seperated;
+            values = sa.array;
+
             int index = 0;
             try
             {
-                index = int.Parse(indexString);
+                index = int.Parse(indexstring);
             }
             catch (FormatException e)
             {
-                return stdErrorMsg;
+                throw GetListManagerException();
             }
             GetList(name).InsertRange(index, values);
-            return "Inserted value" + (input.Length > 3 ? "s" : "");
+            return $"Inserted {GetNounPlural("value", values.Length)}";
         }
 
-        public static String RemoveList(params String[] input)
+        public static string RemoveList(params string[] input)
         {
-            if (input.Length != 1) { return stdErrorMsg; }
+            if (input.Length != 1) { throw GetListManagerException(); }
 
             CustomList l = GetList(input[0]);
             l.Delete();
@@ -128,36 +153,36 @@ namespace CommunityBot.Features.Lists
             return $"Removed list '{input[0]}'";
         }
 
-        public static String Remove(String[] input)
+        public static string Remove(string[] input)
         {
-            if (input.Length != 2) { return stdErrorMsg; }
+            if (input.Length != 2) { throw GetListManagerException(); }
 
-            SplitArray(input, out String name, out String[] values);
+            var sa = SeperateArray(input);
+            string name = sa.seperated;
+            string[] values = sa.array;
 
             GetList(name).Remove(values[0]);
 
             return $"Removed '{values[0]}' from the list";
         }
 
-        public static String OutputList(String[] input)
+        public static string OutputList(string[] input)
         {
-            if (input.Length != 1) { return stdErrorMsg; }
+            if (input.Length != 1) { throw GetListManagerException(); }
 
             CustomList list = GetList(input[0]);
 
-            if (list == null) { return $"List {input[0]} doesn't exist"; }
-
             if (list.Count() == 0)
             {
-                return $"The list '{input[0]}' is empty";
+                throw GetListManagerException(ListErrorMessage.ListIsEmpty_list, input[0]);
             }
 
             StringBuilder output = new StringBuilder();
             output.Append("+--------------------\n");
-            for (int i=0; i<list.contents.Count; i++)
+            for (int i = 0; i < list.contents.Count; i++)
             {
                 output.Append(" | ");
-                output.Append((i+1));
+                output.Append((i + 1));
                 output.Append(":\t'");
                 output.Append(list.contents[i]);
                 output.Append("'\n");
@@ -166,50 +191,63 @@ namespace CommunityBot.Features.Lists
             return output.ToString();
         }
 
-        public static String Clear(String[] input)
+        public static string Clear(string[] input)
         {
-            if (input.Length != 1) { return stdErrorMsg; }
+            if (input.Length != 1) { throw GetListManagerException(); }
 
             GetList(input[0]).Clear();
 
             return $"Cleared list '{input[0]}'";
         }
 
-        private static void SplitArray(String[] input, out String seperated, out String[] values)
+        private static SeperatedArray SeperateArray(string[] input)
         {
-            SplitArray(input, input.Length-1, out seperated, out values);
+            return SeperateArray(input, input.Length - 1);
         }
 
-        private static void SplitArray(String[] input, int index, out String seperated, out String[] values)
+        private static SeperatedArray SeperateArray(string[] input, int index)
         {
-            seperated = input[index];
-            values = new String[input.Length-1];
-            for (int i=0;  i<input.Length; i++)
+            var sa = new SeperatedArray();
+            sa.seperated = input[index];
+            sa.array = new string[input.Length - 1];
+            for (int i = 0; i < input.Length; i++)
             {
                 if (i < index)
                 {
-                    values[i] = input[i];
+                    sa.array[i] = input[i];
                 }
                 else if (i > index)
                 {
-                    values[i-1] = input[i];
+                    sa.array[i - 1] = input[i];
                 }
             }
+            return sa;
+        }
+
+        private struct SeperatedArray
+        {
+            public string seperated { get; set; }
+            public string[] array { get; set; }
+        }
+
+        private static String GetNounPlural(string s, int count)
+        {
+            return $"{s}{(count < 2 ? "" : "s")}";
         }
 
         public static void WriteContents()
         {
-            List<String> listNames = lists.Select(l => l.name).ToList<String>();
-            DataStorage.StoreObject(listNames, listManagerLookup, false);
+            List<string> listNames = lists.Select(l => l.name).ToList<string>();
+            DataStorage.StoreObject(listNames, ListManagerLookup, false);
         }
 
         public static List<CustomList> ReadContents()
         {
-            var listNames = DataStorage.RestoreObject<List<String>>(listManagerLookup);
+            var listNames = DataStorage.RestoreObject<List<string>>(ListManagerLookup);
             if (listNames != null)
             {
                 lists = new List<CustomList>();
-                foreach (String s in listNames)
+                foreach (string s in listNames)
                 {
                     CustomList l = new CustomList(s);
                     l.ReadContents();
@@ -218,6 +256,17 @@ namespace CommunityBot.Features.Lists
                 return lists;
             }
             return null;
+        }
+
+        public static ListManagerException GetListManagerException()
+        {
+            return GetListManagerException(ListErrorMessage.UnknownError);
+        }
+
+        public static ListManagerException GetListManagerException(string message, params string[] parameters)
+        {
+            message = String.Format(message, parameters);
+            return new ListManagerException(message);
         }
     }
 }
