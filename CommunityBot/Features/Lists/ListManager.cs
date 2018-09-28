@@ -74,7 +74,10 @@ namespace CommunityBot.Features.Lists
 
         public static string CreateList(params string[] input)
         {
-            if (input.Length != 1) { throw GetListManagerException(); }
+            if (input.Length != 1)
+            {
+                throw GetListManagerException(ListErrorMessage.WrongFormat);
+            }
             try
             {
                 GetList(input[0]);
@@ -104,7 +107,10 @@ namespace CommunityBot.Features.Lists
 
         public static string Add(string[] input)
         {
-            if (input.Length < 2) { throw GetListManagerException(); }
+            if (input.Length < 2)
+            {
+                throw GetListManagerException(ListErrorMessage.WrongFormat);
+            }
 
             var sa = SeperateArray(input);
             string name = sa.seperated;
@@ -142,7 +148,10 @@ namespace CommunityBot.Features.Lists
 
         public static string RemoveList(params string[] input)
         {
-            if (input.Length != 1) { throw GetListManagerException(); }
+            if (input.Length != 1)
+            {
+                throw GetListManagerException(ListErrorMessage.WrongFormat);
+            }
 
             CustomList l = GetList(input[0]);
             l.Delete();
@@ -155,7 +164,10 @@ namespace CommunityBot.Features.Lists
 
         public static string Remove(string[] input)
         {
-            if (input.Length != 2) { throw GetListManagerException(); }
+            if (input.Length != 2)
+            {
+                throw GetListManagerException(ListErrorMessage.WrongFormat);
+            }
 
             var sa = SeperateArray(input);
             string name = sa.seperated;
@@ -168,7 +180,10 @@ namespace CommunityBot.Features.Lists
 
         public static string OutputList(string[] input)
         {
-            if (input.Length != 1) { throw GetListManagerException(); }
+            if (input.Length != 1)
+            {
+                throw GetListManagerException(ListErrorMessage.WrongFormat);
+            }
 
             CustomList list = GetList(input[0]);
 
@@ -193,7 +208,10 @@ namespace CommunityBot.Features.Lists
 
         public static string Clear(string[] input)
         {
-            if (input.Length != 1) { throw GetListManagerException(); }
+            if (input.Length != 1)
+            {
+                throw GetListManagerException(ListErrorMessage.WrongFormat);
+            }
 
             GetList(input[0]).Clear();
 

@@ -33,10 +33,21 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         [Test]
         public static void RemoveListTest()
         {
+            string expected = String.Format(ListErrorMessage.ListDoesNotExist_list, Name);
+
             ListManager.Manage(new[] { "-c", Name });
             ListManager.Manage(new[] { "-rl", Name });
-            
-            Assert.Throws<ListManagerException>(() => ListManager.GetList(Name));
+
+            ListManagerException e = Assert.Throws<ListManagerException>(() => ListManager.GetList(Name));
+            Assert.AreEqual(e.Message, expected);
+        }
+
+        [Test]
+        public static void NoListsTest()
+        {
+            string expected = ListErrorMessage.NoLists;
+            ListManagerException e = Assert.Throws<ListManagerException>(() => ListManager.Manage(new[] { "-g" }));
+            Assert.AreEqual(e.Message, expected);
         }
 
         [Test]
