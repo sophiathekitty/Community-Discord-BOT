@@ -11,10 +11,7 @@ namespace CommunityBot.Extensions
         
         public ContextExt(DiscordSocketClient client, SocketUserMessage msg) : base(client, msg)
         {
-            if (User is null) 
-            { 
-                return; 
-            }
+            if (User is null) { return; }
             
             UserAccount = GlobalUserAccounts.GetUserAccount(User);
             
