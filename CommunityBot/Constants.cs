@@ -16,7 +16,7 @@ namespace CommunityBot
         public const int MaxMessageLength = 2000;
         public static readonly Tuple<int, int> MessagRewardMinMax = Tuple.Create(1, 5);
         public static readonly int MinTimerIntervall = 3000;
-
+        public const int MaxCommandHistoryCapacity = 5;
         public static readonly IList<string> DidYouKnows = new List<string> {
             "You can fork me on GitHub ;) xoxo <3",
             "If you don't know what to add, you can add some of my messages. :P",
