@@ -5,13 +5,13 @@ using Discord.WebSocket;
 
 namespace CommunityBot.Extensions
 {
-    public class ContextExt : SocketCommandContext
+    public class MiunieCommandContext : SocketCommandContext
     {
-        public readonly GlobalUserAccount UserAccount;
+        public GlobalUserAccount UserAccount { get; }
         
-        public ContextExt(DiscordSocketClient client, SocketUserMessage msg) : base(client, msg)
+        public MiunieCommandContext(DiscordSocketClient client, SocketUserMessage msg) : base(client, msg)
         {
-            if (User is null) return;
+            if (User is null) { return; }
             UserAccount = GlobalUserAccounts.GetUserAccount(User);
             
             var commandUsedInformation = new CommandInformation(msg.Content, msg.CreatedAt.DateTime);

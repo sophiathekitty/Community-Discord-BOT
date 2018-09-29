@@ -33,7 +33,7 @@ namespace CommunityBot.Entities
         public void AddCommandToHistory(CommandInformation commandInformation)
         {
             _commandHistory.Add(commandInformation);
-            if (_commandHistory.Count > 5)
+            if (_commandHistory.Count > Constants.MaxCommandHistoryCapacity)
             {
                 _commandHistory.RemoveAt(0); //remove the first element, ensures the list always got 5 elements maximum
             }
