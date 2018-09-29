@@ -41,7 +41,6 @@ namespace CommunityBot
                 c.ForSingletonOf<DiscordEventHandler>().UseIfNone<DiscordEventHandler>();
                 c.ForSingletonOf<CommandHandler>().UseIfNone<CommandHandler>();
                 c.ForSingletonOf<CommandService>().UseIfNone<CommandService>();
-                c.ForSingletonOf<ServerActivityLogger.ServerActivityLogger>().UseIfNone<ServerActivityLogger.ServerActivityLogger>();
                 c.ForSingletonOf<DiscordSocketClient>().UseIfNone(DiscordClientFactory.GetBySettings(settings));
                 c.ForSingletonOf<ApplicationSettings>().UseIfNone(settings);
             });
