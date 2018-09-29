@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Discord;
-using Discord.WebSocket;
 
 namespace CommunityBot.Features.Trivia
 {
@@ -79,7 +77,7 @@ namespace CommunityBot.Features.Trivia
                 message.Embed = _emb.Build();
                 // This somehow can't be empty or it won't update the 
                 // embed propperly sometimes... I don't know why
-                // message.Content =  Constants.InvisibleString;
+               
             });
         }
 

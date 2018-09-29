@@ -1,8 +1,14 @@
 # Discord Community bot
-[![Build Status](https://travis-ci.org/petrspelos/Community-Discord-BOT.svg?branch=master)](https://travis-ci.org/petrspelos/Community-Discord-BOT)
+
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/petrspelos/Community-Discord-BOT/blob/master/LICENSE)
+[![Build status](https://ci.appveyor.com/api/projects/status/ykcjkkhik31ssb2g/branch/master?svg=true)](https://ci.appveyor.com/project/discord-bot-tutorial/community-discord-bot/branch/master)
+[![Coverage Status](https://coveralls.io/repos/github/petrspelos/Community-Discord-BOT/badge.svg?branch=master)](https://coveralls.io/github/petrspelos/Community-Discord-BOT?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/27b59040bfab4a79b9d1fbfc41777f52)](https://www.codacy.com/app/petrspelos/Community-Discord-BOT?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=discord-bot-tutorial/Community-Discord-BOT&amp;utm_campaign=Badge_Grade)
+[![Open Source Helpers](https://www.codetriage.com/petrspelos/community-discord-bot/badges/users.svg)](https://www.codetriage.com/petrspelos/community-discord-bot)
 
 Hello, I'm Miunie the com**MIUNIE**ty bot. :wave:
+
+![Miunie Example](https://media.giphy.com/media/4WFhEh2CtJoo3k5yfF/giphy.gif)
 
 I'm a community bot for Discord written in C# using the [Discord .NET library](https://github.com/RogueException/Discord.Net).
 

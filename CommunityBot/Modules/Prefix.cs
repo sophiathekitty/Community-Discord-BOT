@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using CommunityBot.Entities;
 using CommunityBot.Features.GlobalAccounts;
-using CommunityBot.Handlers;
 using Discord;
 using Discord.Commands;
 

@@ -24,7 +24,7 @@ namespace CommunityBot
 
         internal static string GetRandomDidYouKnow()
         {
-            return Constants.DidYouKnows[Rng.Next(0, Constants.DidYouKnows.Length)];
+            return Constants.DidYouKnows[Rng.Next(0, Constants.DidYouKnows.Count)];
         }
         
         public static string ReplacePlacehoderStrings(this string messageString, IGuildUser user = null)

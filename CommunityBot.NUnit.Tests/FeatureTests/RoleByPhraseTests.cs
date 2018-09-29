@@ -67,41 +67,16 @@ namespace CommunityBot.Tests.FeatureTests
             const int validIndex = 0;
             const int invalidIndex = 999;
 
-            RemoveRelationArgExceptionTest(rbps, validIndex, invalidIndex);
-            RemoveRelationArgExceptionTest(rbps, invalidIndex, validIndex);
-            RemoveRelationArgExceptionTest(rbps, invalidIndex, invalidIndex);
-            
-            Assert.Pass("Passed all Exception tests.");
-        }
-
-        private static void RemoveRelationArgExceptionTest(RoleByPhraseSettings rbps, int pId, int rId)
-        {
-            try
-            {
-                rbps.RemoveRelation(pId, rId);
-            }
-            catch (ArgumentException)
-            {
-                return;
-            }
-            Assert.Fail($"Did not throw ArgumentException for {pId} : {rId}.");
+            Assert.Throws<ArgumentException>(() => rbps.RemoveRelation(validIndex, invalidIndex));
+            Assert.Throws<ArgumentException>(() => rbps.RemoveRelation(invalidIndex, validIndex));
+            Assert.Throws<ArgumentException>(() => rbps.RemoveRelation(invalidIndex, invalidIndex));
         }
 
         [Test]
         public void Rbp_RemoveRelationTest_RelNotFoundEx()
         {
             var rbps = GetFilledSettings();
-
-            try
-            {
-                rbps.RemoveRelation(1,1);
-            }
-            catch (RelationNotFoundException)
-            {
-                Assert.Pass();
-            }
-
-            Assert.Fail("RemoveRelation did not throw RelationNotFoundException.");
+            Assert.Throws<RelationNotFoundException>(() => rbps.RemoveRelation(1,1));
         }
 
         [Test]
@@ -124,41 +99,16 @@ namespace CommunityBot.Tests.FeatureTests
             const int validIndex = 0;
             const int invalidIndex = 999;
 
-            AddRelationArgExceptionTest(rbps, validIndex, invalidIndex);
-            AddRelationArgExceptionTest(rbps, invalidIndex, validIndex);
-            AddRelationArgExceptionTest(rbps, invalidIndex, invalidIndex);
-
-            Assert.Pass("Passed all Exception tests.");
-        }
-
-        private static void AddRelationArgExceptionTest(RoleByPhraseSettings rbps, int pId, int rId)
-        {
-            try
-            {
-                rbps.CreateRelation(pId, rId);
-            }
-            catch (ArgumentException)
-            {
-                return;
-            }
-            Assert.Fail($"Did not throw ArgumentException for {pId} : {rId}.");
+            Assert.Throws<ArgumentException>(() => rbps.CreateRelation(validIndex, invalidIndex));
+            Assert.Throws<ArgumentException>(() => rbps.CreateRelation(invalidIndex, validIndex));
+            Assert.Throws<ArgumentException>(() => rbps.CreateRelation(invalidIndex, invalidIndex));
         }
 
         [Test]
         public void Rbp_AddRelationTest_RelExists()
         {
             var rbps = GetFilledSettings();
-
-            try
-            {
-                rbps.CreateRelation(1, 0);
-            }
-            catch (RelationAlreadyExistsException)
-            {
-                Assert.Pass();
-            }
-
-            Assert.Fail("CreateRelation did not throw RelationAlreadyExistsException.");
+            Assert.Throws<RelationAlreadyExistsException>(() => rbps.CreateRelation(1, 0));
         }
 
         [Test]
@@ -177,34 +127,14 @@ namespace CommunityBot.Tests.FeatureTests
         public void Rbp_AddPhraseTest_InvalidPhraseEx()
         {
             var rbps = GetFilledSettings();
-
-            try
-            {
-                rbps.AddPhrase(string.Empty);
-            }
-            catch (InvalidPhraseException)
-            {
-                Assert.Pass();
-            }
-
-            Assert.Fail();
+            Assert.Throws<InvalidPhraseException>(() => rbps.AddPhrase(string.Empty));
         }
 
         [Test]
         public void Rbp_AddPhraseTest_InvalidPhraseEx_TooLong()
         {
             var rbps = GetFilledSettings();
-
-            try
-            {
-                rbps.AddPhrase(new string('A', Constants.MaxMessageLength));
-            }
-            catch (InvalidPhraseException)
-            {
-                Assert.Pass();
-            }
-
-            Assert.Fail();
+            Assert.Throws<InvalidPhraseException>(() => rbps.AddPhrase(new string('A', Constants.MaxMessageLength)));
         }
 
         [Test]
@@ -235,17 +165,7 @@ namespace CommunityBot.Tests.FeatureTests
         public void Rbp_AddRoleTest_AlreadyAddedEx()
         {
             var rbps = GetFilledSettings();
-
-            try
-            {
-                rbps.AddRole(111);
-            }
-            catch (RoleIdAlreadyAddedException)
-            {
-                Assert.Pass();
-            }
-
-            Assert.Fail();
+            Assert.Throws<RoleIdAlreadyAddedException>(() => rbps.AddRole(111));
         }
 
         [Test]

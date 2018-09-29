@@ -12,14 +12,14 @@ namespace CommunityBot.Tests
         public void HeadlessArgumentTest()
         {
             var settings = new ApplicationSettings(new []{ "-hl" });
-            Assert.IsTrue(settings.Headless);
+            Assert.True(settings.Headless);
         }
 
         [Test]
         public void VerboseArgumentTest()
         {
             var settings = new ApplicationSettings(new []{ "-vb" });
-            Assert.IsTrue(settings.Verbose);
+            Assert.True(settings.Verbose);
         }
 
         [Test]
@@ -34,32 +34,32 @@ namespace CommunityBot.Tests
         public void LogDestinationArgument_FileTest()
         {
             var settings = new ApplicationSettings(new []{ "-log=f" });
-            Assert.IsTrue(settings.LogIntoFile);
-            Assert.IsFalse(settings.LogIntoConsole);
+            Assert.True(settings.LogIntoFile);
+            Assert.False(settings.LogIntoConsole);
         }
 
         [Test]
         public void LogDestinationArgument_ConsoleTest()
         {
             var settings = new ApplicationSettings(new []{ "-log=c" });
-            Assert.IsTrue(settings.LogIntoConsole);
-            Assert.IsFalse(settings.LogIntoFile);
+            Assert.True(settings.LogIntoConsole);
+            Assert.False(settings.LogIntoFile);
         }
 
         [Test]
         public void LogDestinationArgument_ConsoleDefaultTest()
         {
             var settings = new ApplicationSettings(new []{ "" });
-            Assert.IsTrue(settings.LogIntoConsole);
-            Assert.IsFalse(settings.LogIntoFile);
+            Assert.True(settings.LogIntoConsole);
+            Assert.False(settings.LogIntoFile);
         }
 
         [Test]
         public void LogDestinationArgument_BothTest()
         {
             var settings = new ApplicationSettings(new []{ "-log=cf" });
-            Assert.IsTrue(settings.LogIntoConsole);
-            Assert.IsTrue(settings.LogIntoFile);
+            Assert.True(settings.LogIntoConsole);
+            Assert.True(settings.LogIntoFile);
         }
     }
 }

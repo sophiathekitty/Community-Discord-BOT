@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CommunityBot
 {
@@ -20,7 +17,7 @@ namespace CommunityBot
         public static readonly Tuple<int, int> MessagRewardMinMax = Tuple.Create(1, 5);
         public static readonly int MinTimerIntervall = 3000;
 
-        public static readonly string[] DidYouKnows = {
+        public static readonly IList<string> DidYouKnows = new List<string> {
             "You can fork me on GitHub ;) xoxo <3",
             "If you don't know what to add, you can add some of my messages. :P",
             "Wanna see someone's Miunies? Add a mention to your cash command.",
@@ -28,6 +25,6 @@ namespace CommunityBot
             "Protection? I don't accept code just from anybody, alright?",
             "You get a couple Miunies for sending messages (with a short cooldown).", 
             "A lot of commands have shorter and easier to use aliases!"
-        };
+        }.AsReadOnly();
     }
 }
