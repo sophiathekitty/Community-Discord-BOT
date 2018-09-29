@@ -7,7 +7,7 @@ namespace CommunityBot.Extensions
 {
     public class ContextExt : SocketCommandContext
     {
-        public readonly GlobalUserAccount UserAccount {get;}
+        public GlobalUserAccount UserAccount {get;}
         
         public ContextExt(DiscordSocketClient client, SocketUserMessage msg) : base(client, msg)
         {
