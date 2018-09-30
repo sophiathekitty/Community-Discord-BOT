@@ -9,6 +9,7 @@ using System.Text;
 using CommunityBot.Helpers;
 using System.Globalization;
 using CommunityBot.Features.Lists;
+using Discord.WebSocket;
 
 namespace CommunityBot.Modules
 {
@@ -280,14 +281,22 @@ namespace CommunityBot.Modules
             ListManager.ListOutput output;
             try
             {
-                output = ListManager.Manage(input);
+                output = ListManager.Manage(Context.User.Id, input);
             }
             catch (ListManagerException e)
             {
-                output = ListManager.GetListOutput(e.Message);
+                output = ListManager.GetListOutput(e.Message, CustomList.ListPermission.PUBLIC);
             }
 
-            await ReplyAsync(output.outputString, false, output.outputEmbed);
+            if (output.permission == null || output.permission == CustomList.ListPermission.PUBLIC)
+            {
+                await ReplyAsync(output.outputString, false, output.outputEmbed);
+            }
+            else
+            {
+                var dmChannel = await Context.User.GetOrCreateDMChannelAsync();
+                await dmChannel.SendMessageAsync(output.outputString, false, output.outputEmbed);
+            }
         }
     }
 }

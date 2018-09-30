@@ -3,16 +3,45 @@ using System.Collections.Generic;
 using System.Text;
 using CommunityBot.Configuration;
 using System.IO;
+using Discord.WebSocket;
 
 namespace CommunityBot.Features.Lists
 {
     public class CustomList
     {
+        public enum ListPermission
+        {
+            PRIVATE,
+            PUBLIC,
+            READ,
+            LIST
+        };
+
+        public static readonly List<String> permissionStrings = new List<String>()
+        {
+            "private",
+            "public",
+            "read only",
+            "view only"
+        };
+
+        public static readonly Dictionary<string, ListPermission> validPermissions = new Dictionary<string, ListPermission>
+        {
+            { "-p", ListPermission.PRIVATE },
+            { "-pu", ListPermission.PUBLIC },
+            { "-r", ListPermission.READ },
+            { "-l", ListPermission.LIST }
+        };
+
         public String name { get; set; }
         public List<String> contents { get; set; }
+        public ulong ownerId { get; set; }
+        public ListPermission permission { get; set; }
 
-        public CustomList(String name)
+        public CustomList(ulong ownerId, ListPermission permission, String name)
         {
+            this.ownerId = ownerId;
+            this.permission = permission;
             this.name = name;
             contents = new List<string>();
         }
@@ -20,37 +49,37 @@ namespace CommunityBot.Features.Lists
         public void Add(String item)
         {
             contents.Add(item);
-            WriteContents();
+            SaveList();
         }
 
         public void AddRange(String[] collection)
         {
             contents.AddRange(collection);
-            WriteContents();
+            SaveList();
         }
 
         public void Insert(int index, String item)
         {
             contents.Insert(index, item);
-            WriteContents();
+            SaveList();
         }
 
         public void InsertRange(int index, String[] collection)
         {
             contents.InsertRange(index, collection);
-            WriteContents();
+            SaveList();
         }
 
         public void Remove(String item)
         {
             contents.Remove(item);
-            WriteContents();
+            SaveList();
         }
 
         public void Clear()
         {
             contents.Clear();
-            WriteContents();
+            SaveList();
         }
 
         public int Count()
@@ -66,18 +95,14 @@ namespace CommunityBot.Features.Lists
             File.Delete(path);
         }
 
-        public void WriteContents()
+        public void SaveList()
         {
-            DataStorage.StoreObject(contents, this.name + ".json", false);
+            DataStorage.StoreObject(this, $"{this.name}.json", false);
         }
-
-        public List<String> ReadContents()
+        
+        public static CustomList RestoreList(string name)
         {
-            var list = DataStorage.RestoreObject<List<String>>(this.name + ".json");
-            if (list == null) { return null; }
-
-            this.contents = list;
-            return this.contents;
+            return DataStorage.RestoreObject<CustomList>($"{name}.json");
         }
 
         public bool EqualContents(List<String> list)
@@ -95,6 +120,27 @@ namespace CommunityBot.Features.Lists
             if (!(obj is CustomList)) { return false; }
             CustomList comp = (CustomList)obj;
             return (EqualContents(comp.contents) && comp.name.Equals(this.name));
+        }
+
+        public bool IsAllowedToList(ulong userId)
+        {
+            return (    this.ownerId == userId
+                    ||  this.permission == CustomList.ListPermission.PUBLIC
+                    ||  this.permission == CustomList.ListPermission.READ
+                    ||  this.permission == CustomList.ListPermission.LIST );
+        }
+
+        public bool IsAllowedToRead(ulong userId)
+        {
+            return (    this.ownerId == userId
+                    ||  this.permission == CustomList.ListPermission.PUBLIC
+                    ||  this.permission == CustomList.ListPermission.READ );
+        }
+
+        public bool IsAllowedToWrite(ulong userId)
+        {
+            return (    this.ownerId == userId
+                    ||  this.permission == CustomList.ListPermission.PUBLIC );
         }
     }
 }
