@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using CommunityBot.Configuration;
 using System.Linq;
+using Discord;
+using CommunityBot.Helpers;
 
 namespace CommunityBot.Features.Lists
 {
@@ -13,7 +15,7 @@ namespace CommunityBot.Features.Lists
         public static readonly string StdErrorMsg = "Oops, something went wrong";
         public static readonly string UnknownCommandErrorMsg = "Unknown command";
 
-        private static readonly Dictionary<string, Func<string[], string>> validOperations = new Dictionary<string, Func<string[], string>>
+        private static readonly Dictionary<string, Func<string[], ListOutput>> validOperations = new Dictionary<string, Func<string[], ListOutput>>
         {
             { "-g", GetAll },
             { "-c", CreateList },
@@ -36,13 +38,13 @@ namespace CommunityBot.Features.Lists
             }
         }
 
-        public static string Manage(params string[] input)
+        public static ListOutput Manage(params string[] input)
         {
             var sa = SeperateArray(input, 0);
             string command = sa.seperated;
             string[] values = sa.array;
 
-            var result = "";
+            ListOutput result;
             try
             {
                 result = validOperations[command](values);
@@ -54,25 +56,27 @@ namespace CommunityBot.Features.Lists
             return result;
         }
 
-        public static string GetAll(params string[] input)
+        public static ListOutput GetAll(params string[] input)
         {
             if (lists.Count == 0) { throw GetListManagerException(ListErrorMessage.NoLists); }
-            var output = new StringBuilder();
-            output.Append("+--------------------\n");
-            foreach (CustomList l in lists)
+            var tableValues = new string[lists.Count, 2];
+
+            for (int i=0; i<lists.Count; i++)
             {
-                output.Append(" |\t");
-                output.Append(l.name);
-                output.Append("\t|\t");
-                int count = l.Count();
-                output.Append(count);
-                output.Append(string.Format(" item{0}\n", count == 1 ? "" : "s"));
+                CustomList l = lists[i];
+                tableValues[i, 0] = l.name;
+                tableValues[i, 1] = $"{l.Count()} {GetNounPlural("item", l.Count())}";
             }
-            output.Append("+--------------------");
-            return output.ToString();
+            var header = new string[] { "List name", "Item count", "test value" };
+            var tableSettings = new MessageFormater.TableSettings("All lists", header, -12, true);
+            string output = MessageFormater.CreateTable(tableSettings, tableValues);
+
+            var eb = new EmbedBuilder();
+            eb.AddField("lists", output);
+            return GetListOutput(output.ToString());
         }
 
-        public static string CreateList(params string[] input)
+        public static ListOutput CreateList(params string[] input)
         {
             if (input.Length != 1)
             {
@@ -88,7 +92,7 @@ namespace CommunityBot.Features.Lists
 
                 WriteContents();
 
-                return $"Created list '{input[0]}'";
+                return GetListOutput($"Created list '{input[0]}'");
             }
             throw GetListManagerException(ListErrorMessage.ListAlreadyExists_list, input[0]);
         }
@@ -103,7 +107,7 @@ namespace CommunityBot.Features.Lists
             return list;
         }
 
-        public static string Add(string[] input)
+        public static ListOutput Add(string[] input)
         {
             if (input.Length < 2)
             {
@@ -115,11 +119,12 @@ namespace CommunityBot.Features.Lists
             string[] values = sa.array;
 
             GetList(name).AddRange(values);
-            
-            return $"Added {GetNounPlural("item", (values.Length))}";
+
+            string output = $"Added {GetNounPlural("item", (values.Length))}";
+            return GetListOutput(output);
         }
 
-        public static string Insert(string[] input)
+        public static ListOutput Insert(string[] input)
         {
             if (input.Length < 3) { throw GetListManagerException(); }
 
@@ -141,10 +146,11 @@ namespace CommunityBot.Features.Lists
                 throw GetListManagerException();
             }
             GetList(name).InsertRange(index, values);
-            return $"Inserted {GetNounPlural("value", values.Length)}";
+            string output = $"Inserted {GetNounPlural("value", values.Length)}";
+            return GetListOutput(output);
         }
 
-        public static string RemoveList(params string[] input)
+        public static ListOutput RemoveList(params string[] input)
         {
             if (input.Length != 1)
             {
@@ -156,11 +162,11 @@ namespace CommunityBot.Features.Lists
             lists.Remove(l);
 
             WriteContents();
-
-            return $"Removed list '{input[0]}'";
+            string output = $"Removed list '{input[0]}'";
+            return GetListOutput(output);
         }
 
-        public static string Remove(string[] input)
+        public static ListOutput Remove(string[] input)
         {
             if (input.Length != 2)
             {
@@ -173,10 +179,11 @@ namespace CommunityBot.Features.Lists
 
             GetList(name).Remove(values[0]);
 
-            return $"Removed '{values[0]}' from the list";
+            string output = $"Removed '{values[0]}' from the list";
+            return GetListOutput(output);
         }
 
-        public static string OutputList(string[] input)
+        public static ListOutput OutputList(string[] input)
         {
             if (input.Length != 1)
             {
@@ -190,21 +197,19 @@ namespace CommunityBot.Features.Lists
                 throw GetListManagerException(ListErrorMessage.ListIsEmpty_list, input[0]);
             }
 
-            StringBuilder output = new StringBuilder();
-            output.Append("+--------------------\n");
-            for (int i = 0; i < list.contents.Count; i++)
+            var values = new string[list.Count(),1];
+            for (int i=0; i<list.Count(); i++)
             {
-                output.Append(" | ");
-                output.Append((i + 1));
-                output.Append(":\t'");
-                output.Append(list.contents[i]);
-                output.Append("'\n");
+                values[i, 0] = $"{i.ToString()}: {list.contents[i]}";
             }
-            output.Append("+--------------------");
-            return output.ToString();
+
+            var tableSettings = new MessageFormater.TableSettings(list.name, -12, false);
+            string output = MessageFormater.CreateTable(tableSettings, values);
+            
+            return GetListOutput(output);
         }
 
-        public static string Clear(string[] input)
+        public static ListOutput Clear(string[] input)
         {
             if (input.Length != 1)
             {
@@ -213,7 +218,8 @@ namespace CommunityBot.Features.Lists
 
             GetList(input[0]).Clear();
 
-            return $"Cleared list '{input[0]}'";
+            string output = $"Cleared list '{input[0]}'";
+            return GetListOutput(output);
         }
 
         private static SeperatedArray SeperateArray(string[] input)
@@ -246,7 +252,23 @@ namespace CommunityBot.Features.Lists
             public string[] array { get; set; }
         }
 
-        private static String GetNounPlural(string s, int count)
+        public struct ListOutput
+        {
+            public string outputString { get; set; }
+            public Embed outputEmbed { get; set; }
+        }
+
+        public static ListOutput GetListOutput(string s)
+        {
+            return new ListOutput { outputString = s };
+        }
+
+        public static ListOutput GetListOutput(Embed e)
+        {
+            return new ListOutput { outputEmbed = e };
+        }
+
+        private static string GetNounPlural(string s, int count)
         {
             return $"{s}{(count < 2 ? "" : "s")}";
         }

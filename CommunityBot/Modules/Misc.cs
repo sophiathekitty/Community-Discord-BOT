@@ -277,17 +277,17 @@ namespace CommunityBot.Modules
         [Summary("Manage List")]
         public async Task ManageList(params String[] input)
         {
-            String output = "";
+            ListManager.ListOutput output;
             try
             {
                 output = ListManager.Manage(input);
             }
             catch (ListManagerException e)
             {
-                output = e.Message;
+                output = ListManager.GetListOutput(e.Message);
             }
 
-            await ReplyAsync(output);
+            await ReplyAsync(output.outputString, false, output.outputEmbed);
         }
     }
 }
