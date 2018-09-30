@@ -67,13 +67,13 @@ namespace CommunityBot.Features.Lists
                 tableValues[i, 0] = l.name;
                 tableValues[i, 1] = $"{l.Count()} {GetNounPlural("item", l.Count())}";
             }
-            var header = new string[] { "List name", "Item count", "test value" };
+            var header = new[] { "List name", "Item count" };
             var tableSettings = new MessageFormater.TableSettings("All lists", header, -12, true);
             string output = MessageFormater.CreateTable(tableSettings, tableValues);
 
             var eb = new EmbedBuilder();
             eb.AddField("lists", output);
-            return GetListOutput(output.ToString());
+            return GetListOutput(output);
         }
 
         public static ListOutput CreateList(params string[] input)

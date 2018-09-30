@@ -37,14 +37,13 @@ namespace CommunityBot.Helpers
             if (!String.IsNullOrEmpty(settings.title))
             {
                 var titleSettings = new TableSettings("", 1, 1, settings.spacing);
-                InsertTableValues(titleSettings, table, new string[,] { { settings.title } });
+                InsertTableValues(titleSettings, table, new[] { settings.title });
                 table.Append("\n");
             }
             if (settings.header != null && settings.header.Length != 0)
             {
                 var headerSettings = new TableSettings("", 1, settings.header.Length, settings.spacing);
                 InsertTableValues(headerSettings, table, settings.header);
-                table.Append("\n");
             }
         }
 
@@ -119,32 +118,62 @@ namespace CommunityBot.Helpers
             public int spacing { get; set; }
             public bool seperatorForEveryLine { get; set; }
 
-            public TableSettings(string title, int spacing, bool seperatorForEveryLine = false) :
+            public TableSettings(string title, int spacing) :
+                this(title, null, 0, 0, spacing, false)
+            {
+            }
+
+            public TableSettings(string title, int spacing, bool seperatorForEveryLine) :
                 this(title, null, 0, 0, spacing, seperatorForEveryLine)
             {
             }
 
-            public TableSettings(string[] header, int spacing, bool seperatorForEveryLine = false) :
+            public TableSettings(string[] header, int spacing) :
+                this(null, header, 0, 0, spacing, false)
+            {
+            }
+
+            public TableSettings(string[] header, int spacing, bool seperatorForEveryLine) :
                 this(null, header, 0, 0, spacing, seperatorForEveryLine)
             {
             }
 
-            public TableSettings(string title, string[] header, int spacing, bool seperatorForEveryLine = false) :
+            public TableSettings(string title, string[] header, int spacing) :
+                this(title, header, 0, 0, spacing, false)
+            {
+            }
+
+            public TableSettings(string title, string[] header, int spacing, bool seperatorForEveryLine) :
                 this(title, header, 0, 0, spacing, seperatorForEveryLine)
             {
             }
 
-            public TableSettings(string title, int rows, int cols, int spacing, bool seperatorForEveryLine = false) :
+            public TableSettings(string title, int rows, int cols, int spacing) :
+                this(title, null, rows, cols, spacing, false)
+            {
+            }
+
+            public TableSettings(string title, int rows, int cols, int spacing, bool seperatorForEveryLine) :
                 this(title, null, rows, cols, spacing, seperatorForEveryLine)
             {
             }
 
-            public TableSettings(string[] header, int rows, int cols, int spacing, bool seperatorForEveryLine = false) :
+            public TableSettings(string[] header, int rows, int cols, int spacing) :
+                this(null, header, rows, cols, spacing, false)
+            {
+            }
+
+            public TableSettings(string[] header, int rows, int cols, int spacing, bool seperatorForEveryLine) :
                 this(null, header, rows, cols, spacing, seperatorForEveryLine)
             {
             }
 
-            public TableSettings(string title, string[] header, int rows, int cols, int spacing, bool seperatorForEveryLine = false)
+            public TableSettings(string title, string[] header, int rows, int cols, int spacing) :
+                this(null, header, rows, cols, spacing, false)
+            {
+            }
+
+            public TableSettings(string title, string[] header, int rows, int cols, int spacing, bool seperatorForEveryLine)
             {
                 this.title = title;
                 this.header = header;
