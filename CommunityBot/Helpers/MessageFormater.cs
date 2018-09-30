@@ -33,7 +33,7 @@ namespace CommunityBot.Helpers
 
         private static void InsertHeader(TableSettings settings, StringBuilder table)
         {
-            
+
             if (!String.IsNullOrEmpty(settings.title))
             {
                 var titleSettings = new TableSettings("", 1, 1, settings.spacing);
@@ -51,7 +51,7 @@ namespace CommunityBot.Helpers
         private static void InsertTableValues(TableSettings settings, StringBuilder table, object[] values)
         {
             var values2D = new object[1, values.Length];
-            for (int i=0; i<values.Length; i++)
+            for (int i = 0; i < values.Length; i++)
             {
                 values2D[0, i] = values[i];
             }

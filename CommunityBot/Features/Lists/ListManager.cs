@@ -61,7 +61,7 @@ namespace CommunityBot.Features.Lists
             if (lists.Count == 0) { throw GetListManagerException(ListErrorMessage.NoLists); }
             var tableValues = new string[lists.Count, 2];
 
-            for (int i=0; i<lists.Count; i++)
+            for (int i = 0; i < lists.Count; i++)
             {
                 CustomList l = lists[i];
                 tableValues[i, 0] = l.name;
@@ -197,15 +197,15 @@ namespace CommunityBot.Features.Lists
                 throw GetListManagerException(ListErrorMessage.ListIsEmpty_list, input[0]);
             }
 
-            var values = new string[list.Count(),1];
-            for (int i=0; i<list.Count(); i++)
+            var values = new string[list.Count(), 1];
+            for (int i = 0; i < list.Count(); i++)
             {
                 values[i, 0] = $"{i.ToString()}: {list.contents[i]}";
             }
 
             var tableSettings = new MessageFormater.TableSettings(list.name, -12, false);
             string output = MessageFormater.CreateTable(tableSettings, values);
-            
+
             return GetListOutput(output);
         }
 
