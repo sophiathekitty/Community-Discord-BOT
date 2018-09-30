@@ -7,7 +7,7 @@ namespace CommunityBot.Helpers
     public static class MessageFormater
     {
 
-        public static string CreateTable(TableSettings settings, object[,] values)
+        public static string CreateTable(TableSettings settings, in object[,] values)
         {
             if (settings.header != null && settings.header.Length != values.GetLength(1)) { settings.header = null; }
 
@@ -47,7 +47,7 @@ namespace CommunityBot.Helpers
             }
         }
 
-        private static void InsertTableValues(TableSettings settings, StringBuilder table, object[] values)
+        private static void InsertTableValues(TableSettings settings, StringBuilder table, in object[] values)
         {
             var values2D = new object[1, values.Length];
             for (int i = 0; i < values.Length; i++)
@@ -57,7 +57,7 @@ namespace CommunityBot.Helpers
             InsertTableValues(settings, table, values2D);
         }
 
-        private static void InsertTableValues(TableSettings settings, StringBuilder table, object[,] values)
+        private static void InsertTableValues(TableSettings settings, StringBuilder table, in object[,] values)
         {
             InsertTableSeperator(settings, table);
 
@@ -109,7 +109,7 @@ namespace CommunityBot.Helpers
             table.Append("\n");
         }
 
-        public struct TableSettings
+        public struct TableSettings : IEquatable<object>
         {
             public string title { get; set; }
             public string[] header { get; set; }

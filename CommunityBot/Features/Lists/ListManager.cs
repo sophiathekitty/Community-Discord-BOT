@@ -252,7 +252,7 @@ namespace CommunityBot.Features.Lists
             public string[] array { get; set; }
         }
 
-        public struct ListOutput
+        public struct ListOutput : IEquatable<object>
         {
             public string outputString { get; set; }
             public Embed outputEmbed { get; set; }
