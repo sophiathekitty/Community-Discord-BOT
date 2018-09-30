@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using CommunityBot.Extensions;
 using CommunityBot.Features.GlobalAccounts;
 using CommunityBot.Helpers;
 using Discord;
@@ -10,7 +11,7 @@ using Discord.WebSocket;
 namespace CommunityBot.Modules.Account
 {
     [Group("account")]
-    public class MangeUserAccount : ModuleBase<SocketCommandContext>
+    public class ManageUserAccount : ModuleBase<MiunieCommandContext>
     {
         [Command("info")]
         public async Task AccountInformation(SocketGuildUser user = null)
@@ -36,6 +37,12 @@ namespace CommunityBot.Modules.Account
             await Context.Channel.SendMessageAsync(Context.User.Mention, false, embed);
         }
 
+        [Command("ShowCommandHistory"), Alias("CommandHistory")]
+        public async Task ShowCommandHistory()
+        {
+            await Context.Channel.SendMessageAsync(String.Join("\n", Context.UserAccount.CommandHistory.Select(cH => $"{cH.UsageDate.ToString("G")} {cH.Command}")));
+        }
+        
         [Command("GetAllMyAccountData"), Alias("GetMyData", "MyData")]
         public async Task GetAccountFile()
         {
@@ -64,6 +71,7 @@ namespace CommunityBot.Modules.Account
             }
         }
 
+        
         private async Task EvaluateResponse(SocketMessage response, string optionYes)
         {
             var message = "";
