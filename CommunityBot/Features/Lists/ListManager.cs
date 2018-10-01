@@ -21,16 +21,16 @@ namespace CommunityBot.Features.Lists
 
         private static string LineIndicator = " <--";
 
-        public static Dictionary<ulong, ulong> ListenForReactionMessages = new Dictionary<ulong, ulong>();
+        private static Dictionary<ulong, ulong> ListenForReactionMessages = new Dictionary<ulong, ulong>();
 
-        public static readonly Dictionary<string, Emoji> ControlEmojis = new Dictionary<string, Emoji>
+        public static IReadOnlyDictionary<string, Emoji> ControlEmojis = new Dictionary<string, Emoji>
         {
             {"up", new Emoji("⬆") },
             {"down", new Emoji("⬇") },
             {"check", new Emoji("✅") }
         };
 
-        private static readonly Dictionary<string, Func<ulong, string[], ListOutput>> ValidOperations = new Dictionary<string, Func<ulong, string[], ListOutput>>
+        private static IReadOnlyDictionary<string, Func<ulong, string[], ListOutput>> ValidOperations = new Dictionary<string, Func<ulong, string[], ListOutput>>
         {
             { "-g", GetAllPrivate },
             { "-gp", GetAllPublic },
@@ -194,7 +194,7 @@ namespace CommunityBot.Features.Lists
                                 var subString = s.Substring(2);
                                 var listName = subString.Split(' ')[0];
                                 var context = new SocketCommandContext(Global.Client, reaction.Message.Value);
-                                await HandleIO(context, new[] { "-l", listName });
+                                await HandleIO(context, new[] { "-l", listName }).ConfigureAwait(false);
                             }
                         }
                     }
