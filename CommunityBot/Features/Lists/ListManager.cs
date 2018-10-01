@@ -9,6 +9,7 @@ using Discord.WebSocket;
 using Discord.Rest;
 using Discord.Commands;
 using System.Threading.Tasks;
+using static CommunityBot.Features.Lists.ListException;
 
 namespace CommunityBot.Features.Lists
 {
@@ -62,6 +63,10 @@ namespace CommunityBot.Features.Lists
             {
                 output = ListManager.GetListOutput(e.Message, CustomList.ListPermission.PUBLIC);
             }
+            catch (ListPermissionException e)
+            {
+                output = ListManager.GetListOutput(e.Message, CustomList.ListPermission.PUBLIC);
+            }
             RestUserMessage message;
             if (output.permission == null || output.permission != CustomList.ListPermission.PRIVATE)
             {
@@ -94,7 +99,7 @@ namespace CommunityBot.Features.Lists
             }
             catch (KeyNotFoundException)
             {
-                throw GetListManagerException(ListErrorMessage.UnknownCommand_command, command);
+                throw GetListManagerException(ListErrorMessage.General.UnknownCommand_command, command);
             }
             return result;
         }
@@ -111,7 +116,7 @@ namespace CommunityBot.Features.Lists
 
         private static ListOutput GetAll(ulong userId, CustomList.ListPermission outputPermission, params string[] input)
         {
-            if (lists.Count == 0) { throw GetListManagerException(ListErrorMessage.NoLists); }
+            if (lists.Count == 0) { throw GetListManagerException(ListErrorMessage.General.NoLists); }
 
             Func<int, int, int> GetLonger = (i1, i2) => { return (i1 > i2 ? i1 : i2); };
 
@@ -262,7 +267,7 @@ namespace CommunityBot.Features.Lists
         {
             if (input.Length == 0 || input.Length > 2)
             {
-                throw GetListManagerException(ListErrorMessage.WrongFormat);
+                throw GetListManagerException(ListErrorMessage.General.WrongFormat);
             }
             var listName = input[0];
 
@@ -282,7 +287,7 @@ namespace CommunityBot.Features.Lists
                 var permissionAsString = CustomList.permissionStrings[(int)listPermissions];
                 return GetListOutput($"Created {permissionAsString} list '{listName}'", listPermissions);
             }
-            throw GetListManagerException(ListErrorMessage.ListAlreadyExists_list, listName);
+            throw GetListManagerException(ListErrorMessage.General.ListAlreadyExists_list, listName);
         }
 
         public static CustomList GetList(ulong userId, params string[] input)
@@ -290,7 +295,7 @@ namespace CommunityBot.Features.Lists
             CustomList list = lists.Find(l => l.name.Equals(input[0]));
             if (list == null)
             {
-                throw GetListManagerException(ListErrorMessage.ListDoesNotExist_list, input[0]);
+                throw GetListManagerException(ListErrorMessage.General.ListDoesNotExist_list, input[0]);
             }
             return list;
         }
@@ -299,7 +304,7 @@ namespace CommunityBot.Features.Lists
         {
             if (input.Length < 2)
             {
-                throw GetListManagerException(ListErrorMessage.WrongFormat);
+                throw GetListManagerException(ListErrorMessage.General.WrongFormat);
             }
 
             var sa = SeperateArray(input);
@@ -334,7 +339,7 @@ namespace CommunityBot.Features.Lists
             }
             catch (FormatException e)
             {
-                throw GetListManagerException(ListErrorMessage.WrongInputForIndex);
+                throw GetListManagerException(ListErrorMessage.General.WrongInputForIndex);
             }
 
             var list = GetList(userId, name);
@@ -342,7 +347,7 @@ namespace CommunityBot.Features.Lists
 
             if (index < 0 || index > list.Count())
             {
-                throw GetListManagerException(ListErrorMessage.IndexOutOfBounds_list, list.name);
+                throw GetListManagerException(ListErrorMessage.General.IndexOutOfBounds_list, list.name);
             }
 
             list.InsertRange(index, values);
@@ -355,7 +360,7 @@ namespace CommunityBot.Features.Lists
         {
             if (input.Length != 1)
             {
-                throw GetListManagerException(ListErrorMessage.WrongFormat);
+                throw GetListManagerException(ListErrorMessage.General.WrongFormat);
             }
 
             CustomList list = GetList(userId, input[0]);
@@ -374,7 +379,7 @@ namespace CommunityBot.Features.Lists
         {
             if (input.Length != 2)
             {
-                throw GetListManagerException(ListErrorMessage.WrongFormat);
+                throw GetListManagerException(ListErrorMessage.General.WrongFormat);
             }
 
             var sa = SeperateArray(input);
@@ -394,7 +399,7 @@ namespace CommunityBot.Features.Lists
         {
             if (input.Length != 1)
             {
-                throw GetListManagerException(ListErrorMessage.WrongFormat);
+                throw GetListManagerException(ListErrorMessage.General.WrongFormat);
             }
 
             CustomList list = GetList(userId, input[0]);
@@ -403,7 +408,7 @@ namespace CommunityBot.Features.Lists
 
             if (list.Count() == 0)
             {
-                throw GetListManagerException(ListErrorMessage.ListIsEmpty_list, input[0]);
+                throw GetListManagerException(ListErrorMessage.General.ListIsEmpty_list, input[0]);
             }
 
             Func<int, int, int> GetLonger = (i1, i2) => { return (i1 > i2 ? i1 : i2); };
@@ -428,7 +433,7 @@ namespace CommunityBot.Features.Lists
         {
             if (input.Length != 1)
             {
-                throw GetListManagerException(ListErrorMessage.WrongFormat);
+                throw GetListManagerException(ListErrorMessage.General.WrongFormat);
             }
 
             var list = GetList(userId, input[0]);
@@ -528,7 +533,7 @@ namespace CommunityBot.Features.Lists
 
         public static ListManagerException GetListManagerException()
         {
-            return GetListManagerException(ListErrorMessage.UnknownError);
+            return GetListManagerException(ListErrorMessage.General.UnknownError);
         }
 
         public static ListManagerException GetListManagerException(string message, params string[] parameters)
@@ -537,11 +542,22 @@ namespace CommunityBot.Features.Lists
             return new ListManagerException(formattedMessage);
         }
 
+        public static ListPermissionException GetListPermissionException()
+        {
+            return GetListPermissionException(ListErrorMessage.Permission.NoPermission_list);
+        }
+
+        public static ListPermissionException GetListPermissionException(string message, params string[] parameters)
+        {
+            var formattedMessage = String.Format(message, parameters);
+            return new ListPermissionException(formattedMessage);
+        }
+
         private static void CheckPermissionList(ulong userId, CustomList list)
         {
             if (!list.IsAllowedToList(userId))
             {
-                throw GetListManagerException(ListErrorMessage.NoPermission_list, list.name);
+                throw GetListManagerException(ListErrorMessage.Permission.NoPermission_list, list.name);
             }
         }
 
@@ -549,7 +565,7 @@ namespace CommunityBot.Features.Lists
         {
             if (!list.IsAllowedToRead(userId))
             {
-                throw GetListManagerException(ListErrorMessage.NoPermission_list, list.name);
+                throw GetListManagerException(ListErrorMessage.Permission.NoPermission_list, list.name);
             }
         }
 
@@ -557,7 +573,7 @@ namespace CommunityBot.Features.Lists
         {
             if (!list.IsAllowedToWrite(userId))
             {
-                throw GetListManagerException(ListErrorMessage.NoPermission_list, list.name);
+                throw GetListManagerException(ListErrorMessage.Permission.NoPermission_list, list.name);
             }
         }
     }

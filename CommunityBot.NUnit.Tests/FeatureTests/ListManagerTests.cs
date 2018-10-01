@@ -6,6 +6,7 @@ using Discord;
 using CommunityBot.Features.Lists;
 using Discord.Commands;
 using Moq;
+using static CommunityBot.Features.Lists.ListException;
 
 namespace CommunityBot.NUnit.Tests.FeatureTests
 {
@@ -35,7 +36,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         [Test]
         public static void PrivateListPermissionTest()
         {
-            var expected = String.Format(ListErrorMessage.NoPermission_list, Name);
+            var expected = String.Format(ListErrorMessage.Permission.NoPermission_list, Name);
 
             ListManager.Manage(userId, new[] { "-c", Name });
 
@@ -79,7 +80,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         [Test]
         public static void RemoveListTest()
         {
-            string expected = String.Format(ListErrorMessage.ListDoesNotExist_list, Name);
+            string expected = String.Format(ListErrorMessage.General.ListDoesNotExist_list, Name);
 
             ListManager.Manage(userId, new[] { "-c", Name });
             ListManager.Manage(userId, new[] { "-rl", Name });
@@ -93,7 +94,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         [Test]
         public static void RemoveNonExistentListTest()
         {
-            var excpected = String.Format(ListErrorMessage.ListDoesNotExist_list, Name);
+            var excpected = String.Format(ListErrorMessage.General.ListDoesNotExist_list, Name);
             var e = Assert.Throws<ListManagerException>(
                 () => ListManager.Manage(userId, new[] { "-rl", Name })
             );
@@ -103,7 +104,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         [Test]
         public static void NoListsTest()
         {
-            string expected = ListErrorMessage.NoLists;
+            string expected = ListErrorMessage.General.NoLists;
 
             var e = Assert.Throws<ListManagerException>(
                 () => ListManager.Manage(userId, new[] { "-g" })
@@ -150,7 +151,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         public static void InsertWithIndexOutOfBoundsTest()
         {
             var item = "item";
-            var expected = String.Format(ListErrorMessage.IndexOutOfBounds_list, Name);
+            var expected = String.Format(ListErrorMessage.General.IndexOutOfBounds_list, Name);
 
             ListManager.Manage(userId, new[] { "-c", Name });
             var e = Assert.Throws<ListManagerException>(
@@ -164,7 +165,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         public static void InsertWithWrongIndexTypeTest()
         {
             var item = "item";
-            var expected = ListErrorMessage.WrongInputForIndex;
+            var expected = ListErrorMessage.General.WrongInputForIndex;
 
             ListManager.Manage(userId, new[] { "-c", Name });
             var e = Assert.Throws<ListManagerException>(
