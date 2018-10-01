@@ -170,7 +170,7 @@ namespace CommunityBot.Features.Lists
             if ( ListenForReactionMessages.ContainsKey(reaction.MessageId) )
             { 
                 reaction.Message.Value.RemoveReactionAsync(reaction.Emote, reaction.User.Value);
-                if (ListenForReactionMessages.ContainsValue(reaction.User.Value.Id))
+                if (ListenForReactionMessages[reaction.MessageId] == reaction.User.Value.Id)
                 {
                     if (reaction.Emote.Name == ControlEmojis["up"].Name)
                     {
