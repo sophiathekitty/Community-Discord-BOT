@@ -6,6 +6,9 @@ using System.Linq;
 using Discord;
 using CommunityBot.Helpers;
 using Discord.WebSocket;
+using Discord.Rest;
+using Discord.Commands;
+using System.Threading.Tasks;
 
 namespace CommunityBot.Features.Lists
 {
@@ -16,7 +19,18 @@ namespace CommunityBot.Features.Lists
         public static readonly string StdErrorMsg = "Oops, something went wrong";
         public static readonly string UnknownCommandErrorMsg = "Unknown command";
 
-        private static readonly Dictionary<string, Func<ulong, string[], ListOutput>> validOperations = new Dictionary<string, Func<ulong, string[], ListOutput>>
+        private static string LineIndicator = " <--";
+
+        public static Dictionary<ulong, ulong> ListenForReactionMessages = new Dictionary<ulong, ulong>();
+
+        public static readonly Dictionary<string, Emoji> ControlEmojis = new Dictionary<string, Emoji>
+        {
+            {"up", new Emoji("⬆") },
+            {"down", new Emoji("⬇") },
+            {"check", new Emoji("✅") }
+        };
+
+        private static readonly Dictionary<string, Func<ulong, string[], ListOutput>> ValidOperations = new Dictionary<string, Func<ulong, string[], ListOutput>>
         {
             { "-g", GetAllPrivate },
             { "-gp", GetAllPublic },
@@ -37,6 +51,36 @@ namespace CommunityBot.Features.Lists
             RestoreOrCreateLists();
         }
 
+        public static async Task HandleIO(SocketCommandContext context, params string[] input)
+        {
+            ListManager.ListOutput output;
+            try
+            {
+                output = ListManager.Manage(context.User.Id, input);
+            }
+            catch (ListManagerException e)
+            {
+                output = ListManager.GetListOutput(e.Message, CustomList.ListPermission.PUBLIC);
+            }
+            RestUserMessage message;
+            if (output.permission == null || output.permission != CustomList.ListPermission.PRIVATE)
+            {
+                message = (RestUserMessage)await context.Channel.SendMessageAsync(output.outputString, false, output.outputEmbed);
+            }
+            else
+            {
+                var dmChannel = await context.User.GetOrCreateDMChannelAsync();
+                message = (RestUserMessage)await dmChannel.SendMessageAsync(output.outputString, false, output.outputEmbed);
+            }
+            if (output.listenForReactions)
+            {
+                await message.AddReactionAsync(ListManager.ControlEmojis["up"]);
+                await message.AddReactionAsync(ListManager.ControlEmojis["down"]);
+                await message.AddReactionAsync(ListManager.ControlEmojis["check"]);
+                ListManager.ListenForReactionMessages.Add(message.Id, context.User.Id);
+            }
+        }
+
         public static ListOutput Manage(ulong userId, params string[] input)
         {
             var sa = SeperateArray(input, 0);
@@ -46,7 +90,7 @@ namespace CommunityBot.Features.Lists
             ListOutput result;
             try
             {
-                result = validOperations[command](userId, values);
+                result = ValidOperations[command](userId, values);
             }
             catch (KeyNotFoundException)
             {
@@ -79,8 +123,6 @@ namespace CommunityBot.Features.Lists
                 if (l.IsAllowedToList(userId))
                 {
                     tableValuesList.Add(l.name, $"{l.Count()} {GetNounPlural("item", l.Count())}");
-                    //tableValues[i, 0] = l.name;
-                    //tableValues[i, 1] = $"{l.Count()} {GetNounPlural("item", l.Count())}";
                 }
             }
             var maxItemLength = 0;
@@ -101,8 +143,109 @@ namespace CommunityBot.Features.Lists
             }
             var tableSettings = new MessageFormater.TableSettings("All lists", header, -(maxItemLength), true);
             string output = MessageFormater.CreateTable(tableSettings, tableValues);
+            var count = 0;
+            for (int i=0; i<output.Length; i++)
+            {
+                if (output[i] == '\n')
+                {
+                    if (count == 8)
+                    {
+                        output = output.Insert(i, LineIndicator);
+                        break;
+                    }
+                    else
+                    {
+                        count++;
+                    }
+                }
+            }
+
+            var returnValue = GetListOutput(output, outputPermission);
+            returnValue.listenForReactions = true;
+            return returnValue;
+        }
+
+        public static async Task HandleReactionAdded(Cacheable<IUserMessage, ulong> cacheMessage, SocketReaction reaction)
+        {
+            if ( ListenForReactionMessages.ContainsKey(reaction.MessageId) )
+            { 
+                reaction.Message.Value.RemoveReactionAsync(reaction.Emote, reaction.User.Value);
+                if (ListenForReactionMessages.ContainsValue(reaction.User.Value.Id))
+                {
+                    if (reaction.Emote.Name == ControlEmojis["up"].Name)
+                    {
+                        var seperatedMessage = SepereateMessageByLines(cacheMessage.Value.Content);
+                        reaction.Message.Value.ModifyAsync(msg => msg.Content = PerformMove(seperatedMessage, true));
+                    }
+                    else if (reaction.Emote.Name == ControlEmojis["down"].Name)
+                    {
+                        var seperatedMessage = SepereateMessageByLines(cacheMessage.Value.Content);
+                        reaction.Message.Value.ModifyAsync(msg => msg.Content = PerformMove(seperatedMessage, false));
+                    }
+                    else if (reaction.Emote.Name == ControlEmojis["check"].Name)
+                    {
+                        var seperatedMessage = SepereateMessageByLines(cacheMessage.Value.Content);
+                        foreach (string s in seperatedMessage)
+                        {
+                            if (ContainsLineIndicator(s))
+                            {
+                                reaction.Message.Value.DeleteAsync();
+                                ListenForReactionMessages.Remove(reaction.MessageId);
+                                var subString = s.Substring(2);
+                                var listName = subString.Split(' ')[0];
+                                var context = new SocketCommandContext(Global.Client, reaction.Message.Value);
+                                await HandleIO(context, new[] { "-l", listName });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static string[] SepereateMessageByLines(string message)
+        {
+            return message.Split('\n');
+        }
+
+        private static string PerformMove(string[] messageLines, bool dirUp)
+        {
+            var newMessageLines = new string[messageLines.Length];
+            messageLines.CopyTo(newMessageLines, 0);
+
             
-            return GetListOutput(output, outputPermission);
+            for (int i=0; i<messageLines.Length; i++)
+            {
+                var line = messageLines[i];
+                var substringLength = line.Length - LineIndicator.Length;
+                if (substringLength < 0) { continue; }
+
+                var subLine = line.Substring(substringLength);
+                if (subLine.Equals(LineIndicator))
+                {
+                    var newIndex = i + (dirUp ? -2 : 2);
+                    if (newIndex > 7 && newIndex < messageLines.Length-1)
+                    {
+                        newMessageLines[i] = line.Substring(0, substringLength);
+                        newMessageLines[newIndex] = messageLines[newIndex] + LineIndicator;
+                    }
+                    break;
+                }
+            }
+            var newMessage = new StringBuilder();
+            foreach(string s in newMessageLines)
+            {
+                newMessage.Append($"{s}\n");
+            }
+            return newMessage.ToString();
+        }
+
+        private static bool ContainsLineIndicator(string line)
+        {
+            var substringLength = line.Length - LineIndicator.Length;
+            if (substringLength < 0) { return false; }
+
+            var subLine = line.Substring(substringLength);
+            return (subLine.Equals(LineIndicator));
         }
 
         public static ListOutput CreateListPrivate(ulong userId, params string[] input)
@@ -258,7 +401,7 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output);
         }
 
-        public static ListOutput OutputList(ulong userId, string[] input)
+        public static ListOutput OutputList(ulong userId, params string[] input)
         {
             if (input.Length != 1)
             {
@@ -342,6 +485,7 @@ namespace CommunityBot.Features.Lists
         {
             public string outputString { get; set; }
             public Embed outputEmbed { get; set; }
+            public bool listenForReactions { get; set; }
             public CustomList.ListPermission permission { get; set; }
         }
 
