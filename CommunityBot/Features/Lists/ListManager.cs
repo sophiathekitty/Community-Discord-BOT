@@ -179,13 +179,15 @@ namespace CommunityBot.Features.Lists
                 {
                     if (reaction.Emote.Name == ControlEmojis["up"].Name)
                     {
-                        var seperatedMessage = SepereateMessageByLines(cacheMessage.Value.Content);
-                        reaction.Message.Value.ModifyAsync(msg => msg.Content = PerformMove(seperatedMessage, true));
+                        HandleMovement(reaction, cacheMessage.Value.Content, true);
+                        //var seperatedMessage = SepereateMessageByLines(cacheMessage.Value.Content);
+                        //reaction.Message.Value.ModifyAsync(msg => msg.Content = PerformMove(seperatedMessage, true));
                     }
                     else if (reaction.Emote.Name == ControlEmojis["down"].Name)
                     {
-                        var seperatedMessage = SepereateMessageByLines(cacheMessage.Value.Content);
-                        reaction.Message.Value.ModifyAsync(msg => msg.Content = PerformMove(seperatedMessage, false));
+                        HandleMovement(reaction, cacheMessage.Value.Content, false);
+                        //var seperatedMessage = SepereateMessageByLines(cacheMessage.Value.Content);
+                        //reaction.Message.Value.ModifyAsync(msg => msg.Content = PerformMove(seperatedMessage, false));
                     }
                     else if (reaction.Emote.Name == ControlEmojis["check"].Name)
                     {
@@ -196,8 +198,10 @@ namespace CommunityBot.Features.Lists
                             {
                                 reaction.Message.Value.DeleteAsync();
                                 ListenForReactionMessages.Remove(reaction.MessageId);
-                                var subString = s.Substring(2);
-                                var listName = subString.Split(' ')[0];
+                                //var subString = s.Substring(2);
+                                var listName = s.Split('|', StringSplitOptions.RemoveEmptyEntries)[0];
+                                listName = listName.Remove(0, 1);
+                                listName = listName.Remove(listName.Length-1, 1);
                                 var context = new SocketCommandContext(Global.Client, reaction.Message.Value);
                                 await HandleIO(context, new[] { "-l", listName }).ConfigureAwait(false);
                             }
@@ -205,6 +209,12 @@ namespace CommunityBot.Features.Lists
                     }
                 }
             }
+        }
+
+        private static async Task HandleMovement(SocketReaction reaction, string message, bool dirUp)
+        {
+            var seperatedMessage = SepereateMessageByLines(message);
+            reaction.Message.Value.ModifyAsync(msg => msg.Content = PerformMove(seperatedMessage, dirUp));
         }
 
         private static string[] SepereateMessageByLines(string message)
