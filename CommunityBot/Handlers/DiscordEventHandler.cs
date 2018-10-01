@@ -187,63 +187,9 @@ namespace CommunityBot.Handlers
 
         private async Task ReactionAdded(Cacheable<IUserMessage, ulong> cacheMessage, ISocketMessageChannel channel, SocketReaction reaction)
         {
-            if (reaction.User.Value.IsBot)
-            {
-                return;
-            }
+            if (reaction.User.Value.IsBot) { return; }
+
             ListManager.HandleReactionAdded(cacheMessage, reaction);
-            /*Console.WriteLine($"is up: {reaction.Emote.Name == "⬆"}");
-            Console.WriteLine($"is right: {reaction.Emote.Name == "➡"}");
-            Console.WriteLine($"is down: {reaction.Emote.Name == "⬇"}");
-            Console.WriteLine($"is left: {reaction.Emote.Name == "⬅"}");
-            Console.WriteLine($"is check: {reaction.Emote.Name == "✅"}");
-            UnicodeEncoding unicode = new UnicodeEncoding();
-            var bytes = unicode.GetBytes(reaction.Emote.Name);
-            foreach(byte b in bytes)
-            {
-                Console.Write("[{0}]", b);
-            }
-            Console.Write("\n");
-
-            Console.WriteLine("UP:");
-            bytes = unicode.GetBytes("⬆️");
-            foreach (byte b in bytes)
-            {
-                Console.Write("[{0}]", b);
-            }
-            Console.Write("\n");
-
-            Console.WriteLine("RIGHT:");
-            bytes = unicode.GetBytes("➡️");
-            foreach (byte b in bytes)
-            {
-                Console.Write("[{0}]", b);
-            }
-            Console.Write("\n");
-
-            Console.WriteLine("DOWN:");
-            bytes = unicode.GetBytes("⬇️");
-            foreach (byte b in bytes)
-            {
-                Console.Write("[{0}]", b);
-            }
-            Console.Write("\n");
-
-            Console.WriteLine("LEFT:");
-            bytes = unicode.GetBytes("⬅");
-            foreach (byte b in bytes)
-            {
-                Console.Write("[{0}]", b);
-            }
-            Console.Write("\n");*/
-
-            /*foreach (char c in reaction.Emote.Name)
-            {
-                Console.WriteLine($"get value: {(int)c}");
-            }
-            Console.WriteLine($"get value string: {reaction.Emote.Name}");
-            Console.WriteLine($"set value: {(int)"⬆️"[0]}");
-            await channel.SendMessageAsync(reaction.Emote.Name);*/
 
             _triviaGames.HandleReactionAdded(cacheMessage, reaction);
             BlogHandler.ReactionAdded(reaction);

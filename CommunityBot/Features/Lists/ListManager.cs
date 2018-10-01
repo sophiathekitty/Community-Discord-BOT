@@ -266,17 +266,6 @@ namespace CommunityBot.Features.Lists
             }
             var listName = input[0];
 
-            /*var listPermissions = CustomList.ListPermission.PRIVATE;
-            
-            if (input.Length == 2)
-            {
-                listPermissions = CustomList.validPermissions[input[1]];
-                if (listPermissions == null)
-                {
-                    throw GetListManagerException(ListErrorMessage.WrongFormat);
-                }
-            }*/
-
             try
             {
                 GetList(userId, listName);
@@ -345,7 +334,7 @@ namespace CommunityBot.Features.Lists
             }
             catch (FormatException e)
             {
-                throw GetListManagerException();
+                throw GetListManagerException(ListErrorMessage.WrongInputForIndex);
             }
 
             var list = GetList(userId, name);
@@ -353,7 +342,7 @@ namespace CommunityBot.Features.Lists
 
             if (index < 0 || index > list.Count())
             {
-                throw GetListManagerException(ListErrorMessage.WrongFormat);
+                throw GetListManagerException(ListErrorMessage.IndexOutOfBounds_list, list.name);
             }
 
             list.InsertRange(index, values);
