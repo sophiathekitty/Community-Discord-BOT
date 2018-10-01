@@ -18,8 +18,10 @@ namespace CommunityBot.Features.Lists
 
         private static readonly Dictionary<string, Func<ulong, string[], ListOutput>> validOperations = new Dictionary<string, Func<ulong, string[], ListOutput>>
         {
-            { "-g", GetAll },
-            { "-c", CreateList },
+            { "-g", GetAllPrivate },
+            { "-gp", GetAllPublic },
+            { "-c", CreateListPrivate },
+            { "-cp", CreateListPublic },
             { "-a", Add },
             { "-i", Insert },
             { "-l", OutputList },
@@ -53,9 +55,22 @@ namespace CommunityBot.Features.Lists
             return result;
         }
 
-        public static ListOutput GetAll(ulong userId, params string[] input)
+        public static ListOutput GetAllPrivate(ulong userId, params string[] input)
+        {
+            return GetAll(userId, CustomList.ListPermission.PRIVATE, input);
+        }
+
+        public static ListOutput GetAllPublic(ulong userId, params string[] input)
+        {
+            return GetAll(userId, CustomList.ListPermission.PUBLIC, input);
+        }
+
+        private static ListOutput GetAll(ulong userId, CustomList.ListPermission outputPermission, params string[] input)
         {
             if (lists.Count == 0) { throw GetListManagerException(ListErrorMessage.NoLists); }
+
+            Func<int, int, int> GetLonger = (i1, i2) => { return (i1 > i2 ? i1 : i2); };
+
             var tableValuesList = new Dictionary<String, String>();
 
             for (int i = 0; i < lists.Count; i++)
@@ -68,30 +83,48 @@ namespace CommunityBot.Features.Lists
                     //tableValues[i, 1] = $"{l.Count()} {GetNounPlural("item", l.Count())}";
                 }
             }
+            var maxItemLength = 0;
             var tableValues = new string[tableValuesList.Count,2];
             for (int i=0; i<tableValues.GetLength(0); i++)
             {
                 var keyPair = tableValuesList.ElementAt(i);
                 tableValues[i, 0] = keyPair.Key;
                 tableValues[i, 1] = keyPair.Value;
+                maxItemLength = GetLonger(maxItemLength, keyPair.Key.Length);
+                maxItemLength = GetLonger(maxItemLength, keyPair.Value.Length);
             }
 
             var header = new[] { "List name", "Item count" };
-            var tableSettings = new MessageFormater.TableSettings("All lists", header, -12, true);
+            foreach (string s in header)
+            {
+                maxItemLength = GetLonger(maxItemLength, s.Length);
+            }
+            var tableSettings = new MessageFormater.TableSettings("All lists", header, -(maxItemLength), true);
             string output = MessageFormater.CreateTable(tableSettings, tableValues);
             
-            return GetListOutput(output, CustomList.ListPermission.PRIVATE);
+            return GetListOutput(output, outputPermission);
         }
 
-        public static ListOutput CreateList(ulong userId, params string[] input)
+        public static ListOutput CreateListPrivate(ulong userId, params string[] input)
+        {
+            return CreateList(userId, CustomList.ListPermission.PRIVATE, input);
+        }
+
+        public static ListOutput CreateListPublic(ulong userId, params string[] input)
+        {
+            return CreateList(userId, CustomList.ListPermission.PUBLIC, input);
+        }
+
+        private static ListOutput CreateList(ulong userId, CustomList.ListPermission listPermissions, params string[] input)
         {
             if (input.Length == 0 || input.Length > 2)
             {
                 throw GetListManagerException(ListErrorMessage.WrongFormat);
             }
-
-            var listPermissions = CustomList.ListPermission.PRIVATE;
             var listName = input[0];
+
+            /*var listPermissions = CustomList.ListPermission.PRIVATE;
+            
             if (input.Length == 2)
             {
                 listPermissions = CustomList.validPermissions[input[1]];
@@ -99,7 +132,7 @@ namespace CommunityBot.Features.Lists
                 {
                     throw GetListManagerException(ListErrorMessage.WrongFormat);
                 }
-            }
+            }*/
 
             try
             {
@@ -115,7 +148,7 @@ namespace CommunityBot.Features.Lists
                 WriteContents();
 
                 var permissionAsString = CustomList.permissionStrings[(int)listPermissions];
-                return GetListOutput($"Created {permissionAsString} list '{listName}'");
+                return GetListOutput($"Created {permissionAsString} list '{listName}'", listPermissions);
             }
             throw GetListManagerException(ListErrorMessage.ListAlreadyExists_list, listName);
         }
@@ -165,7 +198,7 @@ namespace CommunityBot.Features.Lists
             int index = 0;
             try
             {
-                index = int.Parse(indexstring);
+                index = int.Parse(indexstring) - 1;
             }
             catch (FormatException e)
             {
@@ -174,6 +207,11 @@ namespace CommunityBot.Features.Lists
 
             var list = GetList(userId, name);
             CheckPermissionWrite(userId, list);
+
+            if (index < 0 || index > list.Count())
+            {
+                throw GetListManagerException(ListErrorMessage.WrongFormat);
+            }
 
             list.InsertRange(index, values);
 
@@ -236,16 +274,22 @@ namespace CommunityBot.Features.Lists
                 throw GetListManagerException(ListErrorMessage.ListIsEmpty_list, input[0]);
             }
 
+            Func<int, int, int> GetLonger = (i1, i2) => { return (i1 > i2 ? i1 : i2); };
+
+            var maxItemLength = 0;
             var values = new string[list.Count(), 1];
             for (int i = 0; i < list.Count(); i++)
             {
-                values[i, 0] = $"{i.ToString()}: {list.contents[i]}";
+                var row = $"{(i+1).ToString()}: {list.contents[i]}";
+                values[i, 0] = row;
+                maxItemLength = GetLonger(maxItemLength, row.Length);
             }
+            maxItemLength = GetLonger(maxItemLength, list.name.Length);
 
-            var tableSettings = new MessageFormater.TableSettings(list.name, -12, false);
+            var tableSettings = new MessageFormater.TableSettings(list.name, -(maxItemLength), false);
             string output = MessageFormater.CreateTable(tableSettings, values);
 
-            return GetListOutput(output, CustomList.ListPermission.PRIVATE);
+            return GetListOutput(output, list.permission);
         }
 
         public static ListOutput Clear(ulong userId, string[] input)

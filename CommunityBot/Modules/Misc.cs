@@ -288,7 +288,7 @@ namespace CommunityBot.Modules
                 output = ListManager.GetListOutput(e.Message, CustomList.ListPermission.PUBLIC);
             }
 
-            if (output.permission == null || output.permission == CustomList.ListPermission.PUBLIC)
+            if (output.permission == null || output.permission != CustomList.ListPermission.PRIVATE)
             {
                 await ReplyAsync(output.outputString, false, output.outputEmbed);
             }
