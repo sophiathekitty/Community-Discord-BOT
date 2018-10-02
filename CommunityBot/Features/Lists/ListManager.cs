@@ -180,14 +180,10 @@ namespace CommunityBot.Features.Lists
                     if (reaction.Emote.Name == ControlEmojis["up"].Name)
                     {
                         HandleMovement(reaction, cacheMessage.Value.Content, true);
-                        //var seperatedMessage = SepereateMessageByLines(cacheMessage.Value.Content);
-                        //reaction.Message.Value.ModifyAsync(msg => msg.Content = PerformMove(seperatedMessage, true));
                     }
                     else if (reaction.Emote.Name == ControlEmojis["down"].Name)
                     {
                         HandleMovement(reaction, cacheMessage.Value.Content, false);
-                        //var seperatedMessage = SepereateMessageByLines(cacheMessage.Value.Content);
-                        //reaction.Message.Value.ModifyAsync(msg => msg.Content = PerformMove(seperatedMessage, false));
                     }
                     else if (reaction.Emote.Name == ControlEmojis["check"].Name)
                     {
@@ -198,7 +194,6 @@ namespace CommunityBot.Features.Lists
                             {
                                 reaction.Message.Value.DeleteAsync();
                                 ListenForReactionMessages.Remove(reaction.MessageId);
-                                //var subString = s.Substring(2);
                                 var listName = s.Split('|', StringSplitOptions.RemoveEmptyEntries)[0];
                                 listName = listName.Remove(0, 1);
                                 listName = listName.Remove(listName.Length-1, 1);
