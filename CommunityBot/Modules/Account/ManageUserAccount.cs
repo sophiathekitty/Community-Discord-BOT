@@ -47,7 +47,7 @@ namespace CommunityBot.Modules.Account
         private string GetCommandHistory(GlobalUserAccount userAccount)
         {
             var commandHistory = userAccount.CommandHistory.Select(cH => $"{cH.UsageDate.ToString("G")} {cH.Command}");
-            return String.Join("\n", commandHistory) //Return the command history separated by line
+            return String.Join("\n", commandHistory); //Return the command history separated by line
         }
         
         [Command("GetAllMyAccountData"), Alias("GetMyData", "MyData")]
