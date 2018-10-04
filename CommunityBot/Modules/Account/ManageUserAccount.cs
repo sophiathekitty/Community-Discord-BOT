@@ -39,8 +39,15 @@ namespace CommunityBot.Modules.Account
 
         [Command("ShowCommandHistory"), Alias("CommandHistory")]
         public async Task ShowCommandHistory()
+        {            
+            await Context.Channel.SendMessageAsync(GetCommandHistory(Context.UserAccount));
+        }
+        
+        //Could be in the extended ModuleBase, with a few changes
+        private string GetCommandHistory(GlobalUserAccount userAccount)
         {
-            await Context.Channel.SendMessageAsync(String.Join("\n", Context.UserAccount.CommandHistory.Select(cH => $"{cH.UsageDate.ToString("G")} {cH.Command}")));
+            var commandHistory = userAccount.CommandHistory.Select(cH => $"{cH.UsageDate.ToString("G")} {cH.Command}");
+            return String.Join("\n", commandHistory) //Return the command history separated by line
         }
         
         [Command("GetAllMyAccountData"), Alias("GetMyData", "MyData")]
