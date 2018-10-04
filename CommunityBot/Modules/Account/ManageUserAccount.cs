@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityBot.Extensions;
 using CommunityBot.Features.GlobalAccounts;
 using CommunityBot.Helpers;
+using CommunityBot.Entities;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
