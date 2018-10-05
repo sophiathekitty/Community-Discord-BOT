@@ -10,6 +10,8 @@ using CommunityBot.Helpers;
 using System.Globalization;
 using CommunityBot.Extensions;
 using CommunityBot.Features.Lists;
+using Discord.WebSocket;
+using Discord.Rest;
 
 namespace CommunityBot.Modules
 {
@@ -278,17 +280,7 @@ namespace CommunityBot.Modules
         [Summary("Manage List")]
         public async Task ManageList(params String[] input)
         {
-            String output = "";
-            try
-            {
-                output = ListManager.Manage(input);
-            }
-            catch (ListManagerException e)
-            {
-                output = e.Message;
-            }
-
-            await ReplyAsync(output);
+            await ListManager.HandleIO(Context, input);
         }
     }
 }
