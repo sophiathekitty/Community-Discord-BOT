@@ -125,22 +125,22 @@ namespace CommunityBot.Features.Lists
         public bool IsAllowedToList(ulong userId)
         {
             return (    this.ownerId == userId
-                    ||  this.permission == CustomList.ListPermission.PUBLIC
-                    ||  this.permission == CustomList.ListPermission.READ
-                    ||  this.permission == CustomList.ListPermission.LIST );
+                    ||  this.permission == ListPermission.PUBLIC
+                    ||  this.permission == ListPermission.READ
+                    ||  this.permission == ListPermission.LIST );
         }
 
         public bool IsAllowedToRead(ulong userId)
         {
             return (    this.ownerId == userId
-                    ||  this.permission == CustomList.ListPermission.PUBLIC
-                    ||  this.permission == CustomList.ListPermission.READ );
+                    ||  this.permission == ListPermission.PUBLIC
+                    ||  this.permission == ListPermission.READ );
         }
 
         public bool IsAllowedToWrite(ulong userId)
         {
             return (    this.ownerId == userId
-                    ||  this.permission == CustomList.ListPermission.PUBLIC );
+                    ||  this.permission == ListPermission.PUBLIC );
         }
     }
 }
