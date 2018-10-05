@@ -17,9 +17,10 @@ namespace CommunityBot.Configuration
 
         internal static void LoadConfig()
         {
-            if (DataStorage.LocalFileExists(configFile))
+            var dataStorage = InversionOfControl.Container.GetInstance<JsonDataStorage>();
+            if (dataStorage.LocalFileExists(configFile))
             {
-                config = DataStorage.RestoreObject<BotConfig>(configFile);
+                config = dataStorage.RestoreObject<BotConfig>(configFile);
             }
             else
             {
@@ -29,7 +30,7 @@ namespace CommunityBot.Configuration
                     Prefix = "$",
                     Token = "YOUR-TOKEN-HERE"
                 };
-                DataStorage.StoreObject(config, configFile, useIndentations: true);
+                dataStorage.StoreObject(config, configFile, useIndentations: true);
             }
         }
 
@@ -52,7 +53,7 @@ namespace CommunityBot.Configuration
             
             try
             {
-                DataStorage.StoreObject(config, configFile, useIndentations: true);
+                InversionOfControl.Container.GetInstance<JsonDataStorage>().StoreObject(config, configFile);
             }
             catch (Exception)
             {

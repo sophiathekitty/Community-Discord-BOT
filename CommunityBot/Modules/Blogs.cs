@@ -21,7 +21,8 @@ namespace CommunityBot.Modules
         {
             await Context.Message.DeleteAsync();
 
-            var blogs = DataStorage.RestoreObject<List<BlogItem>>(blogFile) ?? new List<BlogItem>();
+            var dataStorage = InversionOfControl.Container.GetInstance<JsonDataStorage>();
+            var blogs = dataStorage.RestoreObject<List<BlogItem>>(blogFile) ?? new List<BlogItem>();
 
             if (blogs.FirstOrDefault(k=>k.Name == name) == null)
             {
@@ -35,7 +36,7 @@ namespace CommunityBot.Modules
 
                 blogs.Add(newBlog);
 
-                DataStorage.StoreObject(blogs, blogFile, Formatting.Indented);
+                dataStorage.StoreObject(blogs, blogFile, Formatting.Indented);
                 
                 var embed = EmbedHandler.CreateEmbed("Blog", $"Your blog {name} was created.", EmbedHandler.EmbedMessageType.Success);
                 await Context.Channel.SendMessageAsync("", false, embed);
@@ -52,7 +53,7 @@ namespace CommunityBot.Modules
         {
             await Context.Message.DeleteAsync();
 
-            var blogs = DataStorage.RestoreObject<List<BlogItem>>(blogFile);
+            var blogs = InversionOfControl.Container.GetInstance<JsonDataStorage>().RestoreObject<List<BlogItem>>(blogFile);
 
             var blog = blogs.FirstOrDefault(k => k.Name == name && k.Author == Context.User.Id);
 

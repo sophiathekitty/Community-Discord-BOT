@@ -25,7 +25,7 @@ namespace CommunityBot.Features.GlobalAccounts
             {
                 foreach (var file in files)
                 {
-                    var user = DataStorage.RestoreObject<GlobalUserAccount>(Path.Combine(file.Directory.Name, file.Name));
+                    var user = InversionOfControl.Container.GetInstance<JsonDataStorage>().RestoreObject<GlobalUserAccount>(Path.Combine(file.Directory.Name, file.Name));
                     userAccounts.TryAdd(user.Id, user);
                 }
             }
@@ -56,7 +56,7 @@ namespace CommunityBot.Features.GlobalAccounts
             return userAccounts.GetOrAdd(id, (key) =>
             {
                 var newAccount = new GlobalUserAccount(id);
-                DataStorage.StoreObject(newAccount, Path.Combine(Constants.UserAccountsFolder, $"{id}.json"), useIndentations: true);
+                InversionOfControl.Container.GetInstance<JsonDataStorage>().StoreObject(newAccount, Path.Combine(Constants.UserAccountsFolder, $"{id}.json"), useIndentations: true);
                 return newAccount;
             });
         }
@@ -92,9 +92,10 @@ namespace CommunityBot.Features.GlobalAccounts
         /// </summary>
         internal static void SaveAccounts(params ulong[] ids)
         {
+            var dataStorage = InversionOfControl.Container.GetInstance<JsonDataStorage>();
             foreach (var id in ids)
             {
-                DataStorage.StoreObject(GetUserAccount(id), Path.Combine(Constants.UserAccountsFolder, $"{id}.json"), useIndentations: true);
+                dataStorage.StoreObject(GetUserAccount(id), Path.Combine(Constants.UserAccountsFolder, $"{id}.json"), useIndentations: true);
             }
         }
     }

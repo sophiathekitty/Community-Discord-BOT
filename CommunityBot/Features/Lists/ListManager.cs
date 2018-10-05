@@ -513,14 +513,14 @@ namespace CommunityBot.Features.Lists
         public static void WriteContents()
         {
             List<string> listNames = Lists.Select(l => l.Name).ToList<string>();
-            DataStorage.StoreObject(listNames, ListManagerLookup, false);
+            InversionOfControl.Container.GetInstance<JsonDataStorage>().StoreObject(listNames, ListManagerLookup, false);
         }
 
         public static void RestoreOrCreateLists()
         {
             Lists = new List<CustomList>();
 
-            var listNames = DataStorage.RestoreObject<List<string>>(ListManagerLookup);
+            var listNames = InversionOfControl.Container.GetInstance<JsonDataStorage>().RestoreObject<List<string>>(ListManagerLookup);
             if (listNames == null) { return; }
             
             foreach (string name in listNames)
