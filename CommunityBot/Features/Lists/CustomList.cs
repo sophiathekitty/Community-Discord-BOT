@@ -97,12 +97,12 @@ namespace CommunityBot.Features.Lists
 
         public void SaveList()
         {
-            InversionOfControl.Container.GetInjected<JsonDataStorage>().StoreObject(this, $"{this.Name}.json", false);
+            InversionOfControl.Container.GetInstance<JsonDataStorage>().StoreObject(this, $"{this.Name}.json", false);
         }
         
         public static CustomList RestoreList(string name)
         {
-            return InversionOfControl.Container.GetInjected<JsonDataStorage>().RestoreObject<CustomList>($"{name}.json");
+            return InversionOfControl.Container.GetInstance<JsonDataStorage>().RestoreObject<CustomList>($"{name}.json");
         }
 
         public bool EqualContents(List<String> list)

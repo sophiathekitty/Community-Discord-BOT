@@ -280,7 +280,7 @@ namespace CommunityBot.Modules
         [Summary("Manage List")]
         public async Task ManageList(params String[] input)
         {
-            await ListManager.HandleIO(Context, input);
+            await InversionOfControl.Container.GetInstance<ListManager>().HandleIO(Context, input);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace CommunityBot.Features.GlobalAccounts
             {
                 foreach (var file in files)
                 {
-                    var server = InversionOfControl.Container.GetInjected<JsonDataStorage>().RestoreObject<GlobalGuildAccount>(Path.Combine(file.Directory.Name, file.Name));
+                    var server = InversionOfControl.Container.GetInstance<JsonDataStorage>().RestoreObject<GlobalGuildAccount>(Path.Combine(file.Directory.Name, file.Name));
                     serverAccounts.TryAdd(server.Id, server);
                 }
             }
@@ -33,7 +33,7 @@ namespace CommunityBot.Features.GlobalAccounts
             return serverAccounts.GetOrAdd(id, (key) =>
             {
                 var newAccount = new GlobalGuildAccount(id);
-                InversionOfControl.Container.GetInjected<JsonDataStorage>().StoreObject(newAccount, Path.Combine(Constants.ServerAccountsFolder, $"{id}.json"), useIndentations: true);
+                InversionOfControl.Container.GetInstance<JsonDataStorage>().StoreObject(newAccount, Path.Combine(Constants.ServerAccountsFolder, $"{id}.json"), useIndentations: true);
                 return newAccount;
             });
         }
@@ -59,7 +59,7 @@ namespace CommunityBot.Features.GlobalAccounts
         /// </summary>
         internal static void SaveAccounts(params ulong[] ids)
         {
-            var dataStorage = InversionOfControl.Container.GetInjected<JsonDataStorage>();
+            var dataStorage = InversionOfControl.Container.GetInstance<JsonDataStorage>();
             foreach (var id in ids)
             {
                 dataStorage.StoreObject(GetGuildAccount(id), Path.Combine(Constants.ServerAccountsFolder, $"{id}.json"), useIndentations: true);

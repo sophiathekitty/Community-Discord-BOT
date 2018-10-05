@@ -13,7 +13,7 @@ using static CommunityBot.Features.Lists.ListException;
 
 namespace CommunityBot.Features.Lists
 {
-    public static class ListManager
+    public class ListManager
     {
         private static readonly string ListManagerLookup = "list_manager_lookup.json";
 
@@ -28,41 +28,46 @@ namespace CommunityBot.Features.Lists
             {"check", new Emoji("✅") }
         };
 
-        private static IReadOnlyDictionary<string, Func<ulong, string[], ListOutput>> ValidOperations = new Dictionary<string, Func<ulong, string[], ListOutput>>
-        {
-            { "-g", GetAllPrivate },
-            { "-gp", GetAllPublic },
-            { "-c", CreateListPrivate },
-            { "-cp", CreateListPublic },
-            { "-a", Add },
-            { "-i", Insert },
-            { "-l", OutputList },
-            { "-r", Remove },
-            { "-rl", RemoveList },
-            { "-cl", Clear }
-        };
+        private IReadOnlyDictionary<string, Func<ulong, string[], ListOutput>> ValidOperations;
 
-        private static List<CustomList> Lists = new List<CustomList>();
+        private List<CustomList> Lists = new List<CustomList>();
+        private IDataStorage dataStorage;
 
-        static ListManager()
+        public ListManager(IDataStorage dataStorage)
         {
+            this.dataStorage = dataStorage;
+
+            ValidOperations = new Dictionary<string, Func<ulong, string[], ListOutput>>
+            {
+                { "-g", GetAllPrivate },
+                { "-gp", GetAllPublic },
+                { "-c", CreateListPrivate },
+                { "-cp", CreateListPublic },
+                { "-a", Add },
+                { "-i", Insert },
+                { "-l", OutputList },
+                { "-r", Remove },
+                { "-rl", RemoveList },
+                { "-cl", Clear }
+            };
+
             RestoreOrCreateLists();
         }
 
-        public static async Task HandleIO(SocketCommandContext context, params string[] input)
+        public async Task HandleIO(SocketCommandContext context, params string[] input)
         {
             ListManager.ListOutput output;
             try
             {
-                output = ListManager.Manage(context.User.Id, input);
+                output = Manage(context.User.Id, input);
             }
             catch (ListManagerException e)
             {
-                output = ListManager.GetListOutput(e.Message, CustomList.ListPermission.PUBLIC);
+                output = GetListOutput(e.Message, CustomList.ListPermission.PUBLIC);
             }
             catch (ListPermissionException e)
             {
-                output = ListManager.GetListOutput(e.Message, CustomList.ListPermission.PUBLIC);
+                output = GetListOutput(e.Message, CustomList.ListPermission.PUBLIC);
             }
             RestUserMessage message;
             if (output.permission == null || output.permission != CustomList.ListPermission.PRIVATE)
@@ -76,14 +81,14 @@ namespace CommunityBot.Features.Lists
             }
             if (output.listenForReactions)
             {
-                await message.AddReactionAsync(ListManager.ControlEmojis["up"]);
-                await message.AddReactionAsync(ListManager.ControlEmojis["down"]);
-                await message.AddReactionAsync(ListManager.ControlEmojis["check"]);
-                ListManager.ListenForReactionMessages.Add(message.Id, context.User.Id);
+                await message.AddReactionAsync(ControlEmojis["up"]);
+                await message.AddReactionAsync(ControlEmojis["down"]);
+                await message.AddReactionAsync(ControlEmojis["check"]);
+                ListenForReactionMessages.Add(message.Id, context.User.Id);
             }
         }
 
-        public static ListOutput Manage(ulong userId, params string[] input)
+        public ListOutput Manage(ulong userId, params string[] input)
         {
             var sa = SeperateArray(input, 0);
             string command = sa.seperated;
@@ -101,17 +106,17 @@ namespace CommunityBot.Features.Lists
             return result;
         }
 
-        public static ListOutput GetAllPrivate(ulong userId, params string[] input)
+        public ListOutput GetAllPrivate(ulong userId, params string[] input)
         {
             return GetAll(userId, CustomList.ListPermission.PRIVATE, input);
         }
 
-        public static ListOutput GetAllPublic(ulong userId, params string[] input)
+        public ListOutput GetAllPublic(ulong userId, params string[] input)
         {
             return GetAll(userId, CustomList.ListPermission.PUBLIC, input);
         }
 
-        private static ListOutput GetAll(ulong userId, CustomList.ListPermission outputPermission, params string[] input)
+        private ListOutput GetAll(ulong userId, CustomList.ListPermission outputPermission, params string[] input)
         {
             if (Lists.Count == 0) { throw GetListManagerException(ListErrorMessage.General.NoLists); }
 
@@ -167,7 +172,7 @@ namespace CommunityBot.Features.Lists
             return returnValue;
         }
 
-        public static async Task HandleReactionAdded(Cacheable<IUserMessage, ulong> cacheMessage, SocketReaction reaction)
+        public async Task HandleReactionAdded(Cacheable<IUserMessage, ulong> cacheMessage, SocketReaction reaction)
         {
             if ( ListenForReactionMessages.ContainsKey(reaction.MessageId) )
             {
@@ -191,9 +196,7 @@ namespace CommunityBot.Features.Lists
                             {
                                 reaction.Message.Value.DeleteAsync();
                                 ListenForReactionMessages.Remove(reaction.MessageId);
-                                var listName = s.Split('|', StringSplitOptions.RemoveEmptyEntries)[0];
-                                listName = listName.Remove(0, 1);
-                                listName = listName.Remove(listName.Length-1, 1);
+                                var listName = GetItemNameFromLine(s);
                                 var context = new SocketCommandContext(Global.Client, reaction.Message.Value);
                                 await HandleIO(context, new[] { "-l", listName }).ConfigureAwait(false);
                             }
@@ -203,18 +206,31 @@ namespace CommunityBot.Features.Lists
             }
         }
 
-        private static async Task HandleMovement(SocketReaction reaction, string message, bool dirUp)
+        private string GetItemNameFromLine(string line)
+        {
+            var firstCol = line.Split('|', StringSplitOptions.RemoveEmptyEntries)[0];
+            firstCol = firstCol.Remove(0, 1);
+            var i = firstCol.Length;
+            char c;
+            do
+            {
+                c = firstCol[--i];
+            } while (c == ' ');
+            return firstCol.Substring(0, i+1);
+        }
+
+        private async Task HandleMovement(SocketReaction reaction, string message, bool dirUp)
         {
             var seperatedMessage = SepereateMessageByLines(message);
             reaction.Message.Value.ModifyAsync(msg => msg.Content = PerformMove(seperatedMessage, dirUp));
         }
 
-        private static string[] SepereateMessageByLines(string message)
+        private string[] SepereateMessageByLines(string message)
         {
             return message.Split('\n');
         }
 
-        private static string PerformMove(string[] messageLines, bool dirUp)
+        private string PerformMove(string[] messageLines, bool dirUp)
         {
             var newMessageLines = new string[messageLines.Length];
             messageLines.CopyTo(newMessageLines, 0);
@@ -246,7 +262,7 @@ namespace CommunityBot.Features.Lists
             return newMessage.ToString();
         }
 
-        private static bool ContainsLineIndicator(string line)
+        private bool ContainsLineIndicator(string line)
         {
             var substringLength = line.Length - LineIndicator.Length;
             if (substringLength < 0) { return false; }
@@ -255,17 +271,17 @@ namespace CommunityBot.Features.Lists
             return (subLine.Equals(LineIndicator));
         }
 
-        public static ListOutput CreateListPrivate(ulong userId, params string[] input)
+        public ListOutput CreateListPrivate(ulong userId, params string[] input)
         {
             return CreateList(userId, CustomList.ListPermission.PRIVATE, input);
         }
 
-        public static ListOutput CreateListPublic(ulong userId, params string[] input)
+        public ListOutput CreateListPublic(ulong userId, params string[] input)
         {
             return CreateList(userId, CustomList.ListPermission.PUBLIC, input);
         }
 
-        private static ListOutput CreateList(ulong userId, CustomList.ListPermission listPermissions, params string[] input)
+        private ListOutput CreateList(ulong userId, CustomList.ListPermission listPermissions, params string[] input)
         {
             if (input.Length == 0 || input.Length > 2)
             {
@@ -292,7 +308,7 @@ namespace CommunityBot.Features.Lists
             throw GetListManagerException(ListErrorMessage.General.ListAlreadyExists_list, listName);
         }
 
-        public static CustomList GetList(ulong userId, params string[] input)
+        public CustomList GetList(ulong userId, params string[] input)
         {
             CustomList list = Lists.Find(l => l.Name.Equals(input[0]));
             if (list == null)
@@ -302,7 +318,7 @@ namespace CommunityBot.Features.Lists
             return list;
         }
 
-        public static ListOutput Add(ulong userId, string[] input)
+        public ListOutput Add(ulong userId, string[] input)
         {
             if (input.Length < 2)
             {
@@ -322,7 +338,7 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output);
         }
 
-        public static ListOutput Insert(ulong userId, string[] input)
+        public ListOutput Insert(ulong userId, string[] input)
         {
             if (input.Length < 3) { throw GetListManagerException(); }
 
@@ -358,7 +374,7 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output);
         }
 
-        public static ListOutput RemoveList(ulong userId, params string[] input)
+        public ListOutput RemoveList(ulong userId, params string[] input)
         {
             if (input.Length != 1)
             {
@@ -377,7 +393,7 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output);
         }
 
-        public static ListOutput Remove(ulong userId, string[] input)
+        public ListOutput Remove(ulong userId, string[] input)
         {
             if (input.Length != 2)
             {
@@ -397,7 +413,7 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output);
         }
 
-        public static ListOutput OutputList(ulong userId, params string[] input)
+        public ListOutput OutputList(ulong userId, params string[] input)
         {
             if (input.Length != 1)
             {
@@ -431,7 +447,7 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output, list.Permission);
         }
 
-        public static ListOutput Clear(ulong userId, string[] input)
+        public ListOutput Clear(ulong userId, string[] input)
         {
             if (input.Length != 1)
             {
@@ -447,12 +463,12 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output);
         }
 
-        private static SeperatedArray SeperateArray(string[] input)
+        private SeperatedArray SeperateArray(string[] input)
         {
             return SeperateArray(input, input.Length - 1);
         }
 
-        private static SeperatedArray SeperateArray(string[] input, int index)
+        private SeperatedArray SeperateArray(string[] input, int index)
         {
             var sa = new SeperatedArray();
             sa.seperated = input[index];
@@ -485,42 +501,42 @@ namespace CommunityBot.Features.Lists
             public CustomList.ListPermission permission { get; set; }
         }
 
-        public static ListOutput GetListOutput(string s)
+        public ListOutput GetListOutput(string s)
         {
             return new ListOutput { outputString = s, permission = CustomList.ListPermission.PUBLIC };
         }
 
-        public static ListOutput GetListOutput(string s, CustomList.ListPermission p)
+        public ListOutput GetListOutput(string s, CustomList.ListPermission p)
         {
             return new ListOutput { outputString = s, permission = p };
         }
 
-        public static ListOutput GetListOutput(Embed e)
+        public ListOutput GetListOutput(Embed e)
         {
             return new ListOutput { outputEmbed = e, permission = CustomList.ListPermission.PUBLIC };
         }
 
-        public static ListOutput GetListOutput(Embed e, CustomList.ListPermission p)
+        public ListOutput GetListOutput(Embed e, CustomList.ListPermission p)
         {
             return new ListOutput { outputEmbed = e, permission = p };
         }
 
-        private static string GetNounPlural(string s, int count)
+        private string GetNounPlural(string s, int count)
         {
             return $"{s}{(count < 2 ? "" : "s")}";
         }
 
-        public static void WriteContents()
+        public void WriteContents()
         {
             List<string> listNames = Lists.Select(l => l.Name).ToList<string>();
-            InversionOfControl.Container.GetInstance<JsonDataStorage>().StoreObject(listNames, ListManagerLookup, false);
+            dataStorage.StoreObject(listNames, ListManagerLookup);
         }
 
-        public static void RestoreOrCreateLists()
+        public void RestoreOrCreateLists()
         {
             Lists = new List<CustomList>();
 
-            var listNames = InversionOfControl.Container.GetInstance<JsonDataStorage>().RestoreObject<List<string>>(ListManagerLookup);
+            var listNames = dataStorage.RestoreObject<List<string>>(ListManagerLookup);
             if (listNames == null) { return; }
             
             foreach (string name in listNames)
@@ -533,29 +549,29 @@ namespace CommunityBot.Features.Lists
             }
         }
 
-        public static ListManagerException GetListManagerException()
+        public ListManagerException GetListManagerException()
         {
             return GetListManagerException(ListErrorMessage.General.UnknownError);
         }
 
-        public static ListManagerException GetListManagerException(string message, params string[] parameters)
+        public ListManagerException GetListManagerException(string message, params string[] parameters)
         {
             var formattedMessage = String.Format(message, parameters);
             return new ListManagerException(formattedMessage);
         }
 
-        public static ListPermissionException GetListPermissionException()
+        public ListPermissionException GetListPermissionException()
         {
             return GetListPermissionException(ListErrorMessage.Permission.NoPermission_list);
         }
 
-        public static ListPermissionException GetListPermissionException(string message, params string[] parameters)
+        public ListPermissionException GetListPermissionException(string message, params string[] parameters)
         {
             var formattedMessage = String.Format(message, parameters);
             return new ListPermissionException(formattedMessage);
         }
 
-        private static void CheckPermissionList(ulong userId, CustomList list)
+        private void CheckPermissionList(ulong userId, CustomList list)
         {
             if (!list.IsAllowedToList(userId))
             {
@@ -563,7 +579,7 @@ namespace CommunityBot.Features.Lists
             }
         }
 
-        private static void CheckPermissionRead(ulong userId, CustomList list)
+        private void CheckPermissionRead(ulong userId, CustomList list)
         {
             if (!list.IsAllowedToRead(userId))
             {
@@ -571,7 +587,7 @@ namespace CommunityBot.Features.Lists
             }
         }
 
-        private static void CheckPermissionWrite(ulong userId, CustomList list)
+        private void CheckPermissionWrite(ulong userId, CustomList list)
         {
             if (!list.IsAllowedToWrite(userId))
             {
