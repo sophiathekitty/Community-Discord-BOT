@@ -173,17 +173,17 @@ namespace CommunityBot.Features.Lists
         public static async Task HandleReactionAdded(Cacheable<IUserMessage, ulong> cacheMessage, SocketReaction reaction)
         {
             if ( ListenForReactionMessages.ContainsKey(reaction.MessageId) )
-            { 
+            {
                 reaction.Message.Value.RemoveReactionAsync(reaction.Emote, reaction.User.Value);
                 if (ListenForReactionMessages[reaction.MessageId] == reaction.User.Value.Id)
                 {
                     if (reaction.Emote.Name == ControlEmojis["up"].Name)
                     {
-                        HandleMovement(reaction, cacheMessage.Value.Content, true);
+                        await HandleMovement(reaction, cacheMessage.Value.Content, true);
                     }
                     else if (reaction.Emote.Name == ControlEmojis["down"].Name)
                     {
-                        HandleMovement(reaction, cacheMessage.Value.Content, false);
+                        await HandleMovement(reaction, cacheMessage.Value.Content, false);
                     }
                     else if (reaction.Emote.Name == ControlEmojis["check"].Name)
                     {
@@ -226,16 +226,16 @@ namespace CommunityBot.Features.Lists
             for (int i=0; i<messageLines.Length; i++)
             {
                 var line = messageLines[i];
-                var substringLength = line.Length - LineIndicator.Length;
-                if (substringLength < 0) { continue; }
+                var substringStart = line.Length - LineIndicator.Length;
+                if (substringStart < 0) { continue; }
 
-                var subLine = line.Substring(substringLength);
+                var subLine = line.Substring(substringStart);
                 if (subLine.Equals(LineIndicator))
                 {
                     var newIndex = i + (dirUp ? -2 : 2);
                     if (newIndex > 7 && newIndex < messageLines.Length-1)
                     {
-                        newMessageLines[i] = line.Substring(0, substringLength);
+                        newMessageLines[i] = line.Substring(0, substringStart);
                         newMessageLines[newIndex] = messageLines[newIndex] + LineIndicator;
                     }
                     break;
