@@ -44,7 +44,6 @@ namespace CommunityBot
                 c.ForSingletonOf<CommandService>().UseIfNone<CommandService>();
                 c.ForSingletonOf<DiscordSocketClient>().UseIfNone(DiscordClientFactory.GetBySettings(settings));
                 c.ForSingletonOf<ApplicationSettings>().UseIfNone(settings);
-                c.ForSingletonOf<JsonDataStorage>().UseIfNone<JsonDataStorage>();
                 c.ForSingletonOf<IDataStorage>().UseIfNone<JsonDataStorage>();
                 c.ForSingletonOf<ListManager>().UseIfNone<ListManager>();
             });

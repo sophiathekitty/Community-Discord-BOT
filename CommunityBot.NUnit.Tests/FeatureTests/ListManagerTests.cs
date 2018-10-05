@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
 using Discord;
+using CommunityBot.Configuration;
 using CommunityBot.Features.Lists;
 using Discord.Commands;
 using Moq;
@@ -15,7 +16,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         private static readonly string TestListName = "testname";
         private static readonly string TestListItem = "item";
         private static readonly ulong userId = 10;
-        private static readonly ListManager listManager = InversionOfControl.Container.GetInstance<ListManager>();
+        private static readonly ListManager listManager = new ListManager(new JsonDataStorage());
 
         [Test]
         public static void UnknownCommandTest()

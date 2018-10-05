@@ -4,7 +4,7 @@ using System.IO;
 
 namespace CommunityBot.Configuration
 {
-    class JsonDataStorage : IDataStorage
+    public class JsonDataStorage : IDataStorage
     {
         private readonly string resourcesFolder = Constants.ResourceFolder;
 
