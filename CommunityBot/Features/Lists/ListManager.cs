@@ -28,9 +28,9 @@ namespace CommunityBot.Features.Lists
             {"check", new Emoji("✅") }
         };
 
-        private IReadOnlyDictionary<string, Func<ulong, string[], ListOutput>> ValidOperations;
+        private static IReadOnlyDictionary<string, Func<ulong, string[], ListOutput>> ValidOperations;
 
-        private List<CustomList> Lists = new List<CustomList>();
+        private static List<CustomList> Lists = new List<CustomList>();
         private IDataStorage dataStorage;
 
         public ListManager(IDataStorage dataStorage)
@@ -56,6 +56,7 @@ namespace CommunityBot.Features.Lists
 
         public async Task HandleIO(SocketCommandContext context, params string[] input)
         {
+            IUser u = context.User;
             ListManager.ListOutput output;
             try
             {
