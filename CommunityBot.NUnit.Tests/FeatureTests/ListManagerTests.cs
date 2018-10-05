@@ -12,7 +12,8 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
 {
     public static class ListManagerTests
     {
-        private static readonly String Name = "testname";
+        private static readonly string TestListName = "testname";
+        private static readonly string TestListItem = "item";
         private static readonly ulong userId = 10;
 
         [Test]
@@ -24,10 +25,10 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         [Test]
         public static void CreatePrivateListTest()
         {
-            CustomList expected = new CustomList(userId, CustomList.ListPermission.PRIVATE, Name);
+            CustomList expected = new CustomList(userId, CustomList.ListPermission.PRIVATE, TestListName);
 
-            ListManager.Manage(userId, new[] { "-c", Name });
-            CustomList actual = ListManager.GetList(userId, Name);
+            ListManager.Manage(userId, new[] { "-c", TestListName });
+            CustomList actual = ListManager.GetList(userId, TestListName);
 
             Assert.IsNotNull(actual);
             Assert.AreEqual(expected, actual);
@@ -36,12 +37,12 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         [Test]
         public static void PrivateListPermissionTest()
         {
-            var expected = String.Format(ListErrorMessage.Permission.NoPermission_list, Name);
+            var expected = String.Format(ListErrorMessage.Permission.NoPermission_list, TestListName);
 
-            ListManager.Manage(userId, new[] { "-c", Name });
+            ListManager.Manage(userId, new[] { "-c", TestListName });
 
             var e = Assert.Throws<ListManagerException>(
-                () => ListManager.Manage(userId + 1, new[] { "-a", "item", Name })
+                () => ListManager.Manage(userId + 1, new[] { "-a", TestListItem, TestListName })
             );
 
             Assert.AreEqual(expected, e.Message);
@@ -50,10 +51,10 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         [Test]
         public static void CreatePublicListTest()
         {
-            CustomList expected = new CustomList(userId, CustomList.ListPermission.PUBLIC, Name);
+            CustomList expected = new CustomList(userId, CustomList.ListPermission.PUBLIC, TestListName);
 
-            ListManager.Manage(userId, new[] { "-cp", Name });
-            CustomList actual = ListManager.GetList(userId, Name);
+            ListManager.Manage(userId, new[] { "-cp", TestListName });
+            CustomList actual = ListManager.GetList(userId, TestListName);
 
             Assert.IsNotNull(actual);
             Assert.AreEqual(expected, actual);
@@ -62,17 +63,16 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         [Test]
         public static void PublicListPermissionTest()
         {
-            var item = "item";
-            var expected = new CustomList(userId, CustomList.ListPermission.PUBLIC, Name);
-            expected.Add(item);
+            var expected = new CustomList(userId, CustomList.ListPermission.PUBLIC, TestListName);
+            expected.Add(TestListItem);
 
-            ListManager.Manage(userId, new[] { "-cp", Name });
+            ListManager.Manage(userId, new[] { "-cp", TestListName });
 
             Assert.DoesNotThrow(
-                () => ListManager.Manage(userId + 1, new[] { "-a", item, Name })
+                () => ListManager.Manage(userId + 1, new[] { "-a", TestListItem, TestListName })
             );
 
-            var actual = ListManager.GetList(userId, Name);
+            var actual = ListManager.GetList(userId, TestListName);
 
             Assert.AreEqual(expected, actual);
         }
@@ -80,13 +80,13 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         [Test]
         public static void RemoveListTest()
         {
-            string expected = String.Format(ListErrorMessage.General.ListDoesNotExist_list, Name);
+            string expected = String.Format(ListErrorMessage.General.ListDoesNotExist_list, TestListName);
 
-            ListManager.Manage(userId, new[] { "-c", Name });
-            ListManager.Manage(userId, new[] { "-rl", Name });
+            ListManager.Manage(userId, new[] { "-c", TestListName });
+            ListManager.Manage(userId, new[] { "-rl", TestListName });
 
             var e = Assert.Throws<ListManagerException>(
-                () => ListManager.GetList(userId, Name)
+                () => ListManager.GetList(userId, TestListName)
             );
             Assert.AreEqual(expected, e.Message);
         }
@@ -94,9 +94,9 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         [Test]
         public static void RemoveNonExistentListTest()
         {
-            var excpected = String.Format(ListErrorMessage.General.ListDoesNotExist_list, Name);
+            var excpected = String.Format(ListErrorMessage.General.ListDoesNotExist_list, TestListName);
             var e = Assert.Throws<ListManagerException>(
-                () => ListManager.Manage(userId, new[] { "-rl", Name })
+                () => ListManager.Manage(userId, new[] { "-rl", TestListName })
             );
             Assert.AreEqual(excpected, e.Message);
         }
@@ -116,13 +116,12 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         [Test]
         public static void AddItemTest()
         {
-            String item = "New item";
-            CustomList expected = new CustomList(userId, CustomList.ListPermission.PRIVATE, Name);
-            expected.Add(item);
+            CustomList expected = new CustomList(userId, CustomList.ListPermission.PRIVATE, TestListName);
+            expected.Add(TestListItem);
 
-            ListManager.Manage(userId, new[] { "-c", Name });
-            ListManager.Manage(userId, new[] { "-a", item, Name });
-            CustomList actual = ListManager.GetList(userId, Name);
+            ListManager.Manage(userId, new[] { "-c", TestListName });
+            ListManager.Manage(userId, new[] { "-a", TestListItem, TestListName });
+            CustomList actual = ListManager.GetList(userId, TestListName);
 
             Assert.IsNotNull(actual);
             Assert.AreEqual(expected, actual);
@@ -131,17 +130,16 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         [Test]
         public static void InsertItemTest()
         {
-            String item = "New item";
-            CustomList expected = new CustomList(userId, CustomList.ListPermission.PRIVATE, Name);
-            expected.Add($"{item} 1");
-            expected.Add($"{item} 2");
-            expected.Add($"{item} 3");
+            CustomList expected = new CustomList(userId, CustomList.ListPermission.PRIVATE, TestListName);
+            expected.Add($"{TestListItem} 1");
+            expected.Add($"{TestListItem} 2");
+            expected.Add($"{TestListItem} 3");
 
-            ListManager.Manage(userId, new[] { "-c", Name });
-            ListManager.Manage(userId, new[] { "-i", "1", $"{item} 3", Name });
-            ListManager.Manage(userId, new[] { "-i", "1", $"{item} 2", Name });
-            ListManager.Manage(userId, new[] { "-i", "1", $"{item} 1", Name });
-            CustomList actual = ListManager.GetList(userId, Name);
+            ListManager.Manage(userId, new[] { "-c", TestListName });
+            ListManager.Manage(userId, new[] { "-i", "1", $"{TestListItem} 3", TestListName });
+            ListManager.Manage(userId, new[] { "-i", "1", $"{TestListItem} 2", TestListName });
+            ListManager.Manage(userId, new[] { "-i", "1", $"{TestListItem} 1", TestListName });
+            CustomList actual = ListManager.GetList(userId, TestListName);
 
             Assert.IsNotNull(actual);
             Assert.AreEqual(expected, actual);
@@ -150,12 +148,11 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         [Test]
         public static void InsertWithIndexOutOfBoundsTest()
         {
-            var item = "item";
-            var expected = String.Format(ListErrorMessage.General.IndexOutOfBounds_list, Name);
+            var expected = String.Format(ListErrorMessage.General.IndexOutOfBounds_list, TestListName);
 
-            ListManager.Manage(userId, new[] { "-c", Name });
+            ListManager.Manage(userId, new[] { "-c", TestListName });
             var e = Assert.Throws<ListManagerException>(
-                () => ListManager.Manage(userId, new[] { "-i", "0", $"{item} 3", Name })
+                () => ListManager.Manage(userId, new[] { "-i", "0", $"{TestListItem} 3", TestListName })
             );
 
             Assert.AreEqual(expected, e.Message);
@@ -164,12 +161,11 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         [Test]
         public static void InsertWithWrongIndexTypeTest()
         {
-            var item = "item";
             var expected = ListErrorMessage.General.WrongInputForIndex;
 
-            ListManager.Manage(userId, new[] { "-c", Name });
+            ListManager.Manage(userId, new[] { "-c", TestListName });
             var e = Assert.Throws<ListManagerException>(
-                () => ListManager.Manage(userId, new[] { "-i", "wrong_index", $"{item} 3", Name })
+                () => ListManager.Manage(userId, new[] { "-i", "wrong_index", $"{TestListItem} 3", TestListName })
             );
 
             Assert.AreEqual(expected, e.Message);
@@ -178,17 +174,16 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         [Test]
         public static void RemoveItemTest()
         {
-            String item = "New item";
-            CustomList expected = new CustomList(userId, CustomList.ListPermission.PRIVATE, Name);
-            expected.Add(item + " 0");
-            expected.Add(item + " 2");
+            CustomList expected = new CustomList(userId, CustomList.ListPermission.PRIVATE, TestListName);
+            expected.Add(TestListItem + " 0");
+            expected.Add(TestListItem + " 2");
 
-            ListManager.Manage(userId, new[] { "-c", Name });
-            ListManager.Manage(userId, new[] { "-a", $"{item} 0", Name });
-            ListManager.Manage(userId, new[] { "-a", $"{item} 1", Name });
-            ListManager.Manage(userId, new[] { "-a", $"{item} 2", Name });
-            ListManager.Manage(userId, new[] { "-r", $"{item} 1", Name });
-            CustomList actual = ListManager.GetList(userId, Name);
+            ListManager.Manage(userId, new[] { "-c", TestListName });
+            ListManager.Manage(userId, new[] { "-a", $"{TestListItem} 0", TestListName });
+            ListManager.Manage(userId, new[] { "-a", $"{TestListItem} 1", TestListName });
+            ListManager.Manage(userId, new[] { "-a", $"{TestListItem} 2", TestListName });
+            ListManager.Manage(userId, new[] { "-r", $"{TestListItem} 1", TestListName });
+            CustomList actual = ListManager.GetList(userId, TestListName);
 
             Assert.IsNotNull(actual);
             Assert.AreEqual(expected, actual);
@@ -207,15 +202,14 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         [Test]
         public static void ClearListTest()
         {
-            String item = "New item";
-            CustomList expected = new CustomList(userId, CustomList.ListPermission.PRIVATE, Name);
+            CustomList expected = new CustomList(userId, CustomList.ListPermission.PRIVATE, TestListName);
 
-            ListManager.Manage(userId, new[] { "-c", Name });
-            ListManager.Manage(userId, new[] { "-a", $"{item} 0", Name });
-            ListManager.Manage(userId, new[] { "-a", $"{item} 1", Name });
-            ListManager.Manage(userId, new[] { "-a", $"{item} 2", Name });
-            ListManager.Manage(userId, new[] { "-cl", Name });
-            CustomList actual = ListManager.GetList(userId, Name);
+            ListManager.Manage(userId, new[] { "-c", TestListName });
+            ListManager.Manage(userId, new[] { "-a", $"{TestListItem} 0", TestListName });
+            ListManager.Manage(userId, new[] { "-a", $"{TestListItem} 1", TestListName });
+            ListManager.Manage(userId, new[] { "-a", $"{TestListItem} 2", TestListName });
+            ListManager.Manage(userId, new[] { "-cl", TestListName });
+            CustomList actual = ListManager.GetList(userId, TestListName);
 
             Assert.IsNotNull(actual);
             Assert.AreEqual(expected, actual);
@@ -226,7 +220,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         {
             var expected = CustomList.ListPermission.PUBLIC;
 
-            ListManager.CreateListPublic(userId, new[] { Name });
+            ListManager.CreateListPublic(userId, new[] { TestListName });
 
             var actual = ListManager.Manage(userId, new[] { "-gp" }).permission;
 
@@ -238,7 +232,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         {
             var expected = CustomList.ListPermission.PRIVATE;
 
-            ListManager.CreateListPrivate(userId, new[] { Name });
+            ListManager.CreateListPrivate(userId, new[] { TestListName });
 
             var actual = ListManager.Manage(userId, new[] { "-g" }).permission;
 
@@ -250,7 +244,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         {
             try
             {
-                ListManager.RemoveList(userId, Name);
+                ListManager.RemoveList(userId, TestListName);
             }
             catch (ListManagerException) { }
         }

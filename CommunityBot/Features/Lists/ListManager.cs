@@ -16,9 +16,6 @@ namespace CommunityBot.Features.Lists
     public static class ListManager
     {
         private static readonly string ListManagerLookup = "list_manager_lookup.json";
-        public static readonly string WrongInputErrorMsg = "Wrong input";
-        public static readonly string StdErrorMsg = "Oops, something went wrong";
-        public static readonly string UnknownCommandErrorMsg = "Unknown command";
 
         private static string LineIndicator = " <--";
 
@@ -45,7 +42,7 @@ namespace CommunityBot.Features.Lists
             { "-cl", Clear }
         };
 
-        private static List<CustomList> lists = new List<CustomList>();
+        private static List<CustomList> Lists = new List<CustomList>();
 
         static ListManager()
         {
@@ -116,18 +113,18 @@ namespace CommunityBot.Features.Lists
 
         private static ListOutput GetAll(ulong userId, CustomList.ListPermission outputPermission, params string[] input)
         {
-            if (lists.Count == 0) { throw GetListManagerException(ListErrorMessage.General.NoLists); }
+            if (Lists.Count == 0) { throw GetListManagerException(ListErrorMessage.General.NoLists); }
 
             Func<int, int, int> GetLonger = (i1, i2) => { return (i1 > i2 ? i1 : i2); };
 
             var tableValuesList = new Dictionary<String, String>();
 
-            for (int i = 0; i < lists.Count; i++)
+            for (int i = 0; i < Lists.Count; i++)
             {
-                CustomList l = lists[i];
+                CustomList l = Lists[i];
                 if (l.IsAllowedToList(userId))
                 {
-                    tableValuesList.Add(l.name, $"{l.Count()} {GetNounPlural("item", l.Count())}");
+                    tableValuesList.Add(l.Name, $"{l.Count()} {GetNounPlural("item", l.Count())}");
                 }
             }
             var maxItemLength = 0;
@@ -285,7 +282,7 @@ namespace CommunityBot.Features.Lists
                 var newList = new CustomList(userId, listPermissions, listName);
                 newList.SaveList();
 
-                lists.Add(newList);
+                Lists.Add(newList);
 
                 WriteContents();
 
@@ -297,7 +294,7 @@ namespace CommunityBot.Features.Lists
 
         public static CustomList GetList(ulong userId, params string[] input)
         {
-            CustomList list = lists.Find(l => l.name.Equals(input[0]));
+            CustomList list = Lists.Find(l => l.Name.Equals(input[0]));
             if (list == null)
             {
                 throw GetListManagerException(ListErrorMessage.General.ListDoesNotExist_list, input[0]);
@@ -352,7 +349,7 @@ namespace CommunityBot.Features.Lists
 
             if (index < 0 || index > list.Count())
             {
-                throw GetListManagerException(ListErrorMessage.General.IndexOutOfBounds_list, list.name);
+                throw GetListManagerException(ListErrorMessage.General.IndexOutOfBounds_list, list.Name);
             }
 
             list.InsertRange(index, values);
@@ -372,7 +369,7 @@ namespace CommunityBot.Features.Lists
             CheckPermissionWrite(userId, list);
 
             list.Delete();
-            lists.Remove(list);
+            Lists.Remove(list);
 
             WriteContents();
 
@@ -422,16 +419,16 @@ namespace CommunityBot.Features.Lists
             var values = new string[list.Count(), 1];
             for (int i = 0; i < list.Count(); i++)
             {
-                var row = $"{(i+1).ToString()}: {list.contents[i]}";
+                var row = $"{(i+1).ToString()}: {list.Contents[i]}";
                 values[i, 0] = row;
                 maxItemLength = GetLonger(maxItemLength, row.Length);
             }
-            maxItemLength = GetLonger(maxItemLength, list.name.Length);
+            maxItemLength = GetLonger(maxItemLength, list.Name.Length);
 
-            var tableSettings = new MessageFormater.TableSettings(list.name, -(maxItemLength), false);
+            var tableSettings = new MessageFormater.TableSettings(list.Name, -(maxItemLength), false);
             string output = MessageFormater.CreateTable(tableSettings, values);
 
-            return GetListOutput(output, list.permission);
+            return GetListOutput(output, list.Permission);
         }
 
         public static ListOutput Clear(ulong userId, string[] input)
@@ -515,13 +512,13 @@ namespace CommunityBot.Features.Lists
 
         public static void WriteContents()
         {
-            List<string> listNames = lists.Select(l => l.name).ToList<string>();
+            List<string> listNames = Lists.Select(l => l.Name).ToList<string>();
             DataStorage.StoreObject(listNames, ListManagerLookup, false);
         }
 
         public static void RestoreOrCreateLists()
         {
-            lists = new List<CustomList>();
+            Lists = new List<CustomList>();
 
             var listNames = DataStorage.RestoreObject<List<string>>(ListManagerLookup);
             if (listNames == null) { return; }
@@ -531,7 +528,7 @@ namespace CommunityBot.Features.Lists
                 var l = CustomList.RestoreList(name);
                 if (l != null)
                 {
-                    lists.Add(l);
+                    Lists.Add(l);
                 }
             }
         }
@@ -562,7 +559,7 @@ namespace CommunityBot.Features.Lists
         {
             if (!list.IsAllowedToList(userId))
             {
-                throw GetListManagerException(ListErrorMessage.Permission.NoPermission_list, list.name);
+                throw GetListManagerException(ListErrorMessage.Permission.NoPermission_list, list.Name);
             }
         }
 
@@ -570,7 +567,7 @@ namespace CommunityBot.Features.Lists
         {
             if (!list.IsAllowedToRead(userId))
             {
-                throw GetListManagerException(ListErrorMessage.Permission.NoPermission_list, list.name);
+                throw GetListManagerException(ListErrorMessage.Permission.NoPermission_list, list.Name);
             }
         }
 
@@ -578,7 +575,7 @@ namespace CommunityBot.Features.Lists
         {
             if (!list.IsAllowedToWrite(userId))
             {
-                throw GetListManagerException(ListErrorMessage.Permission.NoPermission_list, list.name);
+                throw GetListManagerException(ListErrorMessage.Permission.NoPermission_list, list.Name);
             }
         }
     }
