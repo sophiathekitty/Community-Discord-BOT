@@ -17,9 +17,9 @@ namespace CommunityBot.Features.Lists
     {
         private static readonly string ListManagerLookup = "list_manager_lookup.json";
 
-        private static string LineIndicator = " <--";
+        public static string LineIndicator = " <--";
 
-        private static Dictionary<ulong, ulong> ListenForReactionMessages = new Dictionary<ulong, ulong>();
+        public static Dictionary<ulong, ulong> ListenForReactionMessages = new Dictionary<ulong, ulong>();
 
         public static IReadOnlyDictionary<string, Emoji> ControlEmojis = new Dictionary<string, Emoji>
         {
@@ -54,7 +54,7 @@ namespace CommunityBot.Features.Lists
             RestoreOrCreateLists();
         }
 
-        public async Task HandleIO(SocketCommandContext context, params string[] input)
+        public ListOutput HandleIO(SocketCommandContext context, params string[] input)
         {
             IUser u = context.User;
             ListManager.ListOutput output;
@@ -70,23 +70,11 @@ namespace CommunityBot.Features.Lists
             {
                 output = GetListOutput(e.Message, CustomList.ListPermission.PUBLIC);
             }
-            RestUserMessage message;
-            if (output.permission == null || output.permission != CustomList.ListPermission.PRIVATE)
-            {
-                message = (RestUserMessage)await context.Channel.SendMessageAsync(output.outputString, false, output.outputEmbed);
-            }
-            else
-            {
-                var dmChannel = await context.User.GetOrCreateDMChannelAsync();
-                message = (RestUserMessage)await dmChannel.SendMessageAsync(output.outputString, false, output.outputEmbed);
-            }
             if (output.listenForReactions)
             {
-                await message.AddReactionAsync(ControlEmojis["up"]);
-                await message.AddReactionAsync(ControlEmojis["down"]);
-                await message.AddReactionAsync(ControlEmojis["check"]);
-                ListenForReactionMessages.Add(message.Id, context.User.Id);
+                ListManager.ListenForReactionMessages.Add(context.Message.Id, context.User.Id);
             }
+            return output;
         }
 
         public ListOutput Manage(ulong userId, params string[] input)
@@ -171,105 +159,6 @@ namespace CommunityBot.Features.Lists
             var returnValue = GetListOutput(output, outputPermission);
             returnValue.listenForReactions = true;
             return returnValue;
-        }
-
-        public async Task HandleReactionAdded(Cacheable<IUserMessage, ulong> cacheMessage, SocketReaction reaction)
-        {
-            if ( ListenForReactionMessages.ContainsKey(reaction.MessageId) )
-            {
-                reaction.Message.Value.RemoveReactionAsync(reaction.Emote, reaction.User.Value);
-                if (ListenForReactionMessages[reaction.MessageId] == reaction.User.Value.Id)
-                {
-                    if (reaction.Emote.Name == ControlEmojis["up"].Name)
-                    {
-                        await HandleMovement(reaction, cacheMessage.Value.Content, true);
-                    }
-                    else if (reaction.Emote.Name == ControlEmojis["down"].Name)
-                    {
-                        await HandleMovement(reaction, cacheMessage.Value.Content, false);
-                    }
-                    else if (reaction.Emote.Name == ControlEmojis["check"].Name)
-                    {
-                        var seperatedMessage = SepereateMessageByLines(cacheMessage.Value.Content);
-                        foreach (string s in seperatedMessage)
-                        {
-                            if (ContainsLineIndicator(s))
-                            {
-                                reaction.Message.Value.DeleteAsync();
-                                ListenForReactionMessages.Remove(reaction.MessageId);
-                                var listName = GetItemNameFromLine(s);
-                                var context = new SocketCommandContext(Global.Client, reaction.Message.Value);
-                                await HandleIO(context, new[] { "-l", listName }).ConfigureAwait(false);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        private string GetItemNameFromLine(string line)
-        {
-            var firstCol = line.Split('|', StringSplitOptions.RemoveEmptyEntries)[0];
-            firstCol = firstCol.Remove(0, 1);
-            var i = firstCol.Length;
-            char c;
-            do
-            {
-                c = firstCol[--i];
-            } while (c == ' ');
-            return firstCol.Substring(0, i+1);
-        }
-
-        private async Task HandleMovement(SocketReaction reaction, string message, bool dirUp)
-        {
-            var seperatedMessage = SepereateMessageByLines(message);
-            reaction.Message.Value.ModifyAsync(msg => msg.Content = PerformMove(seperatedMessage, dirUp));
-        }
-
-        private string[] SepereateMessageByLines(string message)
-        {
-            return message.Split('\n');
-        }
-
-        private string PerformMove(string[] messageLines, bool dirUp)
-        {
-            var newMessageLines = new string[messageLines.Length];
-            messageLines.CopyTo(newMessageLines, 0);
-
-            
-            for (int i=0; i<messageLines.Length; i++)
-            {
-                var line = messageLines[i];
-                var substringStart = line.Length - LineIndicator.Length;
-                if (substringStart < 0) { continue; }
-
-                var subLine = line.Substring(substringStart);
-                if (subLine.Equals(LineIndicator))
-                {
-                    var newIndex = i + (dirUp ? -2 : 2);
-                    if (newIndex > 7 && newIndex < messageLines.Length-1)
-                    {
-                        newMessageLines[i] = line.Substring(0, substringStart);
-                        newMessageLines[newIndex] = messageLines[newIndex] + LineIndicator;
-                    }
-                    break;
-                }
-            }
-            var newMessage = new StringBuilder();
-            foreach(string s in newMessageLines)
-            {
-                newMessage.Append($"{s}\n");
-            }
-            return newMessage.ToString();
-        }
-
-        private bool ContainsLineIndicator(string line)
-        {
-            var substringLength = line.Length - LineIndicator.Length;
-            if (substringLength < 0) { return false; }
-
-            var subLine = line.Substring(substringLength);
-            return (subLine.Equals(LineIndicator));
         }
 
         public ListOutput CreateListPrivate(ulong userId, params string[] input)

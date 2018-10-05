@@ -188,7 +188,8 @@ namespace CommunityBot.Handlers
         {
             if (reaction.User.Value.IsBot) { return; }
 
-            InversionOfControl.Container.GetInstance<ListManager>().HandleReactionAdded(cacheMessage, reaction);
+            var listManager = InversionOfControl.Container.GetInstance<ListManager>();
+            new ListReactionHandler().HandleReactionAdded(listManager, cacheMessage, reaction);
 
             _triviaGames.HandleReactionAdded(cacheMessage, reaction);
             BlogHandler.ReactionAdded(reaction);

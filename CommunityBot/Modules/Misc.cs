@@ -280,7 +280,24 @@ namespace CommunityBot.Modules
         [Summary("Manage List")]
         public async Task ManageList(params String[] input)
         {
-            await InversionOfControl.Container.GetInstance<ListManager>().HandleIO(Context, input);
+            var output = InversionOfControl.Container.GetInstance<ListManager>().HandleIO(Context, input);
+            RestUserMessage message;
+            if (output.permission == null || output.permission != CustomList.ListPermission.PRIVATE)
+            {
+                message = (RestUserMessage)await Context.Channel.SendMessageAsync(output.outputString, false, output.outputEmbed);
+            }
+            else
+            {
+                var dmChannel = await Context.User.GetOrCreateDMChannelAsync();
+                message = (RestUserMessage)await dmChannel.SendMessageAsync(output.outputString, false, output.outputEmbed);
+            }
+            if (output.listenForReactions)
+            {
+                await message.AddReactionAsync(ListManager.ControlEmojis["up"]);
+                await message.AddReactionAsync(ListManager.ControlEmojis["down"]);
+                await message.AddReactionAsync(ListManager.ControlEmojis["check"]);
+                ListManager.ListenForReactionMessages.Add(message.Id, Context.User.Id);
+            }
         }
     }
 }
