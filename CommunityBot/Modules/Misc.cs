@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 using System.Text;
 using CommunityBot.Helpers;
 using System.Globalization;
+using CommunityBot.Extensions;
 using CommunityBot.Features.Lists;
 using Discord.WebSocket;
 using Discord.Rest;
 
 namespace CommunityBot.Modules
 {
-    public class Misc : ModuleBase<SocketCommandContext>
+    public class Misc : ModuleBase<MiunieCommandContext>
     {
         private CommandService _service;
 
