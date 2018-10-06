@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace CommunityBot.Features.Economy
 {
@@ -152,14 +153,16 @@ namespace CommunityBot.Features.Economy
             List<string> response = new List<string>();
             int piceCount = Cylinders[0].SlotPieces.Count;
             int loopMax = showAll ? piceCount : 3;
+            StringBuilder cylinderString = new StringBuilder(36); //36=3*":strawberry:".Length
             for (int j = 0; j < loopMax; j++)
             {
-                string cylinderString = "";
                 for (int i = 0; i < 3; i++)
                 {
-                    cylinderString += Cylinders[i].SlotPieces[(Cylinders[i].Pointer + j) % piceCount].emoji;
+                    cylinderString.Append(Cylinders[i].SlotPieces[(Cylinders[i].Pointer + j) % piceCount].emoji);
                 }
-                response.Add(cylinderString);
+
+                response.Add(cylinderString.ToString());
+                cylinderString.Clear();
             }
             return response;
         }
