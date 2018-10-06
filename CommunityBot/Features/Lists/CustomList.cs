@@ -12,36 +12,21 @@ namespace CommunityBot.Features.Lists
 {
     public class CustomList
     {
-        
-        
-
-        //private readonly ulong RoleEveryoneId;
-
         public string Name { get; set; }
         public List<String> Contents { get; set; }
         public ulong OwnerId { get; set; }
-        //public ListPermission Permission { get; set; }
         public readonly Dictionary<ulong, ListPermission> PermissionByRole = new Dictionary<ulong, ListPermission>();
 
         private IDataStorage dataStorage;
-        //public IDataStorage DataStorage
-        //{
-        //    get { return DataStorage; }
-        //    set { DataStorage = DataStorage ?? value; }
-        //}
-        //private readonly DiscordSocketClient client;
 
         public CustomList(IDataStorage dataStorage, UserInfo userInfo, ListPermission permission, String name)
         {
             this.dataStorage = dataStorage;
             this.OwnerId = userInfo.Id;
-            //this.Permission = permission;
             this.Name = name;
-
-            //RoleEveryone = this.client.Guilds.FirstOrDefault().EveryoneRole.Name;
+            
             if (userInfo.RoleIds != null)
             {
-                //RoleEveryoneId = userInfo.RoleIds.First();
                 PermissionByRole.Add(userInfo.RoleIds.First(), permission);
             }
             Contents = new List<string>();
@@ -51,12 +36,6 @@ namespace CommunityBot.Features.Lists
         {
             this.dataStorage = dataStorage;
         }
-
-        //public IReadOnlyCollection<IRole> GetUserRoles(ulong userId)
-        //{
-        //    var user = Global.Client.Guilds.FirstOrDefault().GetUser(userId);
-        //    return (user as IGuildUser).Guild.Roles;
-        //}
 
         public bool SetPermissionByRole(ulong roleId, ListPermission permission)
         {
@@ -175,7 +154,6 @@ namespace CommunityBot.Features.Lists
 
         public bool IsAllowedToRead(UserInfo userInfo)
         {
-            //var userRoleNames = GetUserRoles(userId).Select(x => x.Name);
             var validRoleIds = PermissionByRole
                 .Where(x => x.Value > ListPermission.PRIVATE && x.Value < ListPermission.LIST)
                 .Select(x => x.Key);
@@ -185,7 +163,6 @@ namespace CommunityBot.Features.Lists
 
         public bool IsAllowedToWrite(UserInfo userInfo)
         {
-            //var userRoleNames = GetUserRoles(userId).Select(x => x.Name);
             var validRoleIds = PermissionByRole
                 .Where(x => x.Value > ListPermission.PRIVATE && x.Value < ListPermission.READ)
                 .Select(x => x.Key);
