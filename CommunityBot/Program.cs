@@ -15,13 +15,12 @@ namespace CommunityBot
         private static DiscordSocketClient _client;
         private static IServiceProvider _serviceProvider;
         private static ApplicationSettings _appSettings;
-        private static BlackBox _blackBox;
 
         private static async Task Main(string[] args)
         {
             _appSettings = new ApplicationSettings(args);
             
-            _blackBox = new BlackBox();
+            BlackBox.Initialize();
 
             InversionOfControl.InitializeContainer(_appSettings);
 
