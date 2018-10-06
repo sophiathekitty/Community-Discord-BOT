@@ -15,6 +15,7 @@ namespace CommunityBot.Features.Lists
             public static readonly string WrongInputForIndex = "The index value must be an integer";
             public static readonly string NoLists = "There are no lists";
             public static readonly string WrongFormat = "Wrong format";
+            public static readonly string RoleDoesNotExist_rolename = "The role '{0}' does not exist.";
             public static readonly string UnknownCommand_command = "Unknown command '{0}'.";
             public static readonly string UnknownError = "Oops, something went wrong";
         }

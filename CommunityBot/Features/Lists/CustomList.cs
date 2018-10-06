@@ -6,77 +6,86 @@ using System.IO;
 using Discord.WebSocket;
 using System.Linq;
 using Discord;
+using static CommunityBot.Helpers.ListHelper;
 
 namespace CommunityBot.Features.Lists
 {
     public class CustomList
     {
-        public enum ListPermission
-        {
-            PRIVATE,
-            PUBLIC,
-            READ,
-            LIST
-        };
+        
+        
 
-        public static IReadOnlyList<String> permissionStrings = new List<String>
-        {
-            "private",
-            "public",
-            "read only",
-            "view only"
-        };
-
-        public static readonly IReadOnlyDictionary<string, ListPermission> validPermissions = new Dictionary<string, ListPermission>
-        {
-            { "-p", ListPermission.PRIVATE },
-            { "-pu", ListPermission.PUBLIC },
-            { "-r", ListPermission.READ },
-            { "-l", ListPermission.LIST }
-        };
-
-        private static string RoleEveryone = Global.Client.Guilds.FirstOrDefault().EveryoneRole.Name;
+        //private readonly ulong RoleEveryoneId;
 
         public string Name { get; set; }
         public List<String> Contents { get; set; }
         public ulong OwnerId { get; set; }
-        public ListPermission Permission { get; set; }
-        public readonly Dictionary<string, ListPermission> PermissionByRole = new Dictionary<string, ListPermission>();
+        //public ListPermission Permission { get; set; }
+        public readonly Dictionary<ulong, ListPermission> PermissionByRole = new Dictionary<ulong, ListPermission>();
 
-        public CustomList(ulong ownerId, ListPermission permission, String name)
+        private IDataStorage dataStorage;
+        //public IDataStorage DataStorage
+        //{
+        //    get { return DataStorage; }
+        //    set { DataStorage = DataStorage ?? value; }
+        //}
+        //private readonly DiscordSocketClient client;
+
+        public CustomList(IDataStorage dataStorage, UserInfo userInfo, ListPermission permission, String name)
         {
-            this.OwnerId = ownerId;
-            PermissionByRole.Add(RoleEveryone, permission);
-            this.Permission = permission;
+            this.dataStorage = dataStorage;
+            this.OwnerId = userInfo.Id;
+            //this.Permission = permission;
             this.Name = name;
+
+            //RoleEveryone = this.client.Guilds.FirstOrDefault().EveryoneRole.Name;
+            if (userInfo.RoleIds != null)
+            {
+                //RoleEveryoneId = userInfo.RoleIds.First();
+                PermissionByRole.Add(userInfo.RoleIds.First(), permission);
+            }
             Contents = new List<string>();
         }
 
-        public IReadOnlyCollection<IRole> GetUserRoles(ulong userId)
+        public void SetDataStorage(IDataStorage dataStorage)
         {
-            var user = Global.Client.Guilds.FirstOrDefault().GetUser(userId);
-            return (user as IGuildUser).Guild.Roles;
+            this.dataStorage = dataStorage;
         }
 
-        public void SetPermissionByRole(string role, ListPermission permission)
+        //public IReadOnlyCollection<IRole> GetUserRoles(ulong userId)
+        //{
+        //    var user = Global.Client.Guilds.FirstOrDefault().GetUser(userId);
+        //    return (user as IGuildUser).Guild.Roles;
+        //}
+
+        public bool SetPermissionByRole(ulong roleId, ListPermission permission)
         {
-            if (PermissionByRole.ContainsKey(role))
+            if (PermissionByRole.ContainsKey(roleId))
             {
-                PermissionByRole[role] = permission;
+                if (PermissionByRole[roleId] == permission) { return false; }
+
+                PermissionByRole[roleId] = permission;
             }
-            PermissionByRole.Add(role, permission);
+            else
+            {
+                PermissionByRole.Add(roleId, permission);
+            }
+            SaveList();
+            return true;
         }
 
-        public void RemovePermissionByRole(string role)
+        public bool RemovePermissionByRole(ulong roleId)
         {
-            if (!PermissionByRole.ContainsKey(role)) { return; }
-            PermissionByRole.Remove(role);
+            if (!PermissionByRole.ContainsKey(roleId)) { return false; }
+            PermissionByRole.Remove(roleId);
+            SaveList();
+            return true;
         }
 
-        public ListPermission GetPermissionByRole(string role)
+        public ListPermission GetPermissionByRole(ulong roleId)
         {
-            if (!PermissionByRole.ContainsKey(role)) { return ListPermission.PRIVATE; }
-            return PermissionByRole[role];
+            if (!PermissionByRole.ContainsKey(roleId)) { return ListPermission.PRIVATE; }
+            return PermissionByRole[roleId];
         }
 
         public void Add(String item)
@@ -130,12 +139,12 @@ namespace CommunityBot.Features.Lists
 
         public void SaveList()
         {
-            InversionOfControl.Container.GetInstance<JsonDataStorage>().StoreObject(this, $"{this.Name}.json", false);
+            this.dataStorage.StoreObject(this, $"{this.Name}.json");
         }
         
-        public static CustomList RestoreList(string name)
+        public static CustomList RestoreList(IDataStorage dataStorage, string name)
         {
-            return InversionOfControl.Container.GetInstance<JsonDataStorage>().RestoreObject<CustomList>($"{name}.json");
+            return dataStorage.RestoreObject<CustomList>($"{name}.json");
         }
 
         public bool EqualContents(List<String> list)
@@ -155,36 +164,41 @@ namespace CommunityBot.Features.Lists
             return (EqualContents(comp.Contents) && comp.Name.Equals(this.Name));
         }
 
-        public bool IsAllowedToList(ulong userId)
+        public bool IsAllowedToList(UserInfo userInfo)
         {
-            return ( !(this.OwnerId != userId && GetPermissionByRole(RoleEveryone) == ListPermission.PRIVATE) );
+            return ( !(this.OwnerId != userInfo.Id && PermissionByRole.First().Value == ListPermission.PRIVATE) );
         }
 
-        public bool IsAllowedToRead(ulong userId)
+        public bool IsAllowedToRead(UserInfo userInfo)
         {
-            var userRoleNames = GetUserRoles(userId).Select(x => x.Name);
-            var validRoleNames = PermissionByRole
+            //var userRoleNames = GetUserRoles(userId).Select(x => x.Name);
+            var validRoleIds = PermissionByRole
                 .Where(x => x.Value > ListPermission.PRIVATE && x.Value < ListPermission.LIST)
                 .Select(x => x.Key);
 
-            return (ShareItem(userRoleNames, validRoleNames) || this.OwnerId == userId);
+            return (ShareItem(userInfo.RoleIds, validRoleIds) || this.OwnerId == userInfo.Id);
         }
 
-        public bool IsAllowedToWrite(ulong userId)
+        public bool IsAllowedToWrite(UserInfo userInfo)
         {
-            var userRoleNames = GetUserRoles(userId).Select(x => x.Name);
-            var validRoleNames = PermissionByRole
+            //var userRoleNames = GetUserRoles(userId).Select(x => x.Name);
+            var validRoleIds = PermissionByRole
                 .Where(x => x.Value > ListPermission.PRIVATE && x.Value < ListPermission.READ)
                 .Select(x => x.Key);
 
-            return (ShareItem(userRoleNames, validRoleNames) || this.OwnerId == userId);
+            return (ShareItem(userInfo.RoleIds, validRoleIds) || this.OwnerId == userInfo.Id);
         }
 
-        private bool ShareItem(IEnumerable<string> a, IEnumerable<string> b)
+        public bool IsAllowedToModify(UserInfo userInfo)
         {
-            foreach(string s in a)
+            return (userInfo.Id == this.OwnerId);
+        }
+
+        private bool ShareItem(IEnumerable<ulong> a, IEnumerable<ulong> b)
+        {
+            foreach(ulong l in a)
             {
-                if (b.Contains(s)) { return true; }
+                if (b.Contains(l)) { return true; }
             }
             return false;
         }

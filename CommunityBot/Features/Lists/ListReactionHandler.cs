@@ -1,16 +1,18 @@
-﻿using Discord;
+﻿using CommunityBot.Extensions;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using static CommunityBot.Helpers.ListHelper;
 
 namespace CommunityBot.Features.Lists
 {
     public class ListReactionHandler
     {
-        public async Task HandleReactionAdded(ListManager listManager, Cacheable<IUserMessage, ulong> cacheMessage, SocketReaction reaction)
+        public async Task HandleReactionAdded(UserInfo userInfo, ListManager listManager, Cacheable<IUserMessage, ulong> cacheMessage, SocketReaction reaction)
         {
             if (ListManager.ListenForReactionMessages.ContainsKey(reaction.MessageId))
             {
@@ -36,8 +38,7 @@ namespace CommunityBot.Features.Lists
                                 reaction.Message.Value.RemoveAllReactionsAsync();
 
                                 var listName = GetItemNameFromLine(s);
-                                var context = new SocketCommandContext(Global.Client, reaction.Message.Value);
-                                var output = listManager.HandleIO(context, new[] { "-l", listName });
+                                var output = listManager.HandleIO(userInfo, reaction.MessageId, new[] { "-l", listName });
                                 reaction.Message.Value.ModifyAsync(msg => { msg.Content = output.outputString; msg.Embed = output.outputEmbed; });
                             }
                         }

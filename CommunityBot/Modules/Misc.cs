@@ -18,10 +18,12 @@ namespace CommunityBot.Modules
     public class Misc : ModuleBase<MiunieCommandContext>
     {
         private CommandService _service;
+        private readonly ListManager _listManager;
 
-        public Misc(CommandService service)
+        public Misc(CommandService service, ListManager listManager)
         {
             _service = service;
+            _listManager = listManager;
         }
 
         [Cooldown(15)]
@@ -280,9 +282,11 @@ namespace CommunityBot.Modules
         [Summary("Manage List")]
         public async Task ManageList(params String[] input)
         {
-            var output = InversionOfControl.Container.GetInstance<ListManager>().HandleIO(Context, input);
+            var user = Context.User as SocketGuildUser;
+            var roleIds = user.Roles.Select(r => r.Id).ToArray();
+            var output = _listManager.HandleIO(new ListHelper.UserInfo(user.Id, roleIds) , Context.Message.Id, input);
             RestUserMessage message;
-            if (output.permission == null || output.permission != CustomList.ListPermission.PRIVATE)
+            if (output.permission == null || output.permission != ListHelper.ListPermission.PRIVATE)
             {
                 message = (RestUserMessage)await Context.Channel.SendMessageAsync(output.outputString, false, output.outputEmbed);
             }

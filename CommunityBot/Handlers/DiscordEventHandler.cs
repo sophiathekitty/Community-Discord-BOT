@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CommunityBot.Configuration;
@@ -25,14 +26,16 @@ namespace CommunityBot.Handlers
         private readonly ApplicationSettings _applicationSettings;
         private readonly Logger _logger;
         private readonly TriviaGames _triviaGames;
+        private readonly ListManager _listManager;
 
-        public DiscordEventHandler(Logger logger, TriviaGames triviaGames, DiscordSocketClient client, CommandHandler commandHandler, ApplicationSettings applicationSettings)
+        public DiscordEventHandler(Logger logger, TriviaGames triviaGames, DiscordSocketClient client, CommandHandler commandHandler, ApplicationSettings applicationSettings, ListManager listManager)
         {
             _logger = logger;
             _client = client;
             _commandHandler = commandHandler;
             _applicationSettings = applicationSettings;
             _triviaGames = triviaGames;
+            _listManager = listManager;
         }
 
         public void InitDiscordEvents()
@@ -188,8 +191,10 @@ namespace CommunityBot.Handlers
         {
             if (reaction.User.Value.IsBot) { return; }
 
-            var listManager = InversionOfControl.Container.GetInstance<ListManager>();
-            new ListReactionHandler().HandleReactionAdded(listManager, cacheMessage, reaction);
+            //var user = _client.GetUser(reaction.UserId) as SocketGuildUser;
+            var user = reaction.User.Value as SocketGuildUser;
+            var roleIds = user.Roles.Select(r => r.Id).ToArray();
+            (new ListReactionHandler()).HandleReactionAdded(new ListHelper.UserInfo(user.Id, roleIds), _listManager, cacheMessage, reaction);
 
             _triviaGames.HandleReactionAdded(cacheMessage, reaction);
             BlogHandler.ReactionAdded(reaction);
