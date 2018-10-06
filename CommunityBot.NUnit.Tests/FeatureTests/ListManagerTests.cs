@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
+﻿using Moq;
+using System;
 using Discord;
+using System.Text;
+using System.Linq;
+using NUnit.Framework;
+using Discord.Commands;
+using Discord.WebSocket;
+using System.Collections.Generic;
 using CommunityBot.Configuration;
 using CommunityBot.Features.Lists;
-using Discord.Commands;
-using Moq;
-using static CommunityBot.Features.Lists.ListException;
-using static CommunityBot.Helpers.ListHelper;
-using Discord.WebSocket;
-using System.Linq;
 using System.Collections.ObjectModel;
+using static CommunityBot.Helpers.ListHelper;
+using static CommunityBot.Features.Lists.ListException;
 
 namespace CommunityBot.NUnit.Tests.FeatureTests
 {
