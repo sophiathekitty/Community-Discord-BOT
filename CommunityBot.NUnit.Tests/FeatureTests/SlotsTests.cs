@@ -7,7 +7,13 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
 {
     public class SlotsTests
     {
-        private readonly Slot defaultSlot = new Slot();
+        private Slot defaultSlot;
+
+        [SetUp]
+        public void TestSetup()
+        {
+            defaultSlot = new Slot();
+        }
 
         [Test]
         public void Slots_Constructor_DefaultValue_SlotPiecesEqualsMinSpawnRate()
@@ -17,7 +23,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         }
 
         [Test]
-        public void Slots_Constructor_FewerPiecesThanMinSpawnRate_SlotPiecesEqualsMinSpawnRate()
+        public static void Slots_Constructor_FewerPiecesThanMinSpawnRate_SlotPiecesEqualsMinSpawnRate()
         {
             int totalMinSpawnRate = Slot.PossibleSlotPieces.Sum(p => p.minSpawnCount);
             int numberOfPieces = totalMinSpawnRate - 1;
@@ -26,7 +32,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
         }
 
         [Test]
-        public void Slots_Constructor_GreaterPiecesThanMinSpawnRate_SlotPiecesEqualsPieceCount()
+        public static void Slots_Constructor_GreaterPiecesThanMinSpawnRate_SlotPiecesEqualsPieceCount()
         {
             int totalMinSpawnRate = Slot.PossibleSlotPieces.Sum(p => p.minSpawnCount);
             int numberOfPieces = totalMinSpawnRate + 1;
