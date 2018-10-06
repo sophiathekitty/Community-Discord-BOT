@@ -31,7 +31,9 @@ namespace CommunityBot.Features.Economy
         private static int maxRandom;
 
         // The amount of pieces per cylinder is adjustable but will always be at least the sum of the minSpawnCount of all possible SlotPieces
-        public Slot(int amountOfPieces = 0)
+        public Slot() : this(0) { }
+
+        public Slot(int amountOfPieces)
         {
             maxRandom = 0;
             foreach (var piece in PossibleSlotPieces)
