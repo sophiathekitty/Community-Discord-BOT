@@ -6,6 +6,7 @@ using Discord;
 using CommunityBot.Configuration;
 using CommunityBot.Handlers;
 using Microsoft.Extensions.DependencyInjection;
+using CommunityBot.Features;
 
 namespace CommunityBot
 {
@@ -14,10 +15,13 @@ namespace CommunityBot
         private static DiscordSocketClient _client;
         private static IServiceProvider _serviceProvider;
         private static ApplicationSettings _appSettings;
+        private static BlackBox _blackBox;
 
         private static async Task Main(string[] args)
         {
             _appSettings = new ApplicationSettings(args);
+            
+            _blackBox = new BlackBox();
 
             InversionOfControl.InitializeContainer(_appSettings);
 
