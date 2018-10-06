@@ -52,7 +52,8 @@ namespace CommunityBot.Features.Lists
                 { "-cp", CreateListPublic },
                 { "-a", Add },
                 { "-i", Insert },
-                { "-l", OutputList },
+                { "-l", OutputListPrivate },
+                { "-lp", OutputListPublic },
                 { "-r", Remove },
                 { "-rl", RemoveList },
                 { "-cl", Clear }
@@ -346,7 +347,17 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output);
         }
 
-        public ListOutput OutputList(UserInfo userInfo, params string[] input)
+        public ListOutput OutputListPrivate(UserInfo userInfo, params string[] input)
+        {
+            return OutputList(userInfo, ListPermission.PRIVATE, input);
+        }
+
+        public ListOutput OutputListPublic(UserInfo userInfo, params string[] input)
+        {
+            return OutputList(userInfo, ListPermission.PUBLIC, input);
+        }
+
+        private ListOutput OutputList(UserInfo userInfo, ListPermission permission, params string[] input)
         {
             if (input.Length != 1)
             {
@@ -355,7 +366,7 @@ namespace CommunityBot.Features.Lists
 
             CustomList list = GetList(input[0]);
             
-            CheckPermissionWrite(userInfo, list);
+            CheckPermissionRead(userInfo, list);
 
             if (list.Count() == 0)
             {
@@ -377,7 +388,8 @@ namespace CommunityBot.Features.Lists
             var tableSettings = new MessageFormater.TableSettings(list.Name, -(maxItemLength), false);
             string output = MessageFormater.CreateTable(tableSettings, values);
 
-            return GetListOutput(output, list.PermissionByRole.First().Value);
+            var outputPermission = permission == ListPermission.PRIVATE ? list.PermissionByRole.First().Value : permission;
+            return GetListOutput(output, outputPermission);
         }
 
         public ListOutput Clear(UserInfo userInfo, string[] input)

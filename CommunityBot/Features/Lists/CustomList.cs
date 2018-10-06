@@ -166,6 +166,10 @@ namespace CommunityBot.Features.Lists
 
         public bool IsAllowedToList(UserInfo userInfo)
         {
+            var validRoleIds = PermissionByRole
+                .Where(x => x.Value > ListPermission.PRIVATE)
+                .Select(x => x.Key);
+            if (ShareItem(userInfo.RoleIds, validRoleIds)) { return true; }
             return ( !(this.OwnerId != userInfo.Id && PermissionByRole.First().Value == ListPermission.PRIVATE) );
         }
 
