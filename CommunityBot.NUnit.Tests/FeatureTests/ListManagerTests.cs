@@ -9,6 +9,9 @@ using Discord.Commands;
 using Moq;
 using static CommunityBot.Features.Lists.ListException;
 using static CommunityBot.Helpers.ListHelper;
+using Discord.WebSocket;
+using System.Linq;
+using System.Collections.ObjectModel;
 
 namespace CommunityBot.NUnit.Tests.FeatureTests
 {
@@ -16,9 +19,34 @@ namespace CommunityBot.NUnit.Tests.FeatureTests
     {
         private static readonly string TestListName = "testname";
         private static readonly string TestListItem = "item";
-        private static readonly UserInfo userInfo = new UserInfo(10, new ulong[] { 10 });
+        private static readonly ulong EveryoneRoleId = 10;
+        private static readonly UserInfo userInfo = new UserInfo(10, new ulong[] { EveryoneRoleId });
         private static readonly IDataStorage dataStorage = new JsonDataStorage();
-        private static readonly ListManager listManager = new ListManager(dataStorage);
+
+        private static ListManager listManager;
+
+        private static DiscordSocketClient GetDiscordSocketClient()
+        {
+            var roleName = "myRole";
+            var client = new Mock<DiscordSocketClient>();
+            var role = new Mock<IRole>();
+            var roles = new Collection<SocketRole>();
+            var guild = new Mock<IGuild>();
+            var guilds = new Collection<SocketGuild>();
+
+            role.Setup(r => r.Name).Returns(roleName);
+            roles.Add(role.Object as SocketRole);
+
+            guild.Setup(g => g.Roles).Returns(roles);
+            guilds.Add(guild.Object as SocketGuild);
+            return client.Object;
+        }
+
+        [OneTimeSetUp]
+        public static void Setup()
+        {
+            listManager = new ListManager(GetDiscordSocketClient(), dataStorage);
+        }
 
         [Test]
         public static void UnknownCommandTest()
