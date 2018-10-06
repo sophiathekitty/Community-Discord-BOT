@@ -1,6 +1,7 @@
 using CommunityBot.Configuration;
 using CommunityBot.Features.Trivia;
 using CommunityBot.Handlers;
+using CommunityBot.Features.Lists;
 using Discord.Commands;
 using Discord.WebSocket;
 using Lamar;
@@ -43,6 +44,8 @@ namespace CommunityBot
                 c.ForSingletonOf<CommandService>().UseIfNone<CommandService>();
                 c.ForSingletonOf<DiscordSocketClient>().UseIfNone(DiscordClientFactory.GetBySettings(settings));
                 c.ForSingletonOf<ApplicationSettings>().UseIfNone(settings);
+                c.ForSingletonOf<IDataStorage>().UseIfNone<JsonDataStorage>();
+                c.ForSingletonOf<ListManager>().UseIfNone<ListManager>();
             });
         }
     }

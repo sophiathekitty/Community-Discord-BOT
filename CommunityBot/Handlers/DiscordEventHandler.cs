@@ -177,7 +177,6 @@ namespace CommunityBot.Handlers
         {
             _commandHandler.HandleCommandAsync(message);
             MessageRewardHandler.HandleMessageRewards(message);
-            
         }
 
         private async Task MessageUpdated(Cacheable<IMessage, ulong> cacheMessageBefore, SocketMessage messageAfter, ISocketMessageChannel channel)
@@ -189,7 +188,7 @@ namespace CommunityBot.Handlers
         {
             if (reaction.User.Value.IsBot) { return; }
 
-            ListManager.HandleReactionAdded(cacheMessage, reaction);
+            InversionOfControl.Container.GetInstance<ListManager>().HandleReactionAdded(cacheMessage, reaction);
 
             _triviaGames.HandleReactionAdded(cacheMessage, reaction);
             BlogHandler.ReactionAdded(reaction);

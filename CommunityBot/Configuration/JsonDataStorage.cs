@@ -4,11 +4,11 @@ using System.IO;
 
 namespace CommunityBot.Configuration
 {
-    class DataStorage
+    public class JsonDataStorage : IDataStorage
     {
-        private static readonly string resourcesFolder = Constants.ResourceFolder;
+        private readonly string resourcesFolder = Constants.ResourceFolder;
 
-        static DataStorage()
+        public JsonDataStorage()
         {
             if (!Directory.Exists(resourcesFolder))
             {
@@ -16,32 +16,42 @@ namespace CommunityBot.Configuration
             }
         }
 
-        internal static void StoreObject(object obj, string file, Formatting formatting)
+        public void StoreObject(object obj, string file)
+        {
+            StoreObject(obj, file, true);
+        }
+
+        public void StoreObject(object obj, string file, Formatting formatting)
         {
             string json = JsonConvert.SerializeObject(obj, formatting);
             string filePath = String.Concat(resourcesFolder, "/", file);
             File.WriteAllText(filePath, json);
         }
 
-        internal static void StoreObject(object obj, string file, bool useIndentations)
+        public void StoreObject(object obj, string file, bool useIndentations)
         {
             var formatting = (useIndentations) ? Formatting.Indented : Formatting.None;
             StoreObject(obj, file, formatting);
         }
 
-        internal static T RestoreObject<T>(string file)
+        public T RestoreObject<T>(string file)
         {
             string json = GetOrCreateFileContents(file);
             return JsonConvert.DeserializeObject<T>(json);
         }
 
-        internal static bool LocalFileExists(string file)
+        public bool KeyExists(string key)
+        {
+            return LocalFileExists(key);
+        }
+
+        public bool LocalFileExists(string file)
         {
             string filePath = String.Concat(resourcesFolder, "/", file);
             return File.Exists(filePath);
         }
 
-        private static string GetOrCreateFileContents(string file)
+        private string GetOrCreateFileContents(string file)
         {
             string filePath = String.Concat(resourcesFolder, "/", file);
             if (!File.Exists(filePath))

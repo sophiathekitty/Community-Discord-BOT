@@ -14,7 +14,8 @@ namespace CommunityBot.Handlers
         private static readonly string blogFile = "blogs.json";
         public static Embed SubscribeToBlog(ulong userId, string blogname)
         {
-            var blogs = DataStorage.RestoreObject<List<BlogItem>>(blogFile);
+            var dataStorage = InversionOfControl.Container.GetInstance<JsonDataStorage>();
+            var blogs = dataStorage.RestoreObject<List<BlogItem>>(blogFile);
 
             var blog = blogs.FirstOrDefault(k => k.Name == blogname);
 
@@ -24,7 +25,7 @@ namespace CommunityBot.Handlers
                 {
                     blog.Subscribers.Add(userId);
 
-                    DataStorage.StoreObject(blogs, blogFile, Formatting.Indented);
+                    dataStorage.StoreObject(blogs, blogFile, Formatting.Indented);
 
                     return EmbedHandler.CreateEmbed("Blog", "You now follow this blog", EmbedHandler.EmbedMessageType.Success);
                 }
@@ -41,7 +42,8 @@ namespace CommunityBot.Handlers
 
         public static Embed UnSubscribeToBlog(ulong userId, string blogname)
         {
-            var blogs = DataStorage.RestoreObject<List<BlogItem>>(blogFile);
+            var dataStorage = InversionOfControl.Container.GetInstance<JsonDataStorage>();
+            var blogs = dataStorage.RestoreObject<List<BlogItem>>(blogFile);
 
             var blog = blogs.FirstOrDefault(k => k.Name == blogname);
 
@@ -51,7 +53,7 @@ namespace CommunityBot.Handlers
                 {
                     blog.Subscribers.Remove(userId);
 
-                    DataStorage.StoreObject(blogs, blogFile, Formatting.Indented);
+                    dataStorage.StoreObject(blogs, blogFile, Formatting.Indented);
 
                     return EmbedHandler.CreateEmbed("Blog", "You stopped following this blog", EmbedHandler.EmbedMessageType.Success);
                 }
