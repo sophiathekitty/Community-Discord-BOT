@@ -148,14 +148,14 @@ namespace CommunityBot.Features.Lists
             var validRoleIds = PermissionByRole
                 .Where(x => x.Value > ListPermission.PRIVATE)
                 .Select(x => x.Key);
-            if (ShareItem(userInfo.RoleIds, validRoleIds)) { return true; }
-            return ( !(this.OwnerId != userInfo.Id && PermissionByRole.First().Value == ListPermission.PRIVATE) );
+
+            return (ShareItem(userInfo.RoleIds, validRoleIds) || !(this.OwnerId != userInfo.Id && PermissionByRole.First().Value == ListPermission.PRIVATE) );
         }
 
         public bool IsAllowedToRead(UserInfo userInfo)
         {
             var validRoleIds = PermissionByRole
-                .Where(x => x.Value > ListPermission.PRIVATE && x.Value < ListPermission.LIST)
+                .Where(x => x.Value > ListPermission.LIST)
                 .Select(x => x.Key);
 
             return (ShareItem(userInfo.RoleIds, validRoleIds) || this.OwnerId == userInfo.Id);
@@ -164,7 +164,7 @@ namespace CommunityBot.Features.Lists
         public bool IsAllowedToWrite(UserInfo userInfo)
         {
             var validRoleIds = PermissionByRole
-                .Where(x => x.Value > ListPermission.PRIVATE && x.Value < ListPermission.READ)
+                .Where(x => x.Value > ListPermission.READ)
                 .Select(x => x.Key);
 
             return (ShareItem(userInfo.RoleIds, validRoleIds) || this.OwnerId == userInfo.Id);

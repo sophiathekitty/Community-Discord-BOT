@@ -12,25 +12,25 @@ namespace CommunityBot.Helpers
         public enum ListPermission
         {
             PRIVATE,
-            PUBLIC,
             READ,
-            LIST
+            LIST,
+            PUBLIC
         };
 
         public static IReadOnlyList<String> PermissionStrings = new List<String>
         {
             "private",
-            "public",
             "read only",
-            "view only"
+            "view only",
+            "public"
         };
 
         public static readonly IReadOnlyDictionary<string, ListPermission> ValidPermissions = new Dictionary<string, ListPermission>
         {
             { "-p", ListPermission.PRIVATE },
-            { "-pu", ListPermission.PUBLIC },
             { "-r", ListPermission.READ },
-            { "-l", ListPermission.LIST }
+            { "-l", ListPermission.LIST },
+            { "-pu", ListPermission.PUBLIC }
         };
 
         public struct UserInfo
