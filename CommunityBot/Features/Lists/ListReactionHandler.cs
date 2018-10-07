@@ -21,11 +21,11 @@ namespace CommunityBot.Features.Lists
                 {
                     if (reaction.Emote.Name == ListManager.ControlEmojis["up"].Name)
                     {
-                        await HandleMovement(reaction, cacheMessage.Value.Content, true);
+                        await HandleMovement(reaction, cacheMessage.Value.Content, true).ConfigureAwait(false);
                     }
                     else if (reaction.Emote.Name == ListManager.ControlEmojis["down"].Name)
                     {
-                        await HandleMovement(reaction, cacheMessage.Value.Content, false);
+                        await HandleMovement(reaction, cacheMessage.Value.Content, false).ConfigureAwait(false);
                     }
                     else if (reaction.Emote.Name == ListManager.ControlEmojis["check"].Name)
                     {

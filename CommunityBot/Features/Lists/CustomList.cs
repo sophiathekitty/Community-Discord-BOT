@@ -10,7 +10,7 @@ using static CommunityBot.Helpers.ListHelper;
 
 namespace CommunityBot.Features.Lists
 {
-    public class CustomList
+    public class CustomList : IEquatable<object>
     {
         public string Name { get; set; }
         public List<String> Contents { get; set; }

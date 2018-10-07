@@ -17,11 +17,11 @@ namespace CommunityBot.Features.Lists
     {
         private static readonly string ListManagerLookup = "list_manager_lookup.json";
 
-        public static string LineIndicator = " <--";
+        public static readonly string LineIndicator = " <--";
 
         public static Dictionary<ulong, ulong> ListenForReactionMessages = new Dictionary<ulong, ulong>();
 
-        public static IReadOnlyDictionary<string, Emoji> ControlEmojis = new Dictionary<string, Emoji>
+        public static readonly IReadOnlyDictionary<string, Emoji> ControlEmojis = new Dictionary<string, Emoji>
         {
             {"up", new Emoji("⬆") },
             {"down", new Emoji("⬇") },
@@ -32,7 +32,6 @@ namespace CommunityBot.Features.Lists
 
         private static List<CustomList> Lists = new List<CustomList>();
         private readonly IDataStorage dataStorage;
-        private ulong everyoneRoleId;
         private readonly DiscordSocketClient client;
 
         public ListManager(DiscordSocketClient client, IDataStorage dataStorage)
@@ -124,14 +123,16 @@ namespace CommunityBot.Features.Lists
                 if (permission == null) { throw GetListManagerException(ListErrorMessage.General.WrongFormat); }
 
                 bool result = list.SetPermissionByRole(role.Id, permission);
+                var resultString = "";
                 if (result)
                 {
-                    log.Append($"Changed permission of role '{roleName}' to {PermissionStrings[(int)permission]}");
+                    resultString = $"Changed permission of role '{roleName}' to {PermissionStrings[(int)permission]}";
                 }
                 else
                 {
-                    log.Append($"The permission of role '{roleName}' is already set to {PermissionStrings[(int)permission]}");
+                    resultString = $"The permission of role '{roleName}' is already set to {PermissionStrings[(int)permission]}";
                 }
+                log.Append(resultString);
             }
             return GetListOutput(log.ToString());
         }
@@ -410,7 +411,7 @@ namespace CommunityBot.Features.Lists
             return SeperateArray(input, input.Length - 1);
         }
 
-        private SeperatedArray SeperateArray(string[] input, params int[] indices)
+        private  SeperatedArray SeperateArray(string[] input, params int[] indices)
         {
             var sa = new SeperatedArray();
             sa.seperated = new string[indices.Length];
@@ -430,7 +431,7 @@ namespace CommunityBot.Features.Lists
             return sa;
         }
 
-        private struct SeperatedArray
+        private struct SeperatedArray : IEquatable<object>
         {
             public string[] seperated { get; set; }
             public string[] array { get; set; }
@@ -452,9 +453,9 @@ namespace CommunityBot.Features.Lists
             foreach (string name in listNames)
             {
                 var l = CustomList.RestoreList(dataStorage, name);
-                l.SetDataStorage(this.dataStorage);
                 if (l != null)
                 {
+                    l.SetDataStorage(this.dataStorage);
                     Lists.Add(l);
                 }
             }
