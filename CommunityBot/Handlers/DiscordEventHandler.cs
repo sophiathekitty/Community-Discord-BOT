@@ -192,7 +192,7 @@ namespace CommunityBot.Handlers
             if (reaction.User.Value.IsBot) { return; }
 
             //var user = _client.GetUser(reaction.UserId) as SocketGuildUser;
-            var user = reaction.User.Value as SocketGuildUser;
+            var user = _client.Guilds.First().GetUser(reaction.UserId);
             var roleIds = user.Roles.Select(r => r.Id).ToArray();
             (new ListReactionHandler()).HandleReactionAdded(new ListHelper.UserInfo(user.Id, roleIds), _listManager, cacheMessage, reaction);
 
