@@ -39,11 +39,11 @@ namespace CommunityBot.Features.Lists
             this.client = client;
             this.dataStorage = dataStorage;
 
-            ValidOperations = new Dictionary<string, Func<UserInfo, string[], ListOutput>>
+            ValidOperations = new Dictionary<string, Func<UserInfo, string[], ListOutput>>  //Func<UserInfo, string[], ListOutput>
             {
                 { "-m", ModifyPermission },
-                { "-g", GetAllPrivate },
-                { "-gp", GetAllPublic },
+                { "-g", (userInfo, args) => GetAllPrivate(userInfo) },
+                { "-gp", (userInfo, args) => GetAllPublic(userInfo) },
                 { "-c", CreateListPrivate },
                 { "-cp", CreateListPublic },
                 { "-a", Add },
@@ -137,17 +137,17 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(log.ToString());
         }
 
-        public ListOutput GetAllPrivate(UserInfo userInfo, params string[] input)
+        public ListOutput GetAllPrivate(UserInfo userInfo)
         {
-            return GetAll(userInfo, ListPermission.PRIVATE, input);
+            return GetAll(userInfo, ListPermission.PRIVATE);
         }
 
-        public ListOutput GetAllPublic(UserInfo userInfo, params string[] input)
+        public ListOutput GetAllPublic(UserInfo userInfo)
         {
-            return GetAll(userInfo, ListPermission.PUBLIC, input);
+            return GetAll(userInfo, ListPermission.PUBLIC);
         }
 
-        private ListOutput GetAll(UserInfo userInfo, ListPermission outputPermission, params string[] input)
+        private ListOutput GetAll(UserInfo userInfo, ListPermission outputPermission)
         {
             if (Lists.Count == 0) { throw GetListManagerException(ListErrorMessage.General.NoLists); }
 
