@@ -24,7 +24,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests.ListManagerTests
 
             Manage(new[] { "-c", TestListName });
             
-            var e = Assert.Throws<ListManagerException>(
+            var e = Assert.Throws<ListPermissionException>(
                 () => Manage(DifferentUserInfo, new[] { "-a", TestListItem, TestListName })
             );
 
@@ -87,8 +87,6 @@ namespace CommunityBot.NUnit.Tests.FeatureTests.ListManagerTests
             var permission = (ListPermission) args[0];
             var commandArgs = (string[]) args[1];
 
-            var expectedResult = new CustomList(TestDataStorage, TestUserInfo, permission, TestListName);
-
             var modifier = ListHelper.ValidPermissions
                 .Where(vp => vp.Value == permission)
                 .Select(vp => vp.Key)
@@ -115,14 +113,10 @@ namespace CommunityBot.NUnit.Tests.FeatureTests.ListManagerTests
         [Test]
         public static void ChangePermissionByRoleListTest()
         {
-            var expectedResult = new CustomList(TestDataStorage, TestUserInfo, ListPermission.LIST, TestListName);
-
             var modifier = ListHelper.ValidPermissions
                 .Where(vp => vp.Value == ListPermission.LIST)
                 .Select(vp => vp.Key)
                 .FirstOrDefault();
-
-            var expectedExceptionMessage = String.Format(ListErrorMessage.Permission.NoPermission_list, TestListName);
 
             Manage(new[] { "-c", TestListName });
             Manage(new[] { "-a", TestListItem, TestListName });

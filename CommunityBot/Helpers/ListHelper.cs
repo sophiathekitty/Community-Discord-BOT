@@ -42,7 +42,7 @@ namespace CommunityBot.Helpers
             {"check", new Discord.Emoji("✅") }
         };
 
-        public struct UserInfo
+        public struct UserInfo : IEquatable<object>
         {
             public ulong Id { get; }
             public ulong[] RoleIds { get; }
@@ -70,11 +70,11 @@ namespace CommunityBot.Helpers
             CLEAR
         }
 
-        public struct ManagerMethod
+        public struct ManagerMethod : IEquatable<object>
         {
-            public string Shortcut;
-            public ManagerMethodId MethodId;
-            public Func<UserInfo, Dictionary<string, ulong>, string[], ListOutput> Reference;
+            public string Shortcut { get; set; }
+            public ManagerMethodId MethodId { get; set; }
+            public Func<UserInfo, Dictionary<string, ulong>, string[], ListOutput> Reference { get; set; }
 
             public ManagerMethod(string shortcut, ManagerMethodId methodId, Func<UserInfo, Dictionary<string, ulong>, string[], ListOutput> reference)
             {

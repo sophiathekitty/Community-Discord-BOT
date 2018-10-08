@@ -16,7 +16,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests.ListManagerTests
 {
     public class ListManagerTestsHelper
     {
-        protected const ulong TestUserId = 10;
+        protected static readonly ulong TestUserId = 10;
 
         protected static readonly string EveryoneRoleName       = "everyone";
         protected static readonly ulong EveryoneRoleId          = 50;
@@ -28,8 +28,8 @@ namespace CommunityBot.NUnit.Tests.FeatureTests.ListManagerTests
         protected static readonly string TestListName           = "testname";
         protected static readonly string TestListItem           = "item";
 
-        protected static readonly UserInfo TestUserInfo         = new UserInfo(TestUserId, new ulong[] { EveryoneRoleId, OwnerRoleId });
-        protected static readonly UserInfo DifferentUserInfo    = new UserInfo(TestUserId + 1, new ulong[] { EveryoneRoleId, OwnerRoleId });
+        protected static readonly UserInfo TestUserInfo         = new UserInfo(TestUserId, new[] { EveryoneRoleId, OwnerRoleId });
+        protected static readonly UserInfo DifferentUserInfo    = new UserInfo(TestUserId + 1, new[] { EveryoneRoleId, OwnerRoleId });
         protected static readonly IDataStorage TestDataStorage  = new JsonDataStorage();
         
         protected static ListManager listManager;

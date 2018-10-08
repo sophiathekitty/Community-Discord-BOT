@@ -44,8 +44,7 @@ namespace CommunityBot.Features.Lists
         public ListManager(IDataStorage dataStorage)
         {
             this.dataStorage = dataStorage;
-
-            var index = 0;
+            
             ValidOperations = new List<ManagerMethod>
             {
                 new ManagerMethod("-m",     ManagerMethodId.MODIFY,         (userInfo, availableRoles, args) => ModifyPermission(userInfo, availableRoles, args)),
