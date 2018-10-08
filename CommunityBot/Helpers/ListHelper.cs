@@ -70,6 +70,26 @@ namespace CommunityBot.Helpers
             CLEAR
         }
 
+        public static IReadOnlyList<ManagerMethod> InitializeOperations(ListManager manager)
+        {
+            var validOperations = new List<ManagerMethod>
+            {
+                new ManagerMethod("-m",     ManagerMethodId.MODIFY,         (userInfo, availableRoles, args) => manager.ModifyPermission(userInfo, availableRoles, args)),
+                new ManagerMethod("-g",     ManagerMethodId.GETPRIVATE,     (userInfo, availableRoles, args) => manager.GetAllPrivate(userInfo)),
+                new ManagerMethod("-gp",    ManagerMethodId.GETPUBLIC,      (userInfo, availableRoles, args) => manager.GetAllPublic(userInfo)),
+                new ManagerMethod("-c",     ManagerMethodId.CREATEPRIVATE,  (userInfo, availableRoles, args) => manager.CreateListPrivate(userInfo, args)),
+                new ManagerMethod("-cp",    ManagerMethodId.CREATEPUBLIC,   (userInfo, availableRoles, args) => manager.CreateListPublic(userInfo, args)),
+                new ManagerMethod("-a",     ManagerMethodId.ADD,            (userInfo, availableRoles, args) => manager.Add(userInfo, args)),
+                new ManagerMethod("-i",     ManagerMethodId.INSERT,         (userInfo, availableRoles, args) => manager.Insert(userInfo, args)),
+                new ManagerMethod("-l",     ManagerMethodId.OUTPUTPRIVATE,  (userInfo, availableRoles, args) => manager.OutputListPrivate(userInfo, args)),
+                new ManagerMethod("-lp",    ManagerMethodId.OUTPUTPUBLIC,   (userInfo, availableRoles, args) => manager.OutputListPublic(userInfo, args)),
+                new ManagerMethod("-r",     ManagerMethodId.REMOVE,         (userInfo, availableRoles, args) => manager.Remove(userInfo, args)),
+                new ManagerMethod("-rl",    ManagerMethodId.REMOVELIST,     (userInfo, availableRoles, args) => manager.RemoveList(userInfo, args)),
+                new ManagerMethod("-cl",    ManagerMethodId.CLEAR,          (userInfo, availableRoles, args) => manager.Clear(userInfo, args))
+            };
+            return validOperations;
+        }
+
         public struct ManagerMethod : IEquatable<object>
         {
             public string Shortcut { get; set; }

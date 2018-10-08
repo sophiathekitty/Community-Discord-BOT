@@ -44,22 +44,8 @@ namespace CommunityBot.Features.Lists
         public ListManager(IDataStorage dataStorage)
         {
             this.dataStorage = dataStorage;
-            
-            ValidOperations = new List<ManagerMethod>
-            {
-                new ManagerMethod("-m",     ManagerMethodId.MODIFY,         (userInfo, availableRoles, args) => ModifyPermission(userInfo, availableRoles, args)),
-                new ManagerMethod("-g",     ManagerMethodId.GETPRIVATE,     (userInfo, availableRoles, args) => GetAllPrivate(userInfo)),
-                new ManagerMethod("-gp",    ManagerMethodId.GETPUBLIC,      (userInfo, availableRoles, args) => GetAllPublic(userInfo)),
-                new ManagerMethod("-c",     ManagerMethodId.CREATEPRIVATE,  (userInfo, availableRoles, args) => CreateListPrivate(userInfo, args)),
-                new ManagerMethod("-cp",    ManagerMethodId.CREATEPUBLIC,   (userInfo, availableRoles, args) => CreateListPublic(userInfo, args)),
-                new ManagerMethod("-a",     ManagerMethodId.ADD,            (userInfo, availableRoles, args) => Add(userInfo, args)),
-                new ManagerMethod("-i",     ManagerMethodId.INSERT,         (userInfo, availableRoles, args) => Insert(userInfo, args)),
-                new ManagerMethod("-l",     ManagerMethodId.OUTPUTPRIVATE,  (userInfo, availableRoles, args) => OutputListPrivate(userInfo, args)),
-                new ManagerMethod("-lp",    ManagerMethodId.OUTPUTPUBLIC,   (userInfo, availableRoles, args) => OutputListPublic(userInfo, args)),
-                new ManagerMethod("-r",     ManagerMethodId.REMOVE,         (userInfo, availableRoles, args) => Remove(userInfo, args)),
-                new ManagerMethod("-rl",    ManagerMethodId.REMOVELIST,     (userInfo, availableRoles, args) => RemoveList(userInfo, args)),
-                new ManagerMethod("-cl",    ManagerMethodId.CLEAR,          (userInfo, availableRoles, args) => Clear(userInfo, args))
-            };
+
+            ValidOperations = InitializeOperations(this);
 
             RestoreOrCreateLists();
         }
@@ -107,7 +93,7 @@ namespace CommunityBot.Features.Lists
             return result;
         }
 
-        private ListOutput ModifyPermission(UserInfo userInfo, Dictionary<string, ulong> availableRoles, params string[] input)
+        public ListOutput ModifyPermission(UserInfo userInfo, Dictionary<string, ulong> availableRoles, params string[] input)
         {
             if (input.Length < 3 || input.Length % 2 == 0) { throw GetListManagerException(ListErrorMessage.General.WrongFormat); }
 
@@ -146,12 +132,12 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(log.ToString());
         }
 
-        private ListOutput GetAllPrivate(UserInfo userInfo)
+        public ListOutput GetAllPrivate(UserInfo userInfo)
         {
             return GetAll(userInfo, ListPermission.PRIVATE);
         }
 
-        private ListOutput GetAllPublic(UserInfo userInfo)
+        public ListOutput GetAllPublic(UserInfo userInfo)
         {
             return GetAll(userInfo, ListPermission.PUBLIC);
         }
@@ -212,12 +198,12 @@ namespace CommunityBot.Features.Lists
             return returnValue;
         }
 
-        private ListOutput CreateListPrivate(UserInfo userInfo, params string[] input)
+        public ListOutput CreateListPrivate(UserInfo userInfo, params string[] input)
         {
             return CreateList(userInfo, ListPermission.PRIVATE, input);
         }
 
-        private ListOutput CreateListPublic(UserInfo userInfo, params string[] input)
+        public ListOutput CreateListPublic(UserInfo userInfo, params string[] input)
         {
             return CreateList(userInfo, ListPermission.PUBLIC, input);
         }
@@ -259,7 +245,7 @@ namespace CommunityBot.Features.Lists
             return list;
         }
 
-        private ListOutput Add(UserInfo userInfo, string[] input)
+        public ListOutput Add(UserInfo userInfo, string[] input)
         {
             if (input.Length < 2)
             {
@@ -279,7 +265,7 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output);
         }
 
-        private ListOutput Insert(UserInfo userInfo, string[] input)
+        public ListOutput Insert(UserInfo userInfo, string[] input)
         {
             if (input.Length < 3) { throw GetListManagerException(); }
 
@@ -315,7 +301,7 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output);
         }
 
-        private ListOutput RemoveList(UserInfo userInfo, params string[] input)
+        public ListOutput RemoveList(UserInfo userInfo, params string[] input)
         {
             if (input.Length != 1)
             {
@@ -334,7 +320,7 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output);
         }
 
-        private ListOutput Remove(UserInfo userInfo, string[] input)
+        public ListOutput Remove(UserInfo userInfo, string[] input)
         {
             if (input.Length != 2)
             {
@@ -354,12 +340,12 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output);
         }
 
-        private ListOutput OutputListPrivate(UserInfo userInfo, params string[] input)
+        public ListOutput OutputListPrivate(UserInfo userInfo, params string[] input)
         {
             return OutputList(userInfo, ListPermission.PRIVATE, input);
         }
 
-        private ListOutput OutputListPublic(UserInfo userInfo, params string[] input)
+        public ListOutput OutputListPublic(UserInfo userInfo, params string[] input)
         {
             return OutputList(userInfo, ListPermission.PUBLIC, input);
         }
@@ -399,7 +385,7 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output, outputPermission);
         }
 
-        private ListOutput Clear(UserInfo userInfo, string[] input)
+        public ListOutput Clear(UserInfo userInfo, string[] input)
         {
             if (input.Length != 1)
             {
