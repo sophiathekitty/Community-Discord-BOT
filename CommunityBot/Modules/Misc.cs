@@ -284,8 +284,14 @@ namespace CommunityBot.Modules
         {
             var user = Context.User as SocketGuildUser;
             var roleIds = user.Roles.Select(r => r.Id).ToArray();
-            var output = _listManager.HandleIO(new ListHelper.UserInfo(user.Id, roleIds) , Context.Message.Id, input);
+            var availableRoles = Context.Client.Guilds.First().Roles.ToDictionary(r => r.Name,
+                                                                            r => r.Id);
+            var output = _listManager.HandleIO(new ListHelper.UserInfo(user.Id, roleIds), availableRoles, Context.Message.Id, input);
             RestUserMessage message;
+            //var roleName = input[2];
+            //Context.Client.Guilds.First().Roles.Where(r => r.Name == roleName).FirstOrDefault();
+            
+            //ListHelper.ModifyRoleNameIfMentioned(input, roles.ToList());
             if (output.permission == null || output.permission != ListHelper.ListPermission.PRIVATE)
             {
                 message = (RestUserMessage)await Context.Channel.SendMessageAsync(output.outputString, false, output.outputEmbed);
@@ -297,9 +303,9 @@ namespace CommunityBot.Modules
             }
             if (output.listenForReactions)
             {
-                await message.AddReactionAsync(ListManager.ControlEmojis["up"]);
-                await message.AddReactionAsync(ListManager.ControlEmojis["down"]);
-                await message.AddReactionAsync(ListManager.ControlEmojis["check"]);
+                await message.AddReactionAsync(ListHelper.ControlEmojis["up"]);
+                await message.AddReactionAsync(ListHelper.ControlEmojis["down"]);
+                await message.AddReactionAsync(ListHelper.ControlEmojis["check"]);
                 ListManager.ListenForReactionMessages.Add(message.Id, Context.User.Id);
             }
         }

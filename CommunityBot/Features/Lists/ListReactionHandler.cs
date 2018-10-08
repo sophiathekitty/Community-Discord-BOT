@@ -19,15 +19,15 @@ namespace CommunityBot.Features.Lists
                 reaction.Message.Value.RemoveReactionAsync(reaction.Emote, reaction.User.Value);
                 if (ListManager.ListenForReactionMessages[reaction.MessageId] == reaction.User.Value.Id)
                 {
-                    if (reaction.Emote.Name == ListManager.ControlEmojis["up"].Name)
+                    if (reaction.Emote.Name == ControlEmojis["up"].Name)
                     {
                         await HandleMovement(reaction, cacheMessage.Value.Content, true).ConfigureAwait(false);
                     }
-                    else if (reaction.Emote.Name == ListManager.ControlEmojis["down"].Name)
+                    else if (reaction.Emote.Name == ControlEmojis["down"].Name)
                     {
                         await HandleMovement(reaction, cacheMessage.Value.Content, false).ConfigureAwait(false);
                     }
-                    else if (reaction.Emote.Name == ListManager.ControlEmojis["check"].Name)
+                    else if (reaction.Emote.Name == ControlEmojis["check"].Name)
                     {
                         var seperatedMessage = SepereateMessageByLines(cacheMessage.Value.Content);
                         foreach (string s in seperatedMessage)
@@ -38,7 +38,7 @@ namespace CommunityBot.Features.Lists
                                 reaction.Message.Value.RemoveAllReactionsAsync();
 
                                 var listName = GetItemNameFromLine(s);
-                                var output = listManager.HandleIO(userInfo, reaction.MessageId, new[] { "-l", listName });
+                                var output = listManager.HandleIO(userInfo, null, reaction.MessageId, new[] { "-l", listName });
                                 reaction.Message.Value.ModifyAsync(msg => { msg.Content = output.outputString; msg.Embed = output.outputEmbed; });
                             }
                         }
