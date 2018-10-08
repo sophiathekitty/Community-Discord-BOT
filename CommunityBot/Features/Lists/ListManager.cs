@@ -98,7 +98,7 @@ namespace CommunityBot.Features.Lists
             return result;
         }
 
-        public ListOutput ModifyPermission(UserInfo userInfo, params string[] input)
+        private ListOutput ModifyPermission(UserInfo userInfo, params string[] input)
         {
             if (input.Length < 3 || input.Length % 2 == 0) { throw GetListManagerException(ListErrorMessage.General.WrongFormat); }
 
@@ -137,12 +137,12 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(log.ToString());
         }
 
-        public ListOutput GetAllPrivate(UserInfo userInfo)
+        private ListOutput GetAllPrivate(UserInfo userInfo)
         {
             return GetAll(userInfo, ListPermission.PRIVATE);
         }
 
-        public ListOutput GetAllPublic(UserInfo userInfo)
+        private ListOutput GetAllPublic(UserInfo userInfo)
         {
             return GetAll(userInfo, ListPermission.PUBLIC);
         }
@@ -203,12 +203,12 @@ namespace CommunityBot.Features.Lists
             return returnValue;
         }
 
-        public ListOutput CreateListPrivate(UserInfo userInfo, params string[] input)
+        private ListOutput CreateListPrivate(UserInfo userInfo, params string[] input)
         {
             return CreateList(userInfo, ListPermission.PRIVATE, input);
         }
 
-        public ListOutput CreateListPublic(UserInfo userInfo, params string[] input)
+        private ListOutput CreateListPublic(UserInfo userInfo, params string[] input)
         {
             return CreateList(userInfo, ListPermission.PUBLIC, input);
         }
@@ -240,7 +240,7 @@ namespace CommunityBot.Features.Lists
             throw GetListManagerException(ListErrorMessage.General.ListAlreadyExists_list, listName);
         }
 
-        public CustomList GetList(string name)
+        private CustomList GetList(string name)
         {
             CustomList list = Lists.Find(l => l.Name.Equals(name));
             if (list == null)
@@ -250,7 +250,7 @@ namespace CommunityBot.Features.Lists
             return list;
         }
 
-        public ListOutput Add(UserInfo userInfo, string[] input)
+        private ListOutput Add(UserInfo userInfo, string[] input)
         {
             if (input.Length < 2)
             {
@@ -270,7 +270,7 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output);
         }
 
-        public ListOutput Insert(UserInfo userInfo, string[] input)
+        private ListOutput Insert(UserInfo userInfo, string[] input)
         {
             if (input.Length < 3) { throw GetListManagerException(); }
 
@@ -306,7 +306,7 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output);
         }
 
-        public ListOutput RemoveList(UserInfo userInfo, params string[] input)
+        private ListOutput RemoveList(UserInfo userInfo, params string[] input)
         {
             if (input.Length != 1)
             {
@@ -325,7 +325,7 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output);
         }
 
-        public ListOutput Remove(UserInfo userInfo, string[] input)
+        private ListOutput Remove(UserInfo userInfo, string[] input)
         {
             if (input.Length != 2)
             {
@@ -345,12 +345,12 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output);
         }
 
-        public ListOutput OutputListPrivate(UserInfo userInfo, params string[] input)
+        private ListOutput OutputListPrivate(UserInfo userInfo, params string[] input)
         {
             return OutputList(userInfo, ListPermission.PRIVATE, input);
         }
 
-        public ListOutput OutputListPublic(UserInfo userInfo, params string[] input)
+        private ListOutput OutputListPublic(UserInfo userInfo, params string[] input)
         {
             return OutputList(userInfo, ListPermission.PUBLIC, input);
         }
@@ -390,7 +390,7 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output, outputPermission);
         }
 
-        public ListOutput Clear(UserInfo userInfo, string[] input)
+        private ListOutput Clear(UserInfo userInfo, string[] input)
         {
             if (input.Length != 1)
             {
@@ -437,13 +437,13 @@ namespace CommunityBot.Features.Lists
             public string[] array { get; set; }
         }
 
-        public void WriteContents()
+        private void WriteContents()
         {
             List<string> listNames = Lists.Select(l => l.Name).ToList<string>();
             dataStorage.StoreObject(listNames, ListManagerLookup);
         }
 
-        public void RestoreOrCreateLists()
+        private void RestoreOrCreateLists()
         {
             Lists = new List<CustomList>();
 
@@ -461,23 +461,23 @@ namespace CommunityBot.Features.Lists
             }
         }
 
-        public ListManagerException GetListManagerException()
+        private ListManagerException GetListManagerException()
         {
             return GetListManagerException(ListErrorMessage.General.UnknownError);
         }
 
-        public ListManagerException GetListManagerException(string message, params string[] parameters)
+        private ListManagerException GetListManagerException(string message, params string[] parameters)
         {
             var formattedMessage = String.Format(message, parameters);
             return new ListManagerException(formattedMessage);
         }
 
-        public ListPermissionException GetListPermissionException()
+        private ListPermissionException GetListPermissionException()
         {
             return GetListPermissionException(ListErrorMessage.Permission.NoPermission_list);
         }
 
-        public ListPermissionException GetListPermissionException(string message, params string[] parameters)
+        private ListPermissionException GetListPermissionException(string message, params string[] parameters)
         {
             var formattedMessage = String.Format(message, parameters);
             return new ListPermissionException(formattedMessage);
