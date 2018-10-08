@@ -288,10 +288,6 @@ namespace CommunityBot.Modules
                                                                             r => r.Id);
             var output = _listManager.HandleIO(new ListHelper.UserInfo(user.Id, roleIds), availableRoles, Context.Message.Id, input);
             RestUserMessage message;
-            //var roleName = input[2];
-            //Context.Client.Guilds.First().Roles.Where(r => r.Name == roleName).FirstOrDefault();
-            
-            //ListHelper.ModifyRoleNameIfMentioned(input, roles.ToList());
             if (output.permission == null || output.permission != ListHelper.ListPermission.PRIVATE)
             {
                 message = (RestUserMessage)await Context.Channel.SendMessageAsync(output.outputString, false, output.outputEmbed);

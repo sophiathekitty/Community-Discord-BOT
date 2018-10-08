@@ -147,42 +147,5 @@ namespace CommunityBot.Helpers
             public string[] seperated { get; set; }
             public string[] array { get; set; }
         }
-
-        /*public static string[] ModifyRoleNameIfMentioned(string[] input, List<Discord.IRole> roles)
-        {
-            if (ListManager.ValidOperations.Where(vo => vo.Shortcut == input[0]).Select(vo => vo.MethodId).First() != ManagerMethodId.MODIFY)
-            {
-                return input;
-            }
-            if (input.Length < 3 || input.Length % 2 == 1)
-            {
-                throw ListManagerException.GetListManagerException(ListErrorMessage.General.WrongFormat);
-            }
-            var newLength = (input.Length - 2) / 2;
-            var output = new List<string>();
-            output.Add(input[0]);
-            output.Add(input[1]);
-            for (int i = 2; i < input.Length; i += 2)
-            {
-                var roleName = input[i + 0];
-                var modifier = input[i + 1];
-                var roleId = roles.Where(r => r.Name == roleName).Select(r => r.Id).FirstOrDefault();
-                if (roleId == default(ulong))
-                {
-                    throw ListManagerException.GetListManagerException(ListErrorMessage.General.WrongFormat);
-                }
-                output.Add(roleName);
-                output.Add(roleId.ToString());
-                output.Add(modifier);
-            }
-            return output.ToArray();
-        }
-
-        public static UserInfo GetUserInfoFromContext(MiunieCommandContext context)
-        {
-            var user = context.User as Discord.WebSocket.SocketGuildUser;
-            var roleIds = user.Guild.Roles.Select(r => r.Id).ToArray();
-            return new UserInfo(user.Id, roleIds);
-        }*/
     }
 }

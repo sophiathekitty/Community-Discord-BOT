@@ -46,7 +46,7 @@ namespace CommunityBot.Features.Lists
             this.dataStorage = dataStorage;
 
             var index = 0;
-            ValidOperations = new List<ManagerMethod>  //Func<UserInfo, string[], ListOutput>
+            ValidOperations = new List<ManagerMethod>
             {
                 new ManagerMethod("-m",     ManagerMethodId.MODIFY,         (userInfo, availableRoles, args) => ModifyPermission(userInfo, availableRoles, args)),
                 new ManagerMethod("-g",     ManagerMethodId.GETPRIVATE,     (userInfo, availableRoles, args) => GetAllPrivate(userInfo)),
@@ -124,8 +124,6 @@ namespace CommunityBot.Features.Lists
                 CheckPermissionModify(userInfo, list);
 
                 var roleId = availableRoles.Where(ar => ar.Key == roleName).FirstOrDefault().Value;
-
-                //var role = client.Guilds.First().Roles.Where(r => r.Name.Equals(roleName)).FirstOrDefault();
                 if (roleId == default(ulong))
                 {
                     throw GetListManagerException(ListErrorMessage.General.RoleDoesNotExist_rolename, roleName);
