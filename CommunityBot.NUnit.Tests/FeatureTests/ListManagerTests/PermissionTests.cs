@@ -23,10 +23,9 @@ namespace CommunityBot.NUnit.Tests.FeatureTests.ListManagerTests
             var expected = String.Format(ListErrorMessage.Permission.NoPermission_list, TestListName);
 
             Manage(new[] { "-c", TestListName });
-
-            var differentUserInfo = new UserInfo(TestUserInfo.Id + 1, TestUserInfo.RoleIds);
+            
             var e = Assert.Throws<ListManagerException>(
-                () => listManager.Manage(differentUserInfo, new[] { "-a", TestListItem, TestListName })
+                () => Manage(DifferentUserInfo, new[] { "-a", TestListItem, TestListName })
             );
 
             Assert.AreEqual(expected, e.Message);
@@ -39,10 +38,9 @@ namespace CommunityBot.NUnit.Tests.FeatureTests.ListManagerTests
             expected.Add(TestListItem);
 
             Manage(new[] { "-cp", TestListName });
-
-            var differentUserInfo = new UserInfo(TestUserInfo.Id + 1, TestUserInfo.RoleIds);
+            
             Assert.DoesNotThrow(
-                () => listManager.Manage(differentUserInfo, new[] { "-a", TestListItem, TestListName })
+                () => Manage(DifferentUserInfo, new[] { "-a", TestListItem, TestListName })
             );
 
             var actual = listManager.GetList(TestListName);
@@ -55,7 +53,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests.ListManagerTests
         {
             var expected = ListPermission.PUBLIC;
 
-            listManager.CreateListPublic(TestUserInfo, new[] { TestListName });
+            Manage(new[] { "-cp", TestListName });
 
             var actual = Manage(new[] { "-gp" }).permission;
 
@@ -67,39 +65,77 @@ namespace CommunityBot.NUnit.Tests.FeatureTests.ListManagerTests
         {
             var expected = ListPermission.PRIVATE;
 
-            listManager.CreateListPrivate(TestUserInfo, new[] { TestListName });
+            Manage(new[] { "-cp", TestListName });
 
             var actual = Manage(new[] { "-g" }).permission;
 
             Assert.AreEqual(expected, actual);
         }
-
-        [Test]
-        public static void ChangePermissionByRoleTest()
+        
+        private static IEnumerable<object[]> PermissionByRoleTestCases
         {
-            var expectedResult = new CustomList(TestDataStorage, TestUserInfo, ListPermission.PUBLIC, TestListName);
+            get
+            {
+                yield return new object[] { ListPermission.PUBLIC, new[] { "-a", TestListItem, TestListName }};
+                yield return new object[] { ListPermission.READ, new[] { "-l", TestListName }};
+            }
+        }
+
+        [Test, TestCaseSource("PermissionByRoleTestCases")]
+        public static void ChangePermissionByRoleTest(object[] args)
+        {
+            var permission = (ListPermission) args[0];
+            var commandArgs = (string[]) args[1];
+
+            var expectedResult = new CustomList(TestDataStorage, TestUserInfo, permission, TestListName);
 
             var modifier = ListHelper.ValidPermissions
-                .Where(vp => vp.Value == ListPermission.PUBLIC)
+                .Where(vp => vp.Value == permission)
                 .Select(vp => vp.Key)
                 .FirstOrDefault();
 
             var expectedExceptionMessage = String.Format(ListErrorMessage.Permission.NoPermission_list, TestListName);
 
             Manage(new[] { "-c", TestListName });
-
-            var differentUserInfo = new UserInfo(TestUserInfo.Id + 1, TestUserInfo.RoleIds);
-            var e = Assert.Throws<ListManagerException>(
-                () => listManager.Manage(differentUserInfo, new[] { "-a", TestListItem, TestListName })
+            Manage(new[] { "-a", TestListItem, TestListName });
+            
+            var e = Assert.Throws<ListPermissionException>(
+                () => Manage(DifferentUserInfo, commandArgs)
             );
 
             Assert.AreEqual(expectedExceptionMessage, e.Message);
 
-            Manage(new[] { "-m", TestListName, TestRoleName, modifier });
-
+            Manage(new[] { "-m", TestListName, OwnerRoleName, modifier });
+            
             Assert.DoesNotThrow(
-                () => listManager.Manage(differentUserInfo, new[] { "-a", TestListItem, TestListName })
+                () => Manage(DifferentUserInfo, commandArgs)
             );
+        }
+
+        [Test]
+        public static void ChangePermissionByRoleListTest()
+        {
+            var expectedResult = new CustomList(TestDataStorage, TestUserInfo, ListPermission.LIST, TestListName);
+
+            var modifier = ListHelper.ValidPermissions
+                .Where(vp => vp.Value == ListPermission.LIST)
+                .Select(vp => vp.Key)
+                .FirstOrDefault();
+
+            var expectedExceptionMessage = String.Format(ListErrorMessage.Permission.NoPermission_list, TestListName);
+
+            Manage(new[] { "-c", TestListName });
+            Manage(new[] { "-a", TestListItem, TestListName });
+
+            var result = Manage(DifferentUserInfo, new[] { "-gp", TestListName });
+
+            Assert.IsFalse(result.outputString.Contains(TestListName));
+
+            Manage(new[] { "-m", TestListName, OwnerRoleName, modifier });
+
+            result = Manage(DifferentUserInfo, new[] { "-gp", TestListName });
+
+            Assert.IsTrue(result.outputString.Contains(TestListName));
         }
     }
 }
