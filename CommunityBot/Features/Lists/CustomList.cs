@@ -15,7 +15,7 @@ namespace CommunityBot.Features.Lists
         public string Name { get; set; }
         public List<String> Contents { get; set; }
         public ulong OwnerId { get; set; }
-        public readonly Dictionary<ulong, ListPermission> PermissionByRole = new Dictionary<ulong, ListPermission>();
+        public Dictionary<ulong, ListPermission> PermissionByRole { get; } = new Dictionary<ulong, ListPermission>();
 
         private IDataStorage dataStorage;
 
@@ -138,9 +138,13 @@ namespace CommunityBot.Features.Lists
 
         public override bool Equals(object obj)
         {
-            if (!(obj is CustomList)) { return false; }
-            CustomList comp = (CustomList)obj;
-            return (EqualContents(comp.Contents) && comp.Name.Equals(this.Name));
+            return Equals(obj as CustomList);
+        }
+
+        public bool Equals(CustomList other)
+        {
+            if (other == null) { return false; }
+            return (other.Name.Equals(this.Name) && EqualContents(other.Contents));
         }
 
         public bool IsAllowedToList(UserInfo userInfo)

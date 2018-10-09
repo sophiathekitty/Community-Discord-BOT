@@ -19,7 +19,7 @@ namespace CommunityBot.Helpers
             PUBLIC
         };
 
-        public static IReadOnlyList<String> PermissionStrings = new List<String>
+        public static IReadOnlyList<String> PermissionStrings { get; } = new List<String>
         {
             "private",
             "view only",
@@ -27,7 +27,7 @@ namespace CommunityBot.Helpers
             "public"
         };
 
-        public static readonly IReadOnlyDictionary<string, ListPermission> ValidPermissions = new Dictionary<string, ListPermission>
+        public static IReadOnlyDictionary<string, ListPermission> ValidPermissions { get; } = new Dictionary<string, ListPermission>
         {
             { "-p", ListPermission.PRIVATE },
             { "-l", ListPermission.LIST },

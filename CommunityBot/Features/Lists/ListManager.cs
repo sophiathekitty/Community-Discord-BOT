@@ -16,9 +16,9 @@ namespace CommunityBot.Features.Lists
     {
         private static readonly string ListManagerLookup = "list_manager_lookup.json";
 
-        public static readonly string LineIndicator = " <--";
+        public static string LineIndicator { get; } = " <--";
 
-        public static Dictionary<ulong, ulong> ListenForReactionMessages = new Dictionary<ulong, ulong>();
+        public static Dictionary<ulong, ulong> ListenForReactionMessages { get; set; } = new Dictionary<ulong, ulong>();
 
         private static IReadOnlyList<ManagerMethod> validOperations;
 

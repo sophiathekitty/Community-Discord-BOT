@@ -279,7 +279,7 @@ namespace CommunityBot.Modules
         }
 
         [Command("List")]
-        [Summary("Manage List")]
+        [Summary("Manage lists with custom accessibility by role")]
         public async Task ManageList(params String[] input)
         {
             var user = Context.User as SocketGuildUser;
