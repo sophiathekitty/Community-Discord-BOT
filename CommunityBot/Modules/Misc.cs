@@ -284,8 +284,7 @@ namespace CommunityBot.Modules
         {
             var user = Context.User as SocketGuildUser;
             var roleIds = user.Roles.Select(r => r.Id).ToArray();
-            var availableRoles = Context.Client.Guilds.First().Roles.ToDictionary(r => r.Name,
-                                                                            r => r.Id);
+            var availableRoles = Context.Guild.Roles.ToDictionary(r => r.Name, r => r.Id);
             var output = _listManager.HandleIO(new ListHelper.UserInfo(user.Id, roleIds), availableRoles, Context.Message.Id, input);
             RestUserMessage message;
             if (output.permission == null || output.permission != ListHelper.ListPermission.PRIVATE)

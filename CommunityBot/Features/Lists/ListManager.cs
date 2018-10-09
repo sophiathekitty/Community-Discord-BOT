@@ -31,12 +31,12 @@ namespace CommunityBot.Features.Lists
 
             set
             {
-                if (validOperations == null)
+                if (validOperations is null)
                 {
                     validOperations = value;
                 }
             }
-        }        
+        }
 
         private static List<CustomList> Lists = new List<CustomList>();
         private readonly IDataStorage dataStorage;
@@ -45,7 +45,7 @@ namespace CommunityBot.Features.Lists
         {
             this.dataStorage = dataStorage;
 
-            ValidOperations = InitializeOperations(this);
+            ValidOperations = GetValidOperations(this);
 
             RestoreOrCreateLists();
         }
@@ -74,9 +74,9 @@ namespace CommunityBot.Features.Lists
 
         public ListOutput Manage(UserInfo userInfo, Dictionary<string, ulong> availableRoles, params string[] input)
         {
-            var sa = SeperateArray(input, 0);
-            string command = sa.seperated[0];
-            string[] values = sa.array;
+            var seperatedInput = SeperateArray(input, 0);
+            string command = seperatedInput.seperated[0];
+            string[] values = seperatedInput.array;
 
             ListOutput result;
             try
@@ -84,7 +84,8 @@ namespace CommunityBot.Features.Lists
                 result = ValidOperations
                     .Where(vo => vo.Shortcut == command)
                     .Select(vo => vo.Reference)
-                    .First()(userInfo, availableRoles, values);
+                    .First()
+                    .Invoke(userInfo, availableRoles, values);
             }
             catch (InvalidOperationException)
             {
@@ -97,16 +98,16 @@ namespace CommunityBot.Features.Lists
         {
             if (input.Length < 3 || input.Length % 2 == 0) { throw GetListManagerException(ListErrorMessage.General.WrongFormat); }
 
-            var sa = SeperateArray(input, 0, 1, 2);
+            var seperatedInput = SeperateArray(input, 0, 1, 2);
             var log = new StringBuilder();
-            var listName = sa.seperated[0];
-            for (int i=1;i<input.Length; i+=2)
+            var listName = seperatedInput.seperated[0];
+            for (int i = 1; i < input.Length; i += 2)
             {
-                var roleName    = sa.seperated[i+0];
-                var modifier    = sa.seperated[i+1];
+                var roleName = seperatedInput.seperated[i + 0];
+                var modifier = seperatedInput.seperated[i + 1];
 
                 var list = GetList(listName);
-                CheckPermissionModify(userInfo, list);
+                ThrowIfMissingModifyPermission(userInfo, list);
 
                 var roleId = availableRoles.Where(ar => ar.Key == roleName).FirstOrDefault().Value;
                 if (roleId == default(ulong))
@@ -114,12 +115,19 @@ namespace CommunityBot.Features.Lists
                     throw GetListManagerException(ListErrorMessage.General.RoleDoesNotExist_rolename, roleName);
                 }
 
-                var permission = ValidPermissions[modifier];
-                if (permission == null) { throw GetListManagerException(ListErrorMessage.General.WrongFormat); }
+                ListPermission permission;
+                try
+                {
+                    permission = ValidPermissions[modifier];
+                }
+                catch (KeyNotFoundException)
+                {
+                    throw GetListManagerException(ListErrorMessage.General.UnknownPermission_shortcut, modifier);
+                }
 
-                bool result = list.SetPermissionByRole(roleId, permission);
+                bool permissionsChangeSuccess = list.SetPermissionByRole(roleId, permission);
                 var resultString = "";
-                if (result)
+                if (permissionsChangeSuccess)
                 {
                     resultString = $"Changed permission of role '{roleName}' to {PermissionStrings[(int)permission]}";
                 }
@@ -159,8 +167,8 @@ namespace CommunityBot.Features.Lists
                 }
             }
             var maxItemLength = 0;
-            var tableValues = new string[tableValuesList.Count,2];
-            for (int i=0; i<tableValues.GetLength(0); i++)
+            var tableValues = new string[tableValuesList.Count, 2];
+            for (int i = 0; i < tableValues.GetLength(0); i++)
             {
                 var keyPair = tableValuesList.ElementAt(i);
                 tableValues[i, 0] = keyPair.Key;
@@ -177,7 +185,7 @@ namespace CommunityBot.Features.Lists
             var tableSettings = new MessageFormater.TableSettings("All lists", header, -(maxItemLength), true);
             string output = MessageFormater.CreateTable(tableSettings, tableValues);
             var count = 0;
-            for (int i=0; i<output.Length; i++)
+            for (int i = 0; i < output.Length; i++)
             {
                 if (output[i] == '\n')
                 {
@@ -252,12 +260,12 @@ namespace CommunityBot.Features.Lists
                 throw GetListManagerException(ListErrorMessage.General.WrongFormat);
             }
 
-            var sa = SeperateArray(input);
-            string name = sa.seperated[0];
-            string[] values = sa.array;
+            var seperatedInput = SeperateArray(input);
+            string name = seperatedInput.seperated[0];
+            string[] values = seperatedInput.array;
 
             var list = GetList(name);
-            CheckPermissionWrite(userInfo, list);
+            ThrowIfMissingWritePermission(userInfo, list);
 
             list.AddRange(values);
 
@@ -269,13 +277,13 @@ namespace CommunityBot.Features.Lists
         {
             if (input.Length < 3) { throw GetListManagerException(); }
 
-            var sa = SeperateArray(input);
-            string name = sa.seperated[0];
-            string[] values = sa.array;
+            var seperatedInput = SeperateArray(input);
+            string name = seperatedInput.seperated[0];
+            string[] values = seperatedInput.array;
 
-            sa = SeperateArray(values, 0);
-            string indexstring = sa.seperated[0];
-            values = sa.array;
+            seperatedInput = SeperateArray(values, 0);
+            string indexstring = seperatedInput.seperated[0];
+            values = seperatedInput.array;
 
             int index = 0;
             try
@@ -288,7 +296,7 @@ namespace CommunityBot.Features.Lists
             }
 
             var list = GetList(name);
-            CheckPermissionWrite(userInfo, list);
+            ThrowIfMissingWritePermission(userInfo, list);
 
             if (index < 0 || index > list.Count())
             {
@@ -309,7 +317,7 @@ namespace CommunityBot.Features.Lists
             }
 
             CustomList list = GetList(input[0]);
-            CheckPermissionWrite(userInfo, list);
+            ThrowIfMissingWritePermission(userInfo, list);
 
             list.Delete();
             Lists.Remove(list);
@@ -327,12 +335,12 @@ namespace CommunityBot.Features.Lists
                 throw GetListManagerException(ListErrorMessage.General.WrongFormat);
             }
 
-            var sa = SeperateArray(input);
-            string name = sa.seperated[0];
-            string[] values = sa.array;
+            var seperatedInput = SeperateArray(input);
+            string name = seperatedInput.seperated[0];
+            string[] values = seperatedInput.array;
 
             var list = GetList(name);
-            CheckPermissionWrite(userInfo, list);
+            ThrowIfMissingWritePermission(userInfo, list);
 
             list.Remove(values[0]);
 
@@ -358,8 +366,8 @@ namespace CommunityBot.Features.Lists
             }
 
             CustomList list = GetList(input[0]);
-            
-            CheckPermissionRead(userInfo, list);
+
+            ThrowIfMissingReadPermission(userInfo, list);
 
             if (list.Count() == 0)
             {
@@ -372,7 +380,7 @@ namespace CommunityBot.Features.Lists
             var values = new string[list.Count(), 1];
             for (int i = 0; i < list.Count(); i++)
             {
-                var row = $"{(i+1).ToString()}: {list.Contents[i]}";
+                var row = $"{(i + 1).ToString()}: {list.Contents[i]}";
                 values[i, 0] = row;
                 maxItemLength = GetLonger(maxItemLength, row.Length);
             }
@@ -393,7 +401,7 @@ namespace CommunityBot.Features.Lists
             }
 
             var list = GetList(input[0]);
-            CheckPermissionWrite(userInfo, list);
+            ThrowIfMissingWritePermission(userInfo, list);
 
             list.Clear();
 
@@ -413,7 +421,7 @@ namespace CommunityBot.Features.Lists
 
             var listNames = dataStorage.RestoreObject<List<string>>(ListManagerLookup);
             if (listNames == null) { return; }
-            
+
             foreach (string name in listNames)
             {
                 var l = CustomList.RestoreList(dataStorage, name);
@@ -425,7 +433,7 @@ namespace CommunityBot.Features.Lists
             }
         }
 
-        private void CheckPermissionList(UserInfo userInfo, CustomList list)
+        private void ThrowIfMissingListPermission(UserInfo userInfo, CustomList list)
         {
             if (!list.IsAllowedToList(userInfo))
             {
@@ -433,7 +441,7 @@ namespace CommunityBot.Features.Lists
             }
         }
 
-        private void CheckPermissionRead(UserInfo userInfo, CustomList list)
+        private void ThrowIfMissingReadPermission(UserInfo userInfo, CustomList list)
         {
             if (!list.IsAllowedToRead(userInfo))
             {
@@ -441,7 +449,7 @@ namespace CommunityBot.Features.Lists
             }
         }
 
-        private void CheckPermissionWrite(UserInfo userInfo, CustomList list)
+        private void ThrowIfMissingWritePermission(UserInfo userInfo, CustomList list)
         {
             if (!list.IsAllowedToWrite(userInfo))
             {
@@ -449,7 +457,7 @@ namespace CommunityBot.Features.Lists
             }
         }
 
-        private void CheckPermissionModify(UserInfo userInfo, CustomList list)
+        private void ThrowIfMissingModifyPermission(UserInfo userInfo, CustomList list)
         {
             if (!list.IsAllowedToModify(userInfo))
             {

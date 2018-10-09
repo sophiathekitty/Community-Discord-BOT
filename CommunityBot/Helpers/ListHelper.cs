@@ -70,7 +70,7 @@ namespace CommunityBot.Helpers
             CLEAR
         }
 
-        public static IReadOnlyList<ManagerMethod> InitializeOperations(ListManager manager)
+        public static IReadOnlyList<ManagerMethod> GetValidOperations(ListManager manager)
         {
             var validOperations = new List<ManagerMethod>
             {
