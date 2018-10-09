@@ -4,7 +4,7 @@ namespace CommunityBot.Configuration
 {
     public class InMemoryDataStorage : IDataStorage
     {
-        Dictionary<string, object> storage;
+        private readonly Dictionary<string, object> storage;
 
         public InMemoryDataStorage()
         {
