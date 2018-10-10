@@ -24,7 +24,7 @@ namespace CommunityBot.Features.Lists
             this.dataStorage = dataStorage;
             this.OwnerId = userInfo.Id;
             this.Name = name;
-            
+
             if (userInfo.RoleIds != null)
             {
                 PermissionByRole.Add(userInfo.RoleIds.First(), permission);
@@ -120,7 +120,7 @@ namespace CommunityBot.Features.Lists
         {
             this.dataStorage.StoreObject(this, $"{this.Name}.json");
         }
-        
+
         public static CustomList RestoreList(IDataStorage dataStorage, string name)
         {
             return dataStorage.RestoreObject<CustomList>($"{name}.json");
@@ -129,7 +129,7 @@ namespace CommunityBot.Features.Lists
         public bool EqualContents(List<String> list)
         {
             if (this.Contents.Count != list.Count) { return false; }
-            for (int i=0; i<this.Contents.Count; i++)
+            for (int i = 0; i < this.Contents.Count; i++)
             {
                 if (!this.Contents[i].Equals(list[i])) { return false; }
             }
@@ -143,7 +143,7 @@ namespace CommunityBot.Features.Lists
 
         public bool Equals(CustomList other)
         {
-            if (other == null) { return false; }
+            if (other is null) { return false; }
             return (other.Name.Equals(this.Name) && EqualContents(other.Contents));
         }
 
@@ -153,7 +153,7 @@ namespace CommunityBot.Features.Lists
                 .Where(x => x.Value > ListPermission.PRIVATE)
                 .Select(x => x.Key);
 
-            return (ShareItem(userInfo.RoleIds, validRoleIds) || !(this.OwnerId != userInfo.Id && PermissionByRole.First().Value == ListPermission.PRIVATE) );
+            return (ShareItem(userInfo.RoleIds, validRoleIds) || !(this.OwnerId != userInfo.Id && PermissionByRole.First().Value == ListPermission.PRIVATE));
         }
 
         public bool IsAllowedToRead(UserInfo userInfo)
@@ -181,7 +181,7 @@ namespace CommunityBot.Features.Lists
 
         private bool ShareItem(IEnumerable<ulong> a, IEnumerable<ulong> b)
         {
-            foreach(ulong l in a)
+            foreach (ulong l in a)
             {
                 if (b.Contains(l)) { return true; }
             }
