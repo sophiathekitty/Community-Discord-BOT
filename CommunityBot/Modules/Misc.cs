@@ -18,6 +18,7 @@ namespace CommunityBot.Modules
     public class Misc : ModuleBase<MiunieCommandContext>
     {
         private CommandService _service;
+        private int _fieldRange = 10;
 
         public Misc(CommandService service)
         {
@@ -45,6 +46,26 @@ namespace CommunityBot.Modules
             foreach (var module in _service.Modules)
             {
                 await AddModuleEmbedField(module, builder);
+            }
+
+            // We have a limit of 6000 characters for a message, so we are taking first ten fields
+            // and then sending the message. In the current state it will send 2 messages.
+
+            var fields = builder.Fields.ToList();
+            while(builder.Length > 6000)
+            {
+                builder.Fields.RemoveRange(0, fields.Count);
+                var firstSet = fields.Take(_fieldRange);
+                builder.Fields.AddRange(firstSet);
+                if (builder.Length > 6000)
+                {
+                    _fieldRange--;
+                    continue;
+                }
+                await dmChannel.SendMessageAsync("", false, builder.Build());
+                fields.RemoveRange(0, _fieldRange);
+                builder.Fields.RemoveRange(0, _fieldRange);
+                builder.Fields.AddRange(fields);
             }
 
             await dmChannel.SendMessageAsync("", false, builder.Build());
