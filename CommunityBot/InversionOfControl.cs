@@ -5,6 +5,7 @@ using CommunityBot.Features.Lists;
 using Discord.Commands;
 using Discord.WebSocket;
 using Lamar;
+using CommunityBot.Features.Onboarding;
 
 namespace CommunityBot
 {
@@ -46,6 +47,8 @@ namespace CommunityBot
                 c.ForSingletonOf<ApplicationSettings>().UseIfNone(settings);
                 c.ForSingletonOf<IDataStorage>().UseIfNone<JsonDataStorage>();
                 c.ForSingletonOf<ListManager>().UseIfNone<ListManager>();
+                c.ForSingletonOf<IOnboarding>().UseIfNone<Onboarding>();
+                c.ForSingletonOf<Features.Onboarding.Tasks.HelloWorldTask>().UseIfNone<Features.Onboarding.Tasks.HelloWorldTask>();
             });
         }
     }

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CommunityBot.Configuration;
 using CommunityBot.Features;
 using CommunityBot.Features.Lists;
+using CommunityBot.Features.Onboarding;
 using CommunityBot.Features.Trivia;
 using CommunityBot.Helpers;
 using CommunityBot.Modules;
@@ -25,14 +26,16 @@ namespace CommunityBot.Handlers
         private readonly ApplicationSettings _applicationSettings;
         private readonly Logger _logger;
         private readonly TriviaGames _triviaGames;
+        private readonly IOnboarding _onboarding;
 
-        public DiscordEventHandler(Logger logger, TriviaGames triviaGames, DiscordSocketClient client, CommandHandler commandHandler, ApplicationSettings applicationSettings)
+        public DiscordEventHandler(Logger logger, TriviaGames triviaGames, DiscordSocketClient client, CommandHandler commandHandler, ApplicationSettings applicationSettings, IOnboarding onboarding)
         {
             _logger = logger;
             _client = client;
             _commandHandler = commandHandler;
             _applicationSettings = applicationSettings;
             _triviaGames = triviaGames;
+            _onboarding = onboarding;
         }
 
         public void InitDiscordEvents()
@@ -140,6 +143,7 @@ namespace CommunityBot.Handlers
 
         private async Task JoinedGuild(SocketGuild guild)
         {
+            _onboarding.JoinedGuild(guild);
             ServerBots.JoinedGuild(guild);
         }
 
