@@ -17,11 +17,11 @@ namespace CommunityBot.Features.Onboarding.Tasks
             
             if(defaultChannel is null)
             {
-                await logger.Log(LogSeverity.Error, "Onboarding > HelloWorldTask", "Default channel of a new guild is null.");
+                await logger.Log(LogSeverity.Error, "Onboarding > HelloWorldTask", $"Default channel of a new guild ({guild.Name}) is null.");
                 return;
             }
             
-            await defaultChannel.SendMessageAsync(":wave: Hello, everyone! I'm Miunie and I'll be here to reply to your human commands. You can use the `help` command to see what you I do.");
+            await defaultChannel.SendMessageAsync(":wave: Hello, everyone! I'm Miunie and I'll be here to reply to your human commands. You can use the `help` command to see what I can do.");
         }
     }
 }
