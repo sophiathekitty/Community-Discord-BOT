@@ -23,5 +23,27 @@ namespace CommunityBot.Features.Lists
             {
             }
         }
+
+        public static ListManagerException GetListManagerException()
+        {
+            return GetListManagerException(ListErrorMessage.General.UnknownError);
+        }
+
+        public static ListManagerException GetListManagerException(string message, params string[] parameters)
+        {
+            var formattedMessage = String.Format(message, parameters);
+            return new ListManagerException(formattedMessage);
+        }
+
+        public static ListPermissionException GetListPermissionException()
+        {
+            return GetListPermissionException(ListErrorMessage.Permission.NoPermission_list);
+        }
+
+        public static ListPermissionException GetListPermissionException(string message, params string[] parameters)
+        {
+            var formattedMessage = String.Format(message, parameters);
+            return new ListPermissionException(formattedMessage);
+        }
     }
 }

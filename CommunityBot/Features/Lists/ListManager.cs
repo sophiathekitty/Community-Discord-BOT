@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Text;
 using CommunityBot.Configuration;
 using System.Linq;
-using Discord;
 using CommunityBot.Helpers;
-using Discord.WebSocket;
-using Discord.Rest;
-using Discord.Commands;
 using System.Threading.Tasks;
 using static CommunityBot.Features.Lists.ListException;
+using static CommunityBot.Helpers.ListHelper;
+using CommunityBot.Extensions;
+using Discord;
 
 namespace CommunityBot.Features.Lists
 {
@@ -17,106 +16,141 @@ namespace CommunityBot.Features.Lists
     {
         private static readonly string ListManagerLookup = "list_manager_lookup.json";
 
-        private static string LineIndicator = " <--";
+        public static string LineIndicator { get; } = " <--";
 
-        private static Dictionary<ulong, ulong> ListenForReactionMessages = new Dictionary<ulong, ulong>();
+        public static Dictionary<ulong, ulong> ListenForReactionMessages { get; set; } = new Dictionary<ulong, ulong>();
 
-        public static IReadOnlyDictionary<string, Emoji> ControlEmojis = new Dictionary<string, Emoji>
+        private static IReadOnlyList<ManagerMethod> validOperations;
+
+        public static IReadOnlyList<ManagerMethod> ValidOperations
         {
-            {"up", new Emoji("⬆") },
-            {"down", new Emoji("⬇") },
-            {"check", new Emoji("✅") }
-        };
+            get
+            {
+                return validOperations;
+            }
 
-        private IReadOnlyDictionary<string, Func<ulong, string[], ListOutput>> ValidOperations;
+            set
+            {
+                if (validOperations is null)
+                {
+                    validOperations = value;
+                }
+            }
+        }
 
-        private List<CustomList> Lists = new List<CustomList>();
-        private IDataStorage dataStorage;
+        private static List<CustomList> Lists = new List<CustomList>();
+        private readonly IDataStorage dataStorage;
 
         public ListManager(IDataStorage dataStorage)
         {
             this.dataStorage = dataStorage;
 
-            ValidOperations = new Dictionary<string, Func<ulong, string[], ListOutput>>
-            {
-                { "-g", GetAllPrivate },
-                { "-gp", GetAllPublic },
-                { "-c", CreateListPrivate },
-                { "-cp", CreateListPublic },
-                { "-a", Add },
-                { "-i", Insert },
-                { "-l", OutputList },
-                { "-r", Remove },
-                { "-rl", RemoveList },
-                { "-cl", Clear }
-            };
+            ValidOperations = GetValidOperations(this);
 
             RestoreOrCreateLists();
         }
 
-        public async Task HandleIO(SocketCommandContext context, params string[] input)
+        public ListOutput HandleIO(UserInfo userInfo, Dictionary<string, ulong> availableRoles, ulong messageId, params string[] input)
         {
-            ListManager.ListOutput output;
+            ListOutput output;
             try
             {
-                output = Manage(context.User.Id, input);
+                output = Manage(userInfo, availableRoles, input);
             }
             catch (ListManagerException e)
             {
-                output = GetListOutput(e.Message, CustomList.ListPermission.PUBLIC);
+                output = GetListOutput(e.Message, ListPermission.PUBLIC);
             }
             catch (ListPermissionException e)
             {
-                output = GetListOutput(e.Message, CustomList.ListPermission.PUBLIC);
-            }
-            RestUserMessage message;
-            if (output.permission == null || output.permission != CustomList.ListPermission.PRIVATE)
-            {
-                message = (RestUserMessage)await context.Channel.SendMessageAsync(output.outputString, false, output.outputEmbed);
-            }
-            else
-            {
-                var dmChannel = await context.User.GetOrCreateDMChannelAsync();
-                message = (RestUserMessage)await dmChannel.SendMessageAsync(output.outputString, false, output.outputEmbed);
+                output = GetListOutput(e.Message, ListPermission.PUBLIC);
             }
             if (output.listenForReactions)
             {
-                await message.AddReactionAsync(ControlEmojis["up"]);
-                await message.AddReactionAsync(ControlEmojis["down"]);
-                await message.AddReactionAsync(ControlEmojis["check"]);
-                ListenForReactionMessages.Add(message.Id, context.User.Id);
+                ListManager.ListenForReactionMessages.Add(messageId, userInfo.Id);
             }
+            return output;
         }
 
-        public ListOutput Manage(ulong userId, params string[] input)
+        public ListOutput Manage(UserInfo userInfo, Dictionary<string, ulong> availableRoles, params string[] input)
         {
-            var sa = SeperateArray(input, 0);
-            string command = sa.seperated;
-            string[] values = sa.array;
+            var seperatedInput = SeperateArray(input, 0);
+            string command = seperatedInput.seperated[0];
+            string[] values = seperatedInput.array;
 
             ListOutput result;
             try
             {
-                result = ValidOperations[command](userId, values);
+                result = ValidOperations
+                    .Where(vo => vo.Shortcut == command)
+                    .Select(vo => vo.Reference)
+                    .First()
+                    .Invoke(userInfo, availableRoles, values);
             }
-            catch (KeyNotFoundException)
+            catch (InvalidOperationException)
             {
                 throw GetListManagerException(ListErrorMessage.General.UnknownCommand_command, command);
             }
             return result;
         }
 
-        public ListOutput GetAllPrivate(ulong userId, params string[] input)
+        public ListOutput ModifyPermission(UserInfo userInfo, Dictionary<string, ulong> availableRoles, params string[] input)
         {
-            return GetAll(userId, CustomList.ListPermission.PRIVATE, input);
+            if (input.Length < 3 || input.Length % 2 == 0) { throw GetListManagerException(ListErrorMessage.General.WrongFormat); }
+
+            var seperatedInput = SeperateArray(input, 0, 1, 2);
+            var log = new StringBuilder();
+            var listName = seperatedInput.seperated[0];
+            for (int i = 1; i < input.Length; i += 2)
+            {
+                var roleName = seperatedInput.seperated[i + 0];
+                var modifier = seperatedInput.seperated[i + 1];
+
+                var list = GetList(listName);
+                ThrowIfMissingModifyPermission(userInfo, list);
+
+                var roleId = availableRoles.Where(ar => ar.Key == roleName).FirstOrDefault().Value;
+                if (roleId == default(ulong))
+                {
+                    throw GetListManagerException(ListErrorMessage.General.RoleDoesNotExist_rolename, roleName);
+                }
+
+                ListPermission permission;
+                try
+                {
+                    permission = ValidPermissions[modifier];
+                }
+                catch (KeyNotFoundException)
+                {
+                    throw GetListManagerException(ListErrorMessage.General.UnknownPermission_shortcut, modifier);
+                }
+
+                bool permissionsChangeSuccess = list.SetPermissionByRole(roleId, permission);
+                var resultString = "";
+                if (permissionsChangeSuccess)
+                {
+                    resultString = $"Changed permission of role '{roleName}' to {PermissionStrings[(int)permission]}";
+                }
+                else
+                {
+                    resultString = $"The permission of role '{roleName}' is already set to {PermissionStrings[(int)permission]}";
+                }
+                log.Append(resultString);
+            }
+            return GetListOutput(log.ToString());
         }
 
-        public ListOutput GetAllPublic(ulong userId, params string[] input)
+        public ListOutput GetAllPrivate(UserInfo userInfo)
         {
-            return GetAll(userId, CustomList.ListPermission.PUBLIC, input);
+            return GetAll(userInfo, ListPermission.PRIVATE);
         }
 
-        private ListOutput GetAll(ulong userId, CustomList.ListPermission outputPermission, params string[] input)
+        public ListOutput GetAllPublic(UserInfo userInfo)
+        {
+            return GetAll(userInfo, ListPermission.PUBLIC);
+        }
+
+        private ListOutput GetAll(UserInfo userInfo, ListPermission outputPermission)
         {
             if (Lists.Count == 0) { throw GetListManagerException(ListErrorMessage.General.NoLists); }
 
@@ -127,14 +161,14 @@ namespace CommunityBot.Features.Lists
             for (int i = 0; i < Lists.Count; i++)
             {
                 CustomList l = Lists[i];
-                if (l.IsAllowedToList(userId))
+                if (l.IsAllowedToList(userInfo))
                 {
                     tableValuesList.Add(l.Name, $"{l.Count()} {GetNounPlural("item", l.Count())}");
                 }
             }
             var maxItemLength = 0;
-            var tableValues = new string[tableValuesList.Count,2];
-            for (int i=0; i<tableValues.GetLength(0); i++)
+            var tableValues = new string[tableValuesList.Count, 2];
+            for (int i = 0; i < tableValues.GetLength(0); i++)
             {
                 var keyPair = tableValuesList.ElementAt(i);
                 tableValues[i, 0] = keyPair.Key;
@@ -151,7 +185,7 @@ namespace CommunityBot.Features.Lists
             var tableSettings = new MessageFormater.TableSettings("All lists", header, -(maxItemLength), true);
             string output = MessageFormater.CreateTable(tableSettings, tableValues);
             var count = 0;
-            for (int i=0; i<output.Length; i++)
+            for (int i = 0; i < output.Length; i++)
             {
                 if (output[i] == '\n')
                 {
@@ -172,116 +206,17 @@ namespace CommunityBot.Features.Lists
             return returnValue;
         }
 
-        public async Task HandleReactionAdded(Cacheable<IUserMessage, ulong> cacheMessage, SocketReaction reaction)
+        public ListOutput CreateListPrivate(UserInfo userInfo, params string[] input)
         {
-            if ( ListenForReactionMessages.ContainsKey(reaction.MessageId) )
-            {
-                reaction.Message.Value.RemoveReactionAsync(reaction.Emote, reaction.User.Value);
-                if (ListenForReactionMessages[reaction.MessageId] == reaction.User.Value.Id)
-                {
-                    if (reaction.Emote.Name == ControlEmojis["up"].Name)
-                    {
-                        await HandleMovement(reaction, cacheMessage.Value.Content, true);
-                    }
-                    else if (reaction.Emote.Name == ControlEmojis["down"].Name)
-                    {
-                        await HandleMovement(reaction, cacheMessage.Value.Content, false);
-                    }
-                    else if (reaction.Emote.Name == ControlEmojis["check"].Name)
-                    {
-                        var seperatedMessage = SepereateMessageByLines(cacheMessage.Value.Content);
-                        foreach (string s in seperatedMessage)
-                        {
-                            if (ContainsLineIndicator(s))
-                            {
-                                reaction.Message.Value.DeleteAsync();
-                                ListenForReactionMessages.Remove(reaction.MessageId);
-                                var listName = GetItemNameFromLine(s);
-                                var context = new SocketCommandContext(Global.Client, reaction.Message.Value);
-                                await HandleIO(context, new[] { "-l", listName }).ConfigureAwait(false);
-                            }
-                        }
-                    }
-                }
-            }
+            return CreateList(userInfo, ListPermission.PRIVATE, input);
         }
 
-        private string GetItemNameFromLine(string line)
+        public ListOutput CreateListPublic(UserInfo userInfo, params string[] input)
         {
-            var firstCol = line.Split('|', StringSplitOptions.RemoveEmptyEntries)[0];
-            firstCol = firstCol.Remove(0, 1);
-            var i = firstCol.Length;
-            char c;
-            do
-            {
-                c = firstCol[--i];
-            } while (c == ' ');
-            return firstCol.Substring(0, i+1);
+            return CreateList(userInfo, ListPermission.PUBLIC, input);
         }
 
-        private async Task HandleMovement(SocketReaction reaction, string message, bool dirUp)
-        {
-            var seperatedMessage = SepereateMessageByLines(message);
-            reaction.Message.Value.ModifyAsync(msg => msg.Content = PerformMove(seperatedMessage, dirUp));
-        }
-
-        private string[] SepereateMessageByLines(string message)
-        {
-            return message.Split('\n');
-        }
-
-        private string PerformMove(string[] messageLines, bool dirUp)
-        {
-            var newMessageLines = new string[messageLines.Length];
-            messageLines.CopyTo(newMessageLines, 0);
-
-            
-            for (int i=0; i<messageLines.Length; i++)
-            {
-                var line = messageLines[i];
-                var substringStart = line.Length - LineIndicator.Length;
-                if (substringStart < 0) { continue; }
-
-                var subLine = line.Substring(substringStart);
-                if (subLine.Equals(LineIndicator))
-                {
-                    var newIndex = i + (dirUp ? -2 : 2);
-                    if (newIndex > 7 && newIndex < messageLines.Length-1)
-                    {
-                        newMessageLines[i] = line.Substring(0, substringStart);
-                        newMessageLines[newIndex] = messageLines[newIndex] + LineIndicator;
-                    }
-                    break;
-                }
-            }
-            var newMessage = new StringBuilder();
-            foreach(string s in newMessageLines)
-            {
-                newMessage.Append($"{s}\n");
-            }
-            return newMessage.ToString();
-        }
-
-        private bool ContainsLineIndicator(string line)
-        {
-            var substringLength = line.Length - LineIndicator.Length;
-            if (substringLength < 0) { return false; }
-
-            var subLine = line.Substring(substringLength);
-            return (subLine.Equals(LineIndicator));
-        }
-
-        public ListOutput CreateListPrivate(ulong userId, params string[] input)
-        {
-            return CreateList(userId, CustomList.ListPermission.PRIVATE, input);
-        }
-
-        public ListOutput CreateListPublic(ulong userId, params string[] input)
-        {
-            return CreateList(userId, CustomList.ListPermission.PUBLIC, input);
-        }
-
-        private ListOutput CreateList(ulong userId, CustomList.ListPermission listPermissions, params string[] input)
+        private ListOutput CreateList(UserInfo userInfo, ListPermission listPermissions, params string[] input)
         {
             if (input.Length == 0 || input.Length > 2)
             {
@@ -291,46 +226,46 @@ namespace CommunityBot.Features.Lists
 
             try
             {
-                GetList(userId, listName);
+                GetList(listName);
             }
             catch (ListManagerException)
             {
-                var newList = new CustomList(userId, listPermissions, listName);
+                var newList = new CustomList(dataStorage, userInfo, listPermissions, listName);
                 newList.SaveList();
 
                 Lists.Add(newList);
 
                 WriteContents();
 
-                var permissionAsString = CustomList.permissionStrings[(int)listPermissions];
+                var permissionAsString = PermissionStrings[(int)listPermissions];
                 return GetListOutput($"Created {permissionAsString} list '{listName}'", listPermissions);
             }
             throw GetListManagerException(ListErrorMessage.General.ListAlreadyExists_list, listName);
         }
 
-        public CustomList GetList(ulong userId, params string[] input)
+        public CustomList GetList(string name)
         {
-            CustomList list = Lists.Find(l => l.Name.Equals(input[0]));
+            CustomList list = Lists.Find(l => l.Name.Equals(name));
             if (list == null)
             {
-                throw GetListManagerException(ListErrorMessage.General.ListDoesNotExist_list, input[0]);
+                throw GetListManagerException(ListErrorMessage.General.ListDoesNotExist_list, name);
             }
             return list;
         }
 
-        public ListOutput Add(ulong userId, string[] input)
+        public ListOutput Add(UserInfo userInfo, string[] input)
         {
             if (input.Length < 2)
             {
                 throw GetListManagerException(ListErrorMessage.General.WrongFormat);
             }
 
-            var sa = SeperateArray(input);
-            string name = sa.seperated;
-            string[] values = sa.array;
+            var seperatedInput = SeperateArray(input);
+            string name = seperatedInput.seperated[0];
+            string[] values = seperatedInput.array;
 
-            var list = GetList(userId, name);
-            CheckPermissionWrite(userId, list);
+            var list = GetList(name);
+            ThrowIfMissingWritePermission(userInfo, list);
 
             list.AddRange(values);
 
@@ -338,17 +273,17 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output);
         }
 
-        public ListOutput Insert(ulong userId, string[] input)
+        public ListOutput Insert(UserInfo userInfo, string[] input)
         {
             if (input.Length < 3) { throw GetListManagerException(); }
 
-            var sa = SeperateArray(input);
-            string name = sa.seperated;
-            string[] values = sa.array;
+            var seperatedInput = SeperateArray(input);
+            string name = seperatedInput.seperated[0];
+            string[] values = seperatedInput.array;
 
-            sa = SeperateArray(values, 0);
-            string indexstring = sa.seperated;
-            values = sa.array;
+            seperatedInput = SeperateArray(values, 0);
+            string indexstring = seperatedInput.seperated[0];
+            values = seperatedInput.array;
 
             int index = 0;
             try
@@ -360,8 +295,8 @@ namespace CommunityBot.Features.Lists
                 throw GetListManagerException(ListErrorMessage.General.WrongInputForIndex);
             }
 
-            var list = GetList(userId, name);
-            CheckPermissionWrite(userId, list);
+            var list = GetList(name);
+            ThrowIfMissingWritePermission(userInfo, list);
 
             if (index < 0 || index > list.Count())
             {
@@ -374,15 +309,15 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output);
         }
 
-        public ListOutput RemoveList(ulong userId, params string[] input)
+        public ListOutput RemoveList(UserInfo userInfo, params string[] input)
         {
             if (input.Length != 1)
             {
                 throw GetListManagerException(ListErrorMessage.General.WrongFormat);
             }
 
-            CustomList list = GetList(userId, input[0]);
-            CheckPermissionWrite(userId, list);
+            CustomList list = GetList(input[0]);
+            ThrowIfMissingWritePermission(userInfo, list);
 
             list.Delete();
             Lists.Remove(list);
@@ -393,19 +328,19 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output);
         }
 
-        public ListOutput Remove(ulong userId, string[] input)
+        public ListOutput Remove(UserInfo userInfo, string[] input)
         {
             if (input.Length != 2)
             {
                 throw GetListManagerException(ListErrorMessage.General.WrongFormat);
             }
 
-            var sa = SeperateArray(input);
-            string name = sa.seperated;
-            string[] values = sa.array;
+            var seperatedInput = SeperateArray(input);
+            string name = seperatedInput.seperated[0];
+            string[] values = seperatedInput.array;
 
-            var list = GetList(userId, name);
-            CheckPermissionWrite(userId, list);
+            var list = GetList(name);
+            ThrowIfMissingWritePermission(userInfo, list);
 
             list.Remove(values[0]);
 
@@ -413,16 +348,26 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output);
         }
 
-        public ListOutput OutputList(ulong userId, params string[] input)
+        public ListOutput OutputListPrivate(UserInfo userInfo, params string[] input)
+        {
+            return OutputList(userInfo, ListPermission.PRIVATE, input);
+        }
+
+        public ListOutput OutputListPublic(UserInfo userInfo, params string[] input)
+        {
+            return OutputList(userInfo, ListPermission.PUBLIC, input);
+        }
+
+        private ListOutput OutputList(UserInfo userInfo, ListPermission permission, params string[] input)
         {
             if (input.Length != 1)
             {
                 throw GetListManagerException(ListErrorMessage.General.WrongFormat);
             }
 
-            CustomList list = GetList(userId, input[0]);
-            
-            CheckPermissionWrite(userId, list);
+            CustomList list = GetList(input[0]);
+
+            ThrowIfMissingReadPermission(userInfo, list);
 
             if (list.Count() == 0)
             {
@@ -435,7 +380,7 @@ namespace CommunityBot.Features.Lists
             var values = new string[list.Count(), 1];
             for (int i = 0; i < list.Count(); i++)
             {
-                var row = $"{(i+1).ToString()}: {list.Contents[i]}";
+                var row = $"{(i + 1).ToString()}: {list.Contents[i]}";
                 values[i, 0] = row;
                 maxItemLength = GetLonger(maxItemLength, row.Length);
             }
@@ -444,18 +389,19 @@ namespace CommunityBot.Features.Lists
             var tableSettings = new MessageFormater.TableSettings(list.Name, -(maxItemLength), false);
             string output = MessageFormater.CreateTable(tableSettings, values);
 
-            return GetListOutput(output, list.Permission);
+            var outputPermission = permission == ListPermission.PRIVATE ? list.PermissionByRole.First().Value : permission;
+            return GetListOutput(output, outputPermission);
         }
 
-        public ListOutput Clear(ulong userId, string[] input)
+        public ListOutput Clear(UserInfo userInfo, string[] input)
         {
             if (input.Length != 1)
             {
                 throw GetListManagerException(ListErrorMessage.General.WrongFormat);
             }
 
-            var list = GetList(userId, input[0]);
-            CheckPermissionWrite(userId, list);
+            var list = GetList(input[0]);
+            ThrowIfMissingWritePermission(userInfo, list);
 
             list.Clear();
 
@@ -463,135 +409,59 @@ namespace CommunityBot.Features.Lists
             return GetListOutput(output);
         }
 
-        private SeperatedArray SeperateArray(string[] input)
-        {
-            return SeperateArray(input, input.Length - 1);
-        }
-
-        private SeperatedArray SeperateArray(string[] input, int index)
-        {
-            var sa = new SeperatedArray();
-            sa.seperated = input[index];
-            sa.array = new string[input.Length - 1];
-            for (int i = 0; i < input.Length; i++)
-            {
-                if (i < index)
-                {
-                    sa.array[i] = input[i];
-                }
-                else if (i > index)
-                {
-                    sa.array[i - 1] = input[i];
-                }
-            }
-            return sa;
-        }
-
-        private struct SeperatedArray
-        {
-            public string seperated { get; set; }
-            public string[] array { get; set; }
-        }
-
-        public struct ListOutput : IEquatable<object>
-        {
-            public string outputString { get; set; }
-            public Embed outputEmbed { get; set; }
-            public bool listenForReactions { get; set; }
-            public CustomList.ListPermission permission { get; set; }
-        }
-
-        public ListOutput GetListOutput(string s)
-        {
-            return new ListOutput { outputString = s, permission = CustomList.ListPermission.PUBLIC };
-        }
-
-        public ListOutput GetListOutput(string s, CustomList.ListPermission p)
-        {
-            return new ListOutput { outputString = s, permission = p };
-        }
-
-        public ListOutput GetListOutput(Embed e)
-        {
-            return new ListOutput { outputEmbed = e, permission = CustomList.ListPermission.PUBLIC };
-        }
-
-        public ListOutput GetListOutput(Embed e, CustomList.ListPermission p)
-        {
-            return new ListOutput { outputEmbed = e, permission = p };
-        }
-
-        private string GetNounPlural(string s, int count)
-        {
-            return $"{s}{(count < 2 ? "" : "s")}";
-        }
-
-        public void WriteContents()
+        private void WriteContents()
         {
             List<string> listNames = Lists.Select(l => l.Name).ToList<string>();
             dataStorage.StoreObject(listNames, ListManagerLookup);
         }
 
-        public void RestoreOrCreateLists()
+        private void RestoreOrCreateLists()
         {
             Lists = new List<CustomList>();
 
             var listNames = dataStorage.RestoreObject<List<string>>(ListManagerLookup);
             if (listNames == null) { return; }
-            
+
             foreach (string name in listNames)
             {
-                var l = CustomList.RestoreList(name);
+                var l = CustomList.RestoreList(dataStorage, name);
                 if (l != null)
                 {
+                    l.SetDataStorage(this.dataStorage);
                     Lists.Add(l);
                 }
             }
         }
 
-        public ListManagerException GetListManagerException()
+        private void ThrowIfMissingListPermission(UserInfo userInfo, CustomList list)
         {
-            return GetListManagerException(ListErrorMessage.General.UnknownError);
-        }
-
-        public ListManagerException GetListManagerException(string message, params string[] parameters)
-        {
-            var formattedMessage = String.Format(message, parameters);
-            return new ListManagerException(formattedMessage);
-        }
-
-        public ListPermissionException GetListPermissionException()
-        {
-            return GetListPermissionException(ListErrorMessage.Permission.NoPermission_list);
-        }
-
-        public ListPermissionException GetListPermissionException(string message, params string[] parameters)
-        {
-            var formattedMessage = String.Format(message, parameters);
-            return new ListPermissionException(formattedMessage);
-        }
-
-        private void CheckPermissionList(ulong userId, CustomList list)
-        {
-            if (!list.IsAllowedToList(userId))
+            if (!list.IsAllowedToList(userInfo))
             {
-                throw GetListManagerException(ListErrorMessage.Permission.NoPermission_list, list.Name);
+                throw GetListPermissionException(ListErrorMessage.Permission.NoPermission_list, list.Name);
             }
         }
 
-        private void CheckPermissionRead(ulong userId, CustomList list)
+        private void ThrowIfMissingReadPermission(UserInfo userInfo, CustomList list)
         {
-            if (!list.IsAllowedToRead(userId))
+            if (!list.IsAllowedToRead(userInfo))
             {
-                throw GetListManagerException(ListErrorMessage.Permission.NoPermission_list, list.Name);
+                throw GetListPermissionException(ListErrorMessage.Permission.NoPermission_list, list.Name);
             }
         }
 
-        private void CheckPermissionWrite(ulong userId, CustomList list)
+        private void ThrowIfMissingWritePermission(UserInfo userInfo, CustomList list)
         {
-            if (!list.IsAllowedToWrite(userId))
+            if (!list.IsAllowedToWrite(userInfo))
             {
-                throw GetListManagerException(ListErrorMessage.Permission.NoPermission_list, list.Name);
+                throw GetListPermissionException(ListErrorMessage.Permission.NoPermission_list, list.Name);
+            }
+        }
+
+        private void ThrowIfMissingModifyPermission(UserInfo userInfo, CustomList list)
+        {
+            if (!list.IsAllowedToModify(userInfo))
+            {
+                throw GetListPermissionException(ListErrorMessage.Permission.NoPermission_list, list.Name);
             }
         }
     }

@@ -4,46 +4,67 @@ using System.Text;
 using CommunityBot.Configuration;
 using System.IO;
 using Discord.WebSocket;
+using System.Linq;
+using Discord;
+using static CommunityBot.Helpers.ListHelper;
 
 namespace CommunityBot.Features.Lists
 {
-    public class CustomList
+    public class CustomList : IEquatable<object>
     {
-        public enum ListPermission
-        {
-            PRIVATE,
-            PUBLIC,
-            READ,
-            LIST
-        };
-
-        public static IReadOnlyList<String> permissionStrings = new List<String>
-        {
-            "private",
-            "public",
-            "read only",
-            "view only"
-        };
-
-        public static readonly IReadOnlyDictionary<string, ListPermission> validPermissions = new Dictionary<string, ListPermission>
-        {
-            { "-p", ListPermission.PRIVATE },
-            { "-pu", ListPermission.PUBLIC },
-            { "-r", ListPermission.READ },
-            { "-l", ListPermission.LIST }
-        };
-
         public string Name { get; set; }
         public List<String> Contents { get; set; }
         public ulong OwnerId { get; set; }
-        public ListPermission Permission { get; set; }
+        public Dictionary<ulong, ListPermission> PermissionByRole { get; } = new Dictionary<ulong, ListPermission>();
 
-        public CustomList(ulong ownerId, ListPermission permission, String name)
+        private IDataStorage dataStorage;
+
+        public CustomList(IDataStorage dataStorage, UserInfo userInfo, ListPermission permission, String name)
         {
-            this.OwnerId = ownerId;
-            this.Permission = permission;
+            this.dataStorage = dataStorage;
+            this.OwnerId = userInfo.Id;
             this.Name = name;
+
+            if (userInfo.RoleIds != null)
+            {
+                PermissionByRole.Add(userInfo.RoleIds.First(), permission);
+            }
             Contents = new List<string>();
+        }
+
+        public void SetDataStorage(IDataStorage dataStorage)
+        {
+            this.dataStorage = dataStorage;
+        }
+
+        public bool SetPermissionByRole(ulong roleId, ListPermission permission)
+        {
+            if (PermissionByRole.ContainsKey(roleId))
+            {
+                if (PermissionByRole[roleId] == permission) { return false; }
+
+                PermissionByRole[roleId] = permission;
+            }
+            else
+            {
+                PermissionByRole.Add(roleId, permission);
+            }
+            SaveList();
+            return true;
+        }
+
+        public bool RemovePermissionByRole(ulong roleId)
+        {
+            if (!PermissionByRole.ContainsKey(roleId)) { return false; }
+            PermissionByRole.Remove(roleId);
+            SaveList();
+            return true;
+        }
+
+        public ListPermission GetPermissionByRole(ulong roleId)
+        {
+            if (!PermissionByRole.ContainsKey(roleId)) { return ListPermission.PRIVATE; }
+            return PermissionByRole[roleId];
         }
 
         public void Add(String item)
@@ -97,18 +118,18 @@ namespace CommunityBot.Features.Lists
 
         public void SaveList()
         {
-            InversionOfControl.Container.GetInstance<JsonDataStorage>().StoreObject(this, $"{this.Name}.json", false);
+            this.dataStorage.StoreObject(this, $"{this.Name}.json");
         }
-        
-        public static CustomList RestoreList(string name)
+
+        public static CustomList RestoreList(IDataStorage dataStorage, string name)
         {
-            return InversionOfControl.Container.GetInstance<JsonDataStorage>().RestoreObject<CustomList>($"{name}.json");
+            return dataStorage.RestoreObject<CustomList>($"{name}.json");
         }
 
         public bool EqualContents(List<String> list)
         {
             if (this.Contents.Count != list.Count) { return false; }
-            for (int i=0; i<this.Contents.Count; i++)
+            for (int i = 0; i < this.Contents.Count; i++)
             {
                 if (!this.Contents[i].Equals(list[i])) { return false; }
             }
@@ -117,27 +138,54 @@ namespace CommunityBot.Features.Lists
 
         public override bool Equals(object obj)
         {
-            if (!(obj is CustomList)) { return false; }
-            CustomList comp = (CustomList)obj;
-            return (EqualContents(comp.Contents) && comp.Name.Equals(this.Name));
+            return Equals(obj as CustomList);
         }
 
-        public bool IsAllowedToList(ulong userId)
+        public bool Equals(CustomList other)
         {
-            return ( !(this.OwnerId != userId && this.Permission == ListPermission.PRIVATE) );
+            if (other is null) { return false; }
+            return (other.Name.Equals(this.Name) && EqualContents(other.Contents));
         }
 
-        public bool IsAllowedToRead(ulong userId)
+        public bool IsAllowedToList(UserInfo userInfo)
         {
-            return (    this.OwnerId == userId
-                    ||  this.Permission == ListPermission.PUBLIC
-                    ||  this.Permission == ListPermission.READ );
+            var validRoleIds = PermissionByRole
+                .Where(x => x.Value > ListPermission.PRIVATE)
+                .Select(x => x.Key);
+
+            return (ShareItem(userInfo.RoleIds, validRoleIds) || !(this.OwnerId != userInfo.Id && PermissionByRole.First().Value == ListPermission.PRIVATE));
         }
 
-        public bool IsAllowedToWrite(ulong userId)
+        public bool IsAllowedToRead(UserInfo userInfo)
         {
-            return (    this.OwnerId == userId
-                    ||  this.Permission == ListPermission.PUBLIC );
+            var validRoleIds = PermissionByRole
+                .Where(x => x.Value > ListPermission.LIST)
+                .Select(x => x.Key);
+
+            return (ShareItem(userInfo.RoleIds, validRoleIds) || this.OwnerId == userInfo.Id);
+        }
+
+        public bool IsAllowedToWrite(UserInfo userInfo)
+        {
+            var validRoleIds = PermissionByRole
+                .Where(x => x.Value > ListPermission.READ)
+                .Select(x => x.Key);
+
+            return (ShareItem(userInfo.RoleIds, validRoleIds) || this.OwnerId == userInfo.Id);
+        }
+
+        public bool IsAllowedToModify(UserInfo userInfo)
+        {
+            return (userInfo.Id == this.OwnerId);
+        }
+
+        private bool ShareItem(IEnumerable<ulong> a, IEnumerable<ulong> b)
+        {
+            foreach (ulong l in a)
+            {
+                if (b.Contains(l)) { return true; }
+            }
+            return false;
         }
     }
 }
