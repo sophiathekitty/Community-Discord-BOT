@@ -196,7 +196,7 @@ namespace CommunityBot.Modules
             var embB = new EmbedBuilder()
                 .WithTitle("Credits")
                 .WithColor(Color.Blue)
-                .WithUrl("https://www.github.com/petrspelos/Community-Discord-BOT/")
+                .WithUrl("https://github.com/discord-bot-tutorial/Community-Discord-BOT")
                 .WithFooter(Global.GetRandomDidYouKnow())
                 // Someone needs to pimp this message... it is lame
                 .WithDescription("Peter is the one who created me... fleshed me out and taught me how to speak.\n" +
