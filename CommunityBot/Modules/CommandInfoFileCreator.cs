@@ -1,0 +1,66 @@
+﻿using CommunityBot.Extensions;
+using Discord.Commands;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+using System.Linq;
+
+namespace CommunityBot.Modules
+{
+    public class CommandInfoFileCreator : ModuleBase<MiunieCommandContext>
+    {
+        private CommandService _service;
+
+        public CommandInfoFileCreator(CommandService service)
+        {
+            _service = service;
+        }
+
+        [Command("commandInfo"), Alias("c")]
+        public async Task CommandInfo()
+        {
+            var file = "commands.txt";
+            var builder = new StringBuilder();
+            builder.Append($"Help\n---\nThese are the commands you can use with Miunie\n<br/><br/>\n");
+            foreach (var module in _service.Modules)
+            {
+                await AddModuleString(module, builder);
+            }
+            File.WriteAllText(file, builder.ToString());
+            await ReplyAsync($"Wrote command info into '{file}'");
+        }
+
+        private async Task AddModuleString(ModuleInfo module, StringBuilder builder)
+        {
+            if (module == null) return;
+            var descriptionBuilder = new List<string>();
+            var duplicateChecker = new List<string>();
+            descriptionBuilder.Add("\n\n| Command | Description | Remarks |\n| --- | --- | --- |");
+            foreach (var cmd in module.Commands)
+            {
+                var result = await cmd.CheckPreconditionsAsync(Context);
+                if (!result.IsSuccess || duplicateChecker.Contains(cmd.Aliases.First())) continue;
+                duplicateChecker.Add(cmd.Aliases.First());
+
+                var cmdDescription = $"| `{cmd.Aliases.First()}` | {cmd.Summary} | {cmd.Remarks} |";
+                descriptionBuilder.Add($"{cmdDescription.Replace("\n", "<br/>")} |");
+            }
+            var builtString = string.Join("\n", descriptionBuilder);
+
+            var moduleNotes = $"{module.Summary}";
+            if (!string.IsNullOrEmpty(module.Summary) && !string.IsNullOrEmpty(module.Remarks))
+            {
+                moduleNotes += " | ";
+            }
+            moduleNotes += $"{module.Remarks}";
+
+            if (!string.IsNullOrEmpty(moduleNotes))
+            {
+                moduleNotes += "<br/>";
+            }
+            builder.Append($"### {module.Name} <br/>\n{moduleNotes}\n{builtString}\n<br/>\n\n");
+        }
+    }
+}
