@@ -24,10 +24,13 @@ namespace CommunityBot.Modules
             var file = "commands.txt";
             var builder = new StringBuilder();
             builder.Append($"Help\n---\nThese are the commands you can use with Miunie\n<br/><br/>\n");
+            var moduleBuilder = new StringBuilder();
             foreach (var module in _service.Modules)
             {
-                await AddModuleString(module, builder);
+                await AddModuleString(module, moduleBuilder);
+                builder.Append($"[{module.Name}](#{module.Name.ToLower().Replace(' ', '-')})<br/>\n");
             }
+            builder.Append($"\n<br/><br/>\n{moduleBuilder}");
             File.WriteAllText(file, builder.ToString());
             await ReplyAsync($"Wrote command info into '{file}'");
         }
@@ -60,7 +63,7 @@ namespace CommunityBot.Modules
             {
                 moduleNotes += "<br/>";
             }
-            builder.Append($"### {module.Name} <br/>\n{moduleNotes}\n{builtString}\n<br/>\n\n");
+            builder.Append($"### {module.Name}\n\n{moduleNotes}\n{builtString}\n<br/>\n\n");
         }
     }
 }
