@@ -11,7 +11,7 @@ We understand that making your first pull request can be very scary. What even i
 * [Discord C# Community bot - How to contribute](https://youtu.be/85s_-i4hHbM) - _A video walkthrough on git basics and how to contribute to this repository._
 
 ## How to get started
-If you're completely new to git and/or GitHub, we highly suggest checking out the links under [Resources](#Resources).
+If you're completely new to git and/or GitHub, we highly suggest checking out the links under [Resources](#resources).
 
 Before starting, make sure that...
 1. You have [git](https://git-scm.com/downloads) installed
@@ -46,7 +46,7 @@ After modifying the files you want to modify, you need to tell git which changes
 
 #### For command line:
 * Change the working directory to the project's directory by using `cd Community-Discord-BOT.git`
-* Add all the modified files by using `git add .`
+* Add one file by using `git add {file-path}` **or** add all files by using `git add .`
 
 ### 5. Commit your changes
 Now it's time to commit your staged files to git. This will not upload anything to GitHub, we are still working locally.
@@ -60,11 +60,11 @@ Here are some good things to think about when creating a commit:
 :bulb: _An easy way to see if the commit message is correct is by placing it in the sentence "This commit will \_\_\_\_\_\_\_\_\_\_\_\_."_
 
 #### For GitHub Desktop:
-_Please ignore the commit message here: it is not written past tense._
+_Please ignore the commit message here: it is not written present tense._
 [![Commiting files in GitHub Desktop](https://services.github.com/on-demand/images/gifs/github-desktop/making-commits-locally.gif)](https://services.github.com/on-demand/github-desktop/add-commits-github-desktop)
 
 #### For command line:
-Commit changes with a meaningful commit message using `git commit -m 'your message here'` 
+Commit your staged files with a commit message using `git commit`. This will open up an editor, allowing you to include a message with your commit.
 
 ### 6. Push your changes
 When you've done one (or more) commits and you want to upload your commits to your forked repository, you need to push the changes to GitHub. This will only upload them to **your own fork**, and therefore not affect the main project's files, so you don't have to worry about doing anything wrong :smile:
@@ -75,7 +75,7 @@ When you've done one (or more) commits and you want to upload your commits to yo
 :bulb: _The small number next to the grey arrow indicates how many commits you will be pushing at once._
 
 #### For command line:
-Push the changes to the remote using `git push origin master`
+Push the changes to the remote using `git push`
 
 ### 7. Create a pull request
 Now it's finally time to ask Miunie if she'd like to take your changes, or in other words, _**request** Miunie to **pull** your changes._
@@ -97,4 +97,4 @@ This is where your version will merge with the main version.
 ![Creating the pull request](https://i.imgur.com/sUELwWk.png)
 
 ### 8. Await review
-You did it! Your pull request is now awaiting feedback. It's not uncommon for the reviewer to request some changes to your pull request before merging it with the main version. We value contribution and won't mock you or anything of the like for "bad" code. The worst thing that can happen is that the reviewer gives you some tips on how to improve what you've written. See it as a learning experience!
+You did it! Your pull request is now awaiting feedback. It's not uncommon for the reviewer to request some changes to your pull request before merging it with the main version. We value contribution and won't look down on you for "bad" code. The worst thing that can happen is that the reviewer gives you some tips on how to improve what you've written. See it as a learning experience!
