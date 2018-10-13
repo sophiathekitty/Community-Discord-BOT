@@ -18,11 +18,13 @@ namespace CommunityBot.Modules
     public class Misc : ModuleBase<MiunieCommandContext>
     {
         private CommandService _service;
+        private readonly ListManager _listManager;
         private int _fieldRange = 10;
 
-        public Misc(CommandService service)
+        public Misc(CommandService service, ListManager listManager)
         {
             _service = service;
+            _listManager = listManager;
         }
 
         [Cooldown(15)]
@@ -196,7 +198,7 @@ namespace CommunityBot.Modules
             var embB = new EmbedBuilder()
                 .WithTitle("Credits")
                 .WithColor(Color.Blue)
-                .WithUrl("https://www.github.com/repos/petrspelos/Community-Discord-BOT/")
+                .WithUrl("https://github.com/discord-bot-tutorial/Community-Discord-BOT")
                 .WithFooter(Global.GetRandomDidYouKnow())
                 // Someone needs to pimp this message... it is lame
                 .WithDescription("Peter is the one who created me... fleshed me out and taught me how to speak.\n" +
@@ -298,10 +300,30 @@ namespace CommunityBot.Modules
         }
 
         [Command("List")]
-        [Summary("Manage List")]
+        [Summary("Manage lists with custom accessibility by role")]
         public async Task ManageList(params String[] input)
         {
-            await InversionOfControl.Container.GetInstance<ListManager>().HandleIO(Context, input);
+            var user = Context.User as SocketGuildUser;
+            var roleIds = user.Roles.Select(r => r.Id).ToArray();
+            var availableRoles = Context.Guild.Roles.ToDictionary(r => r.Name, r => r.Id);
+            var output = _listManager.HandleIO(new ListHelper.UserInfo(user.Id, roleIds), availableRoles, Context.Message.Id, input);
+            RestUserMessage message;
+            if (output.permission == null || output.permission != ListHelper.ListPermission.PRIVATE)
+            {
+                message = (RestUserMessage)await Context.Channel.SendMessageAsync(output.outputString, false, output.outputEmbed);
+            }
+            else
+            {
+                var dmChannel = await Context.User.GetOrCreateDMChannelAsync();
+                message = (RestUserMessage)await dmChannel.SendMessageAsync(output.outputString, false, output.outputEmbed);
+            }
+            if (output.listenForReactions)
+            {
+                await message.AddReactionAsync(ListHelper.ControlEmojis["up"]);
+                await message.AddReactionAsync(ListHelper.ControlEmojis["down"]);
+                await message.AddReactionAsync(ListHelper.ControlEmojis["check"]);
+                ListManager.ListenForReactionMessages.Add(message.Id, Context.User.Id);
+            }
         }
     }
 }
