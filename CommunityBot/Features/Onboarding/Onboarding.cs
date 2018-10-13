@@ -24,7 +24,7 @@ namespace CommunityBot.Features.Onboarding
             }
         }
 
-        private IEnumerable<IOnboardingTask> GetOnboardingTasks()
+        private static IEnumerable<IOnboardingTask> GetOnboardingTasks()
         {
             var taskType = typeof(IOnboardingTask);
 
