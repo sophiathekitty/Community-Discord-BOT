@@ -2,51 +2,31 @@ Help
 ---
 These are the commands you can use with Miunie
 <br/><br/>
-
-[Admin](#admin) <br/>
-
+[Admin](#admin)<br/>
 [Announcements](#announcements)<br/>
-
 [Welcome](#welcome)<br/>
-
 [Leave](#leave)<br/>
-
 [Basics](#basics)<br/>
-
 [Blog](#blog)<br/>
-
 [CommandInfoFileCreator](#commandinfofilecreator)<br/>
-
 [Economy](#economy)<br/>
-
 [Misc](#misc)<br/>
-
 [Prefix](#prefix)<br/>
-
 [Reminder](#reminder)<br/>
-
 [Tasks](#tasks)<br/>
-
 [Bots](#bots)<br/>
-
 [ServerSetup](#serversetup)<br/>
-
 [SetTimeZone](#settimezone)<br/>
-
 [Tag](#tag)<br/>
-
 [PersonalTags](#personaltags)<br/>
-
 [Voice](#voice)<br/>
-
 [RoleByPhrase](#rolebyphrase)<br/>
-
 [Trivia](#trivia)<br/>
-
 [account](#account)<br/>
 
 <br/><br/>
-### Admin <br/>
+### Admin
+<br/>
 
 
 
@@ -67,8 +47,10 @@ These are the commands you can use with Miunie
 | `setavatar` |  | Sets the bots Avatar | |
 <br/>
 
-### Announcements <br/>
+### Announcements
+<br/>
 Settings for announcements<br/>
+
 
 | Command | Description | Remarks |
 | --- | --- | --- |
@@ -76,7 +58,8 @@ Settings for announcements<br/>
 | `announcements unsetchannel` |  | Turns posting announcements to a channel off | |
 <br/>
 
-### Welcome <br/>
+### Welcome
+<br/>
 DM a joining user a random message out of the ones defined.<br/>
 
 
@@ -87,7 +70,8 @@ DM a joining user a random message out of the ones defined.<br/>
 | `welcome list` |  | Shows all currently set Welcome Messages | |
 <br/>
 
-### Leave <br/>
+### Leave
+<br/>
 Announce a leaving user in the set announcement channelwith a random message out of the ones defined.<br/>
 
 
@@ -98,7 +82,8 @@ Announce a leaving user in the set announcement channelwith a random message out
 | `leave list` |  | Shows all currently set Leave Messages | |
 <br/>
 
-### Basics <br/>
+### Basics
+<br/>
 
 
 
@@ -107,7 +92,8 @@ Announce a leaving user in the set announcement channelwith a random message out
 | `hello` |  |  | |
 <br/>
 
-### Blog <br/>
+### Blog
+<br/>
 Enables you to create a block that people can subscribe to so they don't miss out if you publish a new one<br/>
 
 
@@ -119,7 +105,8 @@ Enables you to create a block that people can subscribe to so they don't miss ou
 | `blog unsubscribe` |  | Remove a subscription from a named block | |
 <br/>
 
-### CommandInfoFileCreator <br/>
+### CommandInfoFileCreator
+<br/>
 
 
 
@@ -128,7 +115,8 @@ Enables you to create a block that people can subscribe to so they don't miss ou
 | `commandinfo` |  |  | |
 <br/>
 
-### Economy <br/>
+### Economy
+<br/>
 
 
 
@@ -143,7 +131,8 @@ Enables you to create a block that people can subscribe to so they don't miss ou
 | `showslots` |  | Shows the configuration of the current slot machine | |
 <br/>
 
-### Misc <br/>
+### Misc
+<br/>
 
 
 
@@ -161,7 +150,8 @@ Enables you to create a block that people can subscribe to so they don't miss ou
 | `list` | Manage lists with custom accessibility by role |  | |
 <br/>
 
-### Prefix <br/>
+### Prefix
+<br/>
 Setting for the Bots prefix on this server<br/>
 
 
@@ -172,7 +162,8 @@ Setting for the Bots prefix on this server<br/>
 | `prefix list` |  | Show all possible prefixes for this server | |
 <br/>
 
-### Reminder <br/>
+### Reminder
+<br/>
 Tell the bot to remind you in some amount of time. The bot will send you a DM with the text you specified.<br/>
 
 
@@ -183,7 +174,8 @@ Tell the bot to remind you in some amount of time. The bot will send you a DM wi
 | `reminder delete` |  | Delete one of your reminders | |
 <br/>
 
-### Tasks <br/>
+### Tasks
+<br/>
 Settings for the repeated task that run in the background<br/>
 
 
@@ -195,7 +187,8 @@ Settings for the repeated task that run in the background<br/>
 | `tasks stop` |  |  | |
 <br/>
 
-### Bots <br/>
+### Bots
+<br/>
 Allows access to pending and archived invite links to bots. This allows for you to submit your invite links for bots so that the guild's managers can add them.<br/>
 
 
@@ -207,7 +200,8 @@ Allows access to pending and archived invite links to bots. This allows for you 
 | `bots archive` |  | Archives a submission from the pending list. Requires ManageGuild Permission. Usage: bots archive <bot's client id> | |
 <br/>
 
-### ServerSetup <br/>
+### ServerSetup
+<br/>
 
 
 
@@ -218,7 +212,8 @@ Allows access to pending and archived invite links to bots. This allows for you 
 | `setroleonjoin` |  |  | |
 <br/>
 
-### SetTimeZone <br/>
+### SetTimeZone
+<br/>
 
 
 
@@ -227,7 +222,8 @@ Allows access to pending and archived invite links to bots. This allows for you 
 | `mycity` |  |  | |
 <br/>
 
-### Tag <br/>
+### Tag
+<br/>
 Permanently assing a message to a keyword (for this server) which the bot will repeat if someone uses this command with that keyword.<br/>
 
 
@@ -240,7 +236,8 @@ Permanently assing a message to a keyword (for this server) which the bot will r
 | `tag list` |  | Show all tag on this server | |
 <br/>
 
-### PersonalTags <br/>
+### PersonalTags
+<br/>
 Permanently assing a message to a keyword (global for you) which the bot will repeat if you use this command with that keyword.<br/>
 
 
@@ -253,7 +250,8 @@ Permanently assing a message to a keyword (global for you) which the bot will re
 | `personaltags list` |  | Show all your tags | |
 <br/>
 
-### Voice <br/>
+### Voice
+<br/>
 
 
 
@@ -262,7 +260,8 @@ Permanently assing a message to a keyword (global for you) which the bot will re
 | `voice` |  |  | |
 <br/>
 
-### RoleByPhrase <br/>
+### RoleByPhrase
+<br/>
 Settings for auto-assigning roles based on a sent Phrase<br/>
 
 
@@ -277,7 +276,8 @@ Settings for auto-assigning roles based on a sent Phrase<br/>
 | `rolebyphrase removerole` |  | Removes a role and its relations. | |
 <br/>
 
-### Trivia <br/>
+### Trivia
+<br/>
 
 
 
@@ -286,7 +286,8 @@ Settings for auto-assigning roles based on a sent Phrase<br/>
 | `trivia` |  |  | |
 <br/>
 
-### account <br/>
+### account
+<br/>
 
 
 
