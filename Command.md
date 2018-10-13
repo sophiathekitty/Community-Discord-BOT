@@ -2,6 +2,50 @@ Help
 ---
 These are the commands you can use with Miunie
 <br/><br/>
+
+[Admin](#admin) <br/>
+
+[Announcements](#announcements)<br/>
+
+[Welcome](#welcome)<br/>
+
+[Leave](#leave)<br/>
+
+[Basics](#basics)<br/>
+
+[Blog](#blog)<br/>
+
+[CommandInfoFileCreator](#commandinfofilecreator)<br/>
+
+[Economy](#economy)<br/>
+
+[Misc](#misc)<br/>
+
+[Prefix](#prefix)<br/>
+
+[Reminder](#reminder)<br/>
+
+[Tasks](#tasks)<br/>
+
+[Bots](#bots)<br/>
+
+[ServerSetup](#serversetup)<br/>
+
+[SetTimeZone](#settimezone)<br/>
+
+[Tag](#tag)<br/>
+
+[PersonalTags](#personaltags)<br/>
+
+[Voice](#voice)<br/>
+
+[RoleByPhrase](#rolebyphrase)<br/>
+
+[Trivia](#trivia)<br/>
+
+[account](#account)<br/>
+
+<br/><br/>
 ### Admin <br/>
 
 
@@ -25,7 +69,6 @@ These are the commands you can use with Miunie
 
 ### Announcements <br/>
 Settings for announcements<br/>
-
 
 | Command | Description | Remarks |
 | --- | --- | --- |
