@@ -9,11 +9,11 @@ using System.Linq;
 
 namespace CommunityBot.Modules
 {
-    public class CommandInfoFileCreator : ModuleBase<MiunieCommandContext>
+    public class CommandInfoFileGenerator : ModuleBase<MiunieCommandContext>
     {
         private readonly CommandService _service;
 
-        public CommandInfoFileCreator(CommandService service)
+        public CommandInfoFileGenerator(CommandService service)
         {
             _service = service;
         }
@@ -37,7 +37,7 @@ namespace CommunityBot.Modules
 
         private async Task AddModuleString(ModuleInfo module, StringBuilder builder)
         {
-            if (module == null) { return; }
+            if (module is null) { return; }
             var descriptionBuilder = new List<string>();
             var duplicateChecker = new List<string>();
             descriptionBuilder.Add("\n\n| Command | Description | Remarks |\n| --- | --- | --- |");

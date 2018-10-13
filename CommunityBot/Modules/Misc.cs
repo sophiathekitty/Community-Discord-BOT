@@ -153,7 +153,7 @@ namespace CommunityBot.Modules
 
         private async Task AddModuleEmbedField(ModuleInfo module, EmbedBuilder builder)
         {
-            if (module == null) return;
+            if (module is null) return;
             var descriptionBuilder = new List<string>();
             var duplicateChecker = new List<string>();
             foreach (var cmd in module.Commands)
