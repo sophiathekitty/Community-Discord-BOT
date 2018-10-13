@@ -24,10 +24,13 @@ namespace CommunityBot.Modules.RoleAssignments
             var relations = rbp.Relations.Any() ? string.Join("\n", rbp.Relations.Select(r => $"Phrase {r.PhraseIndex} => Role {r.RoleIdIndex}")) : "No relations created\nAdd one with `rbp addRelation PHRASE-ID ROLE-ID`";
 
             var embed = new EmbedBuilder();
+            embed.WithColor(Color.Blue);
             embed.WithTitle($"Role Assignments for {Context.Guild.Name}");
             embed.AddField("Phrases", phrases);
             embed.AddField("Roles", roles);
             embed.AddField("Relations", relations);
+            embed.WithFooter(Global.GetRandomDidYouKnow());
+            embed.WithCurrentTimestamp();
 
             await Context.Channel.SendMessageAsync("", embed: embed.Build());
         }
@@ -44,7 +47,7 @@ namespace CommunityBot.Modules.RoleAssignments
             }
             else
             {
-                await ReplyAsync("Something went wrong...");
+                await ReplyAsync("I work 24 hours a day so something went wrong...");
                 Console.WriteLine(result.ToString());
             }
         }
@@ -61,7 +64,7 @@ namespace CommunityBot.Modules.RoleAssignments
             }
             else
             {
-                await ReplyAsync("Something went wrong...");
+                await ReplyAsync("Well, this was a total waste of time, something went wrong...");
                 Console.WriteLine(result.ToString());
             }
         }
@@ -78,7 +81,7 @@ namespace CommunityBot.Modules.RoleAssignments
             }
             else
             {
-                await ReplyAsync("Something went wrong...");
+                await ReplyAsync("That's just what I need, great! Terrific!, something went wrong...");
                 Console.WriteLine(result.ToString());
             }
         }
