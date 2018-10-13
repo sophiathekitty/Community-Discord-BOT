@@ -26,7 +26,7 @@ These are the commands you can use with Miunie
 
 <br/><br/>
 ### Admin
-<br/>
+
 
 
 
@@ -48,7 +48,6 @@ These are the commands you can use with Miunie
 <br/>
 
 ### Announcements
-<br/>
 Settings for announcements<br/>
 
 
@@ -59,7 +58,7 @@ Settings for announcements<br/>
 <br/>
 
 ### Welcome
-<br/>
+
 DM a joining user a random message out of the ones defined.<br/>
 
 
@@ -71,7 +70,7 @@ DM a joining user a random message out of the ones defined.<br/>
 <br/>
 
 ### Leave
-<br/>
+
 Announce a leaving user in the set announcement channelwith a random message out of the ones defined.<br/>
 
 
@@ -83,7 +82,7 @@ Announce a leaving user in the set announcement channelwith a random message out
 <br/>
 
 ### Basics
-<br/>
+
 
 
 
@@ -93,7 +92,7 @@ Announce a leaving user in the set announcement channelwith a random message out
 <br/>
 
 ### Blog
-<br/>
+
 Enables you to create a block that people can subscribe to so they don't miss out if you publish a new one<br/>
 
 
@@ -106,7 +105,7 @@ Enables you to create a block that people can subscribe to so they don't miss ou
 <br/>
 
 ### CommandInfoFileCreator
-<br/>
+
 
 
 
@@ -116,7 +115,7 @@ Enables you to create a block that people can subscribe to so they don't miss ou
 <br/>
 
 ### Economy
-<br/>
+
 
 
 
@@ -132,7 +131,7 @@ Enables you to create a block that people can subscribe to so they don't miss ou
 <br/>
 
 ### Misc
-<br/>
+
 
 
 
@@ -151,7 +150,7 @@ Enables you to create a block that people can subscribe to so they don't miss ou
 <br/>
 
 ### Prefix
-<br/>
+
 Setting for the Bots prefix on this server<br/>
 
 
@@ -163,7 +162,7 @@ Setting for the Bots prefix on this server<br/>
 <br/>
 
 ### Reminder
-<br/>
+
 Tell the bot to remind you in some amount of time. The bot will send you a DM with the text you specified.<br/>
 
 
@@ -175,7 +174,7 @@ Tell the bot to remind you in some amount of time. The bot will send you a DM wi
 <br/>
 
 ### Tasks
-<br/>
+
 Settings for the repeated task that run in the background<br/>
 
 
@@ -188,7 +187,7 @@ Settings for the repeated task that run in the background<br/>
 <br/>
 
 ### Bots
-<br/>
+
 Allows access to pending and archived invite links to bots. This allows for you to submit your invite links for bots so that the guild's managers can add them.<br/>
 
 
@@ -201,7 +200,7 @@ Allows access to pending and archived invite links to bots. This allows for you 
 <br/>
 
 ### ServerSetup
-<br/>
+
 
 
 
@@ -213,7 +212,7 @@ Allows access to pending and archived invite links to bots. This allows for you 
 <br/>
 
 ### SetTimeZone
-<br/>
+
 
 
 
@@ -223,7 +222,7 @@ Allows access to pending and archived invite links to bots. This allows for you 
 <br/>
 
 ### Tag
-<br/>
+
 Permanently assing a message to a keyword (for this server) which the bot will repeat if someone uses this command with that keyword.<br/>
 
 
@@ -237,7 +236,7 @@ Permanently assing a message to a keyword (for this server) which the bot will r
 <br/>
 
 ### PersonalTags
-<br/>
+
 Permanently assing a message to a keyword (global for you) which the bot will repeat if you use this command with that keyword.<br/>
 
 
@@ -251,7 +250,7 @@ Permanently assing a message to a keyword (global for you) which the bot will re
 <br/>
 
 ### Voice
-<br/>
+
 
 
 
@@ -261,7 +260,7 @@ Permanently assing a message to a keyword (global for you) which the bot will re
 <br/>
 
 ### RoleByPhrase
-<br/>
+
 Settings for auto-assigning roles based on a sent Phrase<br/>
 
 
@@ -277,7 +276,7 @@ Settings for auto-assigning roles based on a sent Phrase<br/>
 <br/>
 
 ### Trivia
-<br/>
+
 
 
 
@@ -287,7 +286,7 @@ Settings for auto-assigning roles based on a sent Phrase<br/>
 <br/>
 
 ### account
-<br/>
+
 
 
 
