@@ -11,7 +11,7 @@ namespace CommunityBot.Modules
 {
     public class CommandInfoFileCreator : ModuleBase<MiunieCommandContext>
     {
-        private CommandService _service;
+        private readonly CommandService _service;
 
         public CommandInfoFileCreator(CommandService service)
         {
@@ -27,7 +27,7 @@ namespace CommunityBot.Modules
             var moduleBuilder = new StringBuilder();
             foreach (var module in _service.Modules)
             {
-                await AddModuleString(module, moduleBuilder);
+                await AddModuleString(module, moduleBuilder).ConfigureAwait(false);
                 builder.Append($"[{module.Name}](#{module.Name.ToLower().Replace(' ', '-')})<br/>\n");
             }
             builder.Append($"\n<br/><br/>\n{moduleBuilder}");
@@ -37,14 +37,14 @@ namespace CommunityBot.Modules
 
         private async Task AddModuleString(ModuleInfo module, StringBuilder builder)
         {
-            if (module == null) return;
+            if (module == null) { return; }
             var descriptionBuilder = new List<string>();
             var duplicateChecker = new List<string>();
             descriptionBuilder.Add("\n\n| Command | Description | Remarks |\n| --- | --- | --- |");
             foreach (var cmd in module.Commands)
             {
                 var result = await cmd.CheckPreconditionsAsync(Context);
-                if (!result.IsSuccess || duplicateChecker.Contains(cmd.Aliases.First())) continue;
+                if (!result.IsSuccess || duplicateChecker.Contains(cmd.Aliases.First())) { continue; }
                 duplicateChecker.Add(cmd.Aliases.First());
 
                 var cmdDescription = $"| `{cmd.Aliases.First()}` | {cmd.Summary} | {cmd.Remarks} |";
