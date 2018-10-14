@@ -60,7 +60,7 @@ Here are some good things to think about when creating a commit:
 :bulb: _An easy way to see if the commit message is correct is by placing it in the sentence "This commit will \_\_\_\_\_\_\_\_\_\_\_\_."_
 
 #### For GitHub Desktop:
-_Please ignore the commit message here: it is not written present tense._
+_Please ignore the commit message here: it is not written in present tense._
 [![Commiting files in GitHub Desktop](https://services.github.com/on-demand/images/gifs/github-desktop/making-commits-locally.gif)](https://services.github.com/on-demand/github-desktop/add-commits-github-desktop)
 
 #### For command line:
