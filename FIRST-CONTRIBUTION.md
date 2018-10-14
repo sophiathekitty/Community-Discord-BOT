@@ -22,7 +22,7 @@ Before starting, make sure that...
 _Try clicking the image if you don't understand a step. Still don't understand? Ask us on our [discord server](https://discord.gg/R9j8DJF)!_
 
 ### 1. Fork the repository
-_Don't know what a fork is? (other than the the kitchen utensil_ :wink:_) Take a look in [Resources](#resources) before continuing_ :smile:
+_Don't know what a fork is? (other than the kitchen utensil_ :wink:_) Take a look in [Resources](#resources) before continuing_ :smile:
 [![Fork the repository](https://github-images.s3.amazonaws.com/help/bootcamp/Bootcamp-Fork.png)](https://guides.github.com/activities/forking/#fork)
 
 ### 2. Clone your forked repository
