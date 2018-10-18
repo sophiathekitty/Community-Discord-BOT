@@ -39,7 +39,7 @@ namespace CommunityBot
                 // c.ForSingletonOf<ConnectionService>().UseIfNone<DiscordConnectionService>();
                 // c.ForSingletonOf<DiscordSocketClient>().UseIfNone<DiscordSocketClient>();
                 c.ForSingletonOf<Logger>().UseIfNone<Logger>();
-                c.ForSingletonOf<TriviaGame>().UseIfNone<TriviaGame>();
+                c.ForSingletonOf<TriviaGames>().UseIfNone<TriviaGames>();
                 c.ForSingletonOf<DiscordEventHandler>().UseIfNone<DiscordEventHandler>();
                 c.ForSingletonOf<CommandHandler>().UseIfNone<CommandHandler>();
                 c.ForSingletonOf<CommandService>().UseIfNone<CommandService>();
