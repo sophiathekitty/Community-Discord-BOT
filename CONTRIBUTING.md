@@ -4,7 +4,7 @@
 
 * [Setting up Miunie](https://github.com/petrspelos/Community-Discord-BOT#getting-started) - _Explains how to get a development version ready._
 * [First time contributing](https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github) - _Free course walking you through your first contribution._
-* [Discord Server](https://discord.gg/R9j8DJF) - _Contributors get a cool role._
+* [Discord Server](https://discord.gg/cGhEZuk) - _Contributors get a cool role._
 * [Discord .NET Docs](https://docs.stillu.cc/) - _Documentation for the library we're using._
 
 ## How to submit changes
@@ -13,7 +13,7 @@ If you're new to GitHub, we highly suggest you check out the **First time contri
 
 With Miunie, a pull request must pass all Unit Tests and get a code review by a staff member. Once you create it, however, don't worry, we will check it as soon as possible.
 
-:blush: We all make mistakes, so don't worry about it. After all, it's a learning experience. If you have any questions, feel free to ask on our [Discord Server](https://discord.gg/R9j8DJF) or in the appropriate comment section. Nobody is here to mock anyone and we appreciate **any contribution** no matter how small.
+:blush: We all make mistakes, so don't worry about it. After all, it's a learning experience. If you have any questions, feel free to ask on our [Discord Server](https://discord.gg/cGhEZuk) or in the appropriate comment section. Nobody is here to mock anyone and we appreciate **any contribution** no matter how small.
 
 ### First time contributing
 Here are some tips to help you understand our style before you contribute your first changes.
