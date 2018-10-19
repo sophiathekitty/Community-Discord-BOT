@@ -1,4 +1,5 @@
-﻿using CommunityBot.Features.Economy;
+﻿using System;
+using CommunityBot.Features.Economy;
 using CommunityBot.Features.GlobalAccounts;
 using Discord;
 using Discord.Commands;
@@ -128,6 +129,10 @@ namespace CommunityBot.Modules
             if (result == TransferResult.SelfTransfer)
             {
                 await ReplyAsync(":negative_squared_cross_mark: You can't gift yourself...\n**And you KNOW it!**");
+            }
+            else if (result == TransferResult.TransferToBot)
+            {
+                await ReplyAsync(":negative_squared_cross_mark: Come on! Did you forget who had given it to you?");
             }
             else if (result == TransferResult.NotEnoughMiunies)
             {
