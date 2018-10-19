@@ -126,23 +126,22 @@ namespace CommunityBot.Modules
             // UserToUser alone doesn't mean much.
             var result = Transfer.UserToUser(Context.User, target, amount);
 
-            switch (result)
+            if (result == TransferResult.SelfTransfer)
             {
-                case TransferResult.SelfTransfer:
-                    await ReplyAsync(":negative_squared_cross_mark: You can't gift yourself...\n**And you KNOW it!**");
-                    break;
-                case TransferResult.TransferToBot:
-                    await ReplyAsync(":negative_squared_cross_mark: Come on! Did you forget who had given it to you?");
-                    break;
-                case TransferResult.NotEnoughMiunies:
-                    var userAccount = GlobalUserAccounts.GetUserAccount(Context.User.Id);
-                    await ReplyAsync($":negative_squared_cross_mark: You don't have that much Minuies! You only have {userAccount.Miunies}.");
-                    break;
-                case TransferResult.Success:
-                    await ReplyAsync($":white_check_mark: {Context.User.Username} has given {target.Username} {amount} Minuies!");
-                    break;
-                default:
-                    throw new InvalidOperationException($"It's definitely not a valid enum const {result}");
+                await ReplyAsync(":negative_squared_cross_mark: You can't gift yourself...\n**And you KNOW it!**");
+            }
+            else if (result == TransferResult.TransferToBot)
+            {
+                await ReplyAsync(":negative_squared_cross_mark: Come on! Did you forget who had given it to you?");
+            }
+            else if (result == TransferResult.NotEnoughMiunies)
+            {
+                var userAccount = GlobalUserAccounts.GetUserAccount(Context.User.Id);
+                await ReplyAsync($":negative_squared_cross_mark: You don't have that much Minuies! You only have {userAccount.Miunies}.");
+            }
+            else if (result == TransferResult.Success)
+            {
+                await ReplyAsync($":white_check_mark: {Context.User.Username} has given {target.Username} {amount} Minuies!");
             }
         }
 
