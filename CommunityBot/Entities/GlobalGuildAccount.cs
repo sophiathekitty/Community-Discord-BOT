@@ -17,7 +17,7 @@ namespace CommunityBot.Entities
 
         public ulong AnnouncementChannelId { get; private set; }
 
-        public IReadOnlyList<string> Prefixes { get; private set; } = new List<string>();
+        public IReadOnlyList<string> Prefixes { get; set; } = new List<string>();
 
         public IReadOnlyList<string> WelcomeMessages { get; private set; } = new List<string> { };
 
