@@ -6,6 +6,8 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Lamar;
 using CommunityBot.Features.Onboarding;
+using CommunityBot.Features.Economy;
+using CommunityBot.Features.GlobalAccounts;
 
 namespace CommunityBot
 {
@@ -49,6 +51,8 @@ namespace CommunityBot
                 c.ForSingletonOf<ListManager>().UseIfNone<ListManager>();
                 c.ForSingletonOf<IOnboarding>().UseIfNone<Onboarding>();
                 c.ForSingletonOf<Features.Onboarding.Tasks.HelloWorldTask>().UseIfNone<Features.Onboarding.Tasks.HelloWorldTask>();
+                c.ForSingletonOf<IGlobalUserAccountProvider>().UseIfNone<GlobalUserAccountProvider>();
+                c.ForSingletonOf<IDailyMiunies>().UseIfNone<Daily>();
             });
         }
     }

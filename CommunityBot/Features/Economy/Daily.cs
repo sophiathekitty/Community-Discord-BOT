@@ -1,26 +1,34 @@
 ﻿using System;
+using System.Collections.Generic;
 using CommunityBot.Features.GlobalAccounts;
 
 namespace CommunityBot.Features.Economy
 {
-    public static class Daily
+    public class Daily : IDailyMiunies
     {
-        public struct DailyResult {
-            public bool Success;
-            public TimeSpan RefreshTimeSpan;
-        }
+        private readonly IGlobalUserAccountProvider globalUserAccountProvider;
 
-        public static DailyResult GetDaily(ulong userId)
+        public Daily(IGlobalUserAccountProvider globalUserAccountProvider)
         {
-            var account = GlobalUserAccounts.GetUserAccount(userId);
-            var difference = DateTime.UtcNow - account.LastDaily.AddDays(1);
+            this.globalUserAccountProvider = globalUserAccountProvider;
+        }
+        
+        public void GetDaily(ulong userId)
+        {
+            var account = globalUserAccountProvider.GetById(userId);
+            var sinceLastDaily = DateTime.UtcNow - account.LastDaily;
 
-            if (difference.TotalHours < 0) return new DailyResult { Success = false, RefreshTimeSpan = difference };
+            if (sinceLastDaily.TotalHours < 24)
+            {
+                var e = new InvalidOperationException(Constants.ExDailyTooSoon);
+                e.Data.Add("sinceLastDaily", sinceLastDaily);
+                throw e;
+            }
 
             account.Miunies += Constants.DailyMuiniesGain;
             account.LastDaily = DateTime.UtcNow;
-            GlobalUserAccounts.SaveAccounts(userId);
-            return new DailyResult { Success = true };
+
+            globalUserAccountProvider.SaveByIds(userId);
         }
     }
 }

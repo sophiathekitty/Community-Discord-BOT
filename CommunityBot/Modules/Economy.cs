@@ -14,19 +14,25 @@ namespace CommunityBot.Modules
 {
     public class Economy : ModuleBase<MiunieCommandContext>
     {
+        private readonly IDailyMiunies dailyMiunies;
+
+        public Economy(IDailyMiunies dailyMiunies)
+        {
+            this.dailyMiunies = dailyMiunies;
+        }
+
         [Command("Daily"), Remarks("Gives you some Miunies but can only be used once a day")]
         [Alias("GetDaily", "ClaimDaily")]
         public async Task GetDaily()
         {
-            var result = Daily.GetDaily(Context.User.Id);
-
-            if (result.Success)
+            try
             {
+                dailyMiunies.GetDaily(Context.User.Id);
                 await ReplyAsync($"Here's {Constants.DailyMuiniesGain} miunies, {Context.User.Mention}! Just for you...");
             }
-            else
+            catch (InvalidOperationException e)
             {
-                var timeSpanString = string.Format("{0:%h} hours {0:%m} minutes {0:%s} seconds", result.RefreshTimeSpan);
+                var timeSpanString = string.Format("{0:%h} hours {0:%m} minutes {0:%s} seconds", new TimeSpan(24,0,0).Subtract((TimeSpan)e.Data["sinceLastDaily"]));
                 await ReplyAsync($"You already got your daily, {Context.User.Mention}.\nCome back in {timeSpanString}.");
             }
         }

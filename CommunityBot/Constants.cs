@@ -26,5 +26,8 @@ namespace CommunityBot
             "You get a couple Miunies for sending messages (with a short cooldown).", 
             "A lot of commands have shorter and easier to use aliases!"
         }.AsReadOnly();
+
+        // Exception messages
+        public static readonly string ExDailyTooSoon = "Cannot give daily sooner than 24 hours after the last one.";
     }
 }
