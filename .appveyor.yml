@@ -15,11 +15,11 @@ test_script:
 
     echo installing-opencover
 
-    nuget install OpenCover -OutputDirectory packages -Version 4.6.519
+    &('nuget') ('install', 'OpenCover', '-OutputDirectory packages', '-Version 4.6.519')
     
     echo installing-coveralls
     
-    dotnet tool install coveralls.net --version 
+    &('dotnet') ('tool', 'install', 'coveralls.net', '--version 1.0.0', '--tool-path tools')
     
     echo final
     
