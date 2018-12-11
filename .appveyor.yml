@@ -10,15 +10,18 @@ build_script:
   - dotnet build -c Release
 test_script:
 - ps: >-
-    dotnet test CommunityBot.NUnit.Tests/CommunityBot.NUnit.Tests.csproj --test-adapter-path:. --logger:Appveyor
-    
-    echo coverage
-    
-    &('dotnet') ('test', 'CommunityBot.NUnit.Tests', '/p:CollectCoverage=true', '/p:"Include=[CommunityBot]*"', '/p:"Exclude=[NUnit3.TestAdapter]*"', '/p:CoverletOutputFormat=opencover')
+
+    &('dotnet') ('test', 'CommunityBot.NUnit.Tests/CommunityBot.NUnit.Tests.csproj', '/p:CollectCoverage=true', '/p:"Include=[CommunityBot]*"', '/p:"Exclude=[NUnit3.TestAdapter]*"', '/p:CoverletOutputFormat=opencover', '--test-adapter-path:.', '--logger:Appveyor')
+
+    echo installing-opencover
 
     nuget install OpenCover -OutputDirectory packages -Version 4.6.519
     
+    echo installing-coveralls
+    
     dotnet tool install coveralls.net --version 
+    
+    echo final
     
     if (Get-Variable 'COVERALLS_REPO_TOKEN' -Scope Global -ErrorAction 'Ignore')
     {
