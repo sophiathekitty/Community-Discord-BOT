@@ -160,7 +160,7 @@ namespace CommunityBot.Modules
             var embB = new EmbedBuilder()
                 .WithTitle("Your Reminders (Times are in UTC / GMT+0)")
                 .WithFooter("Did you know? " + Global.GetRandomDidYouKnow())
-                .WithDescription("To delete a reminder ust use the command `reminder delete <number>` " +
+                .WithDescription("To delete a reminder use the command `reminder delete <number>` " +
                                  "and the number is the one to the left of the Dates inside the [].");
 
             for (var i = 0; i < reminders.Count; i++)
