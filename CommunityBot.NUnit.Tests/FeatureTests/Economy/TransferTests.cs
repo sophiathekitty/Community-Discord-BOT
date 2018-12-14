@@ -9,12 +9,12 @@ using NUnit.Framework;
 
 namespace CommunityBot.NUnit.Tests.FeatureTests.Economy
 {
-    public class TransferTests
+    public static class TransferTests
     {
         // NOTE(Peter): These tests should probably be refactored.
 
         [Test]
-        public void TransferToSameUserThrows()
+        public static void TransferToSameUserThrows()
         {
             const ulong userId = 999777111;
             var globalUserAccountProviderMock = new Mock<IGlobalUserAccountProvider>();
@@ -27,7 +27,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests.Economy
         }
 
         [Test]
-        public void TransferToThisBotThrows()
+        public static void TransferToThisBotThrows()
         {
             const ulong userId = 555987;
             const ulong thisBotId = 123;
@@ -41,7 +41,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests.Economy
         }
 
         [Test]
-        public void TransferMiuniesUserDoesNotHaveThrows()
+        public static void TransferMiuniesUserDoesNotHaveThrows()
         {
             const ulong userId = 3358;
             const ulong targetUserId = 9000;
@@ -59,7 +59,7 @@ namespace CommunityBot.NUnit.Tests.FeatureTests.Economy
         }
 
         [Test]
-        public void TransferMiuniesValidTransferFunctions()
+        public static void TransferMiuniesValidTransferFunctions()
         {
             const ulong userId = 6658;
             const ulong targetUserId = 7785;
