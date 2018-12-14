@@ -29,5 +29,8 @@ namespace CommunityBot
 
         // Exception messages
         public static readonly string ExDailyTooSoon = "Cannot give daily sooner than 24 hours after the last one.";
+        public static readonly string ExTransferSameUser = "Cannot transfer miunies to the same user.";
+        public static readonly string ExTransferToMiunie = "Cannot transfer miunies to Miunie.";
+        public static readonly string ExTransferNotEnoughFunds = "Cannot transfer miunies, not enough funds.";
     }
 }

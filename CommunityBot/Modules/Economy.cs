@@ -15,10 +15,12 @@ namespace CommunityBot.Modules
     public class Economy : ModuleBase<MiunieCommandContext>
     {
         private readonly IDailyMiunies dailyMiunies;
+        private readonly IMiuniesTransfer miuniesTransfer;
 
-        public Economy(IDailyMiunies dailyMiunies)
+        public Economy(IDailyMiunies dailyMiunies, IMiuniesTransfer miuniesTransfer)
         {
             this.dailyMiunies = dailyMiunies;
+            this.miuniesTransfer = miuniesTransfer;
         }
 
         [Command("Daily"), Remarks("Gives you some Miunies but can only be used once a day")]
@@ -128,26 +130,15 @@ namespace CommunityBot.Modules
         [Alias("Give", "Gift")]
         public async Task TransferMinuies(IGuildUser target, ulong amount)
         {
-            // Class name left for readability
-            // UserToUser alone doesn't mean much.
-            var result = Transfer.UserToUser(Context.User, target, amount);
-
-            if (result == TransferResult.SelfTransfer)
+            try
             {
-                await ReplyAsync(":negative_squared_cross_mark: You can't gift yourself...\n**And you KNOW it!**");
+                miuniesTransfer.UserToUser(Context.User.Id, target.Id, amount);
+                await ReplyAsync($":white_check_mark: {Context.User.Username} has given {target.Username} {amount} minuies!");
             }
-            else if (result == TransferResult.TransferToBot)
+            catch (InvalidOperationException e)
             {
-                await ReplyAsync(":negative_squared_cross_mark: Come on! Did you forget who had given it to you?");
-            }
-            else if (result == TransferResult.NotEnoughMiunies)
-            {
-                var userAccount = GlobalUserAccounts.GetUserAccount(Context.User.Id);
-                await ReplyAsync($":negative_squared_cross_mark: You don't have that much Minuies! You only have {userAccount.Miunies}.");
-            }
-            else if (result == TransferResult.Success)
-            {
-                await ReplyAsync($":white_check_mark: {Context.User.Username} has given {target.Username} {amount} Minuies!");
+                // TODO: Get Miunie phrase based on exception message.
+                await ReplyAsync($":negative_squared_cross_mark: {e.Message}");
             }
         }
 

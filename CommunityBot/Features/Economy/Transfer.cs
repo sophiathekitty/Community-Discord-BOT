@@ -1,30 +1,36 @@
-﻿using CommunityBot.Features.GlobalAccounts;
-using Discord;
+﻿using System;
+using CommunityBot.DiscordAbstractions;
+using CommunityBot.Features.GlobalAccounts;
 
 namespace CommunityBot.Features.Economy
 {
-    internal static class Transfer
+    public class Transfer : IMiuniesTransfer
     {
-        internal enum TransferResult { Success, SelfTransfer, TransferToBot, NotEnoughMiunies }
+        private readonly IGlobalUserAccountProvider globalUserAccountProvider;
+        private readonly IDiscordSocketClient discordClient;
 
-        internal static TransferResult UserToUser(IUser from, IUser to, ulong amount)
+        public Transfer(IGlobalUserAccountProvider globalUserAccountProvider, IDiscordSocketClient discordClient)
         {
-            if (from.Id == to.Id) return TransferResult.SelfTransfer;
+            this.globalUserAccountProvider = globalUserAccountProvider;
+            this.discordClient = discordClient;
+        }
+
+        public void UserToUser(ulong sourceUserId, ulong targetUserId, ulong amount)
+        {
+            if (sourceUserId == targetUserId) { throw new InvalidOperationException(Constants.ExTransferSameUser); }
             
-            if (to.Id == Global.Client.CurrentUser.Id ) return TransferResult.TransferToBot;
+            if (targetUserId == discordClient.GetCurrentUser().Id) { throw new InvalidOperationException(Constants.ExTransferToMiunie); }
 
-            var transferSource = GlobalUserAccounts.GetUserAccount(from.Id);
+            var transferSource = globalUserAccountProvider.GetById(sourceUserId);
 
-            if (transferSource.Miunies < amount) return TransferResult.NotEnoughMiunies;
+            if (transferSource.Miunies < amount) { throw new InvalidOperationException(Constants.ExTransferNotEnoughFunds); }
 
-            var transferTarget = GlobalUserAccounts.GetUserAccount(to.Id);
+            var transferTarget = globalUserAccountProvider.GetById(targetUserId);
 
             transferSource.Miunies -= amount;
             transferTarget.Miunies += amount;
 
-            GlobalUserAccounts.SaveAccounts(transferSource.Id, transferTarget.Id);
-
-            return TransferResult.Success;
+            globalUserAccountProvider.SaveByIds(transferSource.Id, transferTarget.Id);
         }
     }
 }
