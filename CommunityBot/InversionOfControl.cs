@@ -1,4 +1,5 @@
 using CommunityBot.Configuration;
+using CommunityBot.DiscordAbstractions;
 using CommunityBot.Features.Trivia;
 using CommunityBot.Handlers;
 using CommunityBot.Features.Lists;
@@ -52,7 +53,9 @@ namespace CommunityBot
                 c.ForSingletonOf<IOnboarding>().UseIfNone<Onboarding>();
                 c.ForSingletonOf<Features.Onboarding.Tasks.HelloWorldTask>().UseIfNone<Features.Onboarding.Tasks.HelloWorldTask>();
                 c.ForSingletonOf<IGlobalUserAccountProvider>().UseIfNone<GlobalUserAccountProvider>();
+                c.ForSingletonOf<IDiscordSocketClient>().UseIfNone<DiscordSocketClientAbstraction>();
                 c.ForSingletonOf<IDailyMiunies>().UseIfNone<Daily>();
+                c.ForSingletonOf<IMiuniesTransfer>().UseIfNone<Transfer>();
             });
         }
     }
