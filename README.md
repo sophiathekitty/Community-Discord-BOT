@@ -37,7 +37,7 @@ This is a step by step guide to get Miunie ready on your machine and ready for d
 
 * The root directory of the project contains `CommunityBot.sln`, this is a Visual Studio solution file and you can open it with Visual Studio (see [prerequisites](#prerequisites)).
 
-* After the solution is loaded, right-click the CommunityBot project through the Solution Explorer in Visual Studio _(It has a little C# in a green box icon by default)_ and go to Properties. Under **Debug**, you will see an `Application arguments:` field. You can paste your [bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token) there. Application arguments are already added to `.gitignore` so you don't have to worry about accidentally making it public.
+* After the solution is loaded, right-click the CommunityBot project through the Solution Explorer in Visual Studio _(It has a little C# in a green box icon by default)_ and go to Properties. Under **Debug**, you will see an `Application arguments:` field. You can paste your [bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token) there. Application arguments are already added to `.gitignore` so you don't have to worry about accidentally making it public. Should include -token= before token. (Ex: -token=SDFAsdfdsASampleToken53SAasdfrRSD )
 
 * Once you save your changes from the previous step, you can compile and run the application.
     * In Visual Studio, a common way of doing this is with the `F5` or `Ctrl + F5` shortcut.
